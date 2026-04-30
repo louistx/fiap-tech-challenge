@@ -12,6 +12,8 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+
+app.UseSwaggerUI();
 app.UseHttpsRedirection();
 
 var summaries = new[]
