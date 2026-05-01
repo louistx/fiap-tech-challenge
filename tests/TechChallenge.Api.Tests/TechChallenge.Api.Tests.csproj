@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\TechChallenge.Api\TechChallenge.Api.csproj" />
+    <ProjectReference Include="..\..\src\TechChallenge.Api\TechChallenge.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>

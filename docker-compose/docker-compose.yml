@@ -1,0 +1,6 @@
+services:
+  techchallenge.api:
+    image: ${DOCKER_REGISTRY-}techchallengeapi
+    build:
+      context: ..
+      dockerfile: src/TechChallenge.Api/Dockerfile

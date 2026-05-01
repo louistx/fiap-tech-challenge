@@ -1,4 +1,14 @@
 <Solution>
-  <Project Path="src/TechChallenge.Api/TechChallenge.Api.csproj" />
-  <Project Path="tests/TechChallenge.Api.Tests/TechChallenge.Api.Tests.csproj" Id="6204b2ec-ff4a-4654-bb9a-5dbdecf7099f" />
+  <Folder Name="/0 - docs/" >
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/1 - presentation/">
+    <Project Path="src/TechChallenge.Api/TechChallenge.Api.csproj" />
+  </Folder>
+  <Folder Name="/2 - tests/">
+    <Project Path="tests/TechChallenge.Api.Tests/TechChallenge.Api.Tests.csproj" />
+  </Folder>
+  <Project Path="docker-compose/docker-compose.dcproj">
+    <Build />
+  </Project>
 </Solution>
