@@ -12,8 +12,8 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["TechChallenge.Api/TechChallenge.Api.csproj", "TechChallenge.Api/"]
-RUN dotnet restore "./TechChallenge.Api/TechChallenge.Api.csproj"
+COPY ["src/TechChallenge.Api/TechChallenge.Api.csproj", "TechChallenge.Api/"]
+RUN dotnet restore "./src/TechChallenge.Api/TechChallenge.Api.csproj"
 COPY . .
 WORKDIR "/src/TechChallenge.Api"
 RUN dotnet build "./TechChallenge.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
