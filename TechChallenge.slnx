@@ -1,11 +1,20 @@
 <Solution>
-  <Folder Name="/0 - docs/" >
+  <Folder Name="/0 - docs/">
     <File Path="README.md" />
   </Folder>
   <Folder Name="/1 - presentation/">
     <Project Path="src/TechChallenge.Api/TechChallenge.Api.csproj" />
   </Folder>
-  <Folder Name="/2 - tests/">
+  <Folder Name="/2 - domain/">
+    <Project Path="src/TechChallenge.Domain/TechChallenge.Domain.csproj" />
+  </Folder>
+  <Folder Name="/3 - application/">
+    <Project Path="src/TechChallenge.Application/TechChallenge.Application.csproj" />
+  </Folder>
+  <Folder Name="/4 - infrastructure/">
+    <Project Path="src/TechChallenge.Infrastructure/TechChallenge.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/5 - tests/">
     <Project Path="tests/TechChallenge.Api.Tests/TechChallenge.Api.Tests.csproj" />
   </Folder>
   <Project Path="docker-compose/docker-compose.dcproj">
