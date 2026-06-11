@@ -17,4 +17,9 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.7" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\Request\Mappings\" />
+    <Folder Include="Models\Response\" />
+  </ItemGroup>
+
 </Project>
