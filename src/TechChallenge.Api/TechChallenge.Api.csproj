@@ -22,4 +22,8 @@
     <Folder Include="Models\Response\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\TechChallenge.Infrastructure.IoC\TechChallenge.Infrastructure.IoC.csproj" />
+  </ItemGroup>
+
 </Project>
