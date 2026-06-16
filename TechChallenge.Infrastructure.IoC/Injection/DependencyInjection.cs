@@ -5,7 +5,7 @@ using TechChallenge.Infrastructure.Abstractions.Repositories;
 using TechChallenge.Infrastructure.Database.Context;
 using TechChallenge.Infrastructure.Database.Repositories;
 
-namespace TechChallenge.Infrastructure.IoC
+namespace TechChallenge.Infrastructure.IoC.Injection
 {
     public static class DependencyInjection
     {
