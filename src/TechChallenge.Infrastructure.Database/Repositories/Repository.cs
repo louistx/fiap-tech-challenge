@@ -1,7 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using TechChallenge.Infrastructure.Abstractions.Repositories;
 using TechChallenge.Infrastructure.Database.Context;
 
