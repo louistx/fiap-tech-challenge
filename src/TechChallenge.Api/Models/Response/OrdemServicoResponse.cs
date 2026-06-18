@@ -1,0 +1,15 @@
+namespace TechChallenge.Api.Models.Response;
+
+public class OrdemServicoResponse
+{
+    public Guid Id { get; set; }
+    public string Descricao { get; set; } = string.Empty;
+    public Guid ClienteResponsavelId { get; set; }
+    public Guid FuncionarioResponsavelId { get; set; }
+    public Guid VeiculoId { get; set; }
+    public DateTime DataCriacao { get; set; }
+    public DateTime? DataAtualizacao { get; set; }
+    public DateTime? DataFinalizacao { get; set; }
+    public List<ServicoResponse> Servicos { get; set; } = [];
+    public List<ProdutoResponse> Produtos { get; set; } = [];
+}
