@@ -11,6 +11,17 @@ public class CriarFuncionarioService
 
     public bool CriarFuncionario(CriarFuncionarioCommand command)
     {
-        
+        var funcionario = new Funcionario
+        {
+            Id = Guid.NewGuid(),
+            Nome = command.Nome,
+            CPF = command.CPF,
+            RG = command.RG,
+            Endereco = command.Endereco,
+            Cargo = command.Cargo
+        };
+
+        _funcionarioRepository.AddAsync(funcionario).GetAwaiter().GetResult();
+        return true;
     }
 }
