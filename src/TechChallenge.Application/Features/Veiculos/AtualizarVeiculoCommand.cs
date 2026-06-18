@@ -2,8 +2,9 @@ using TechChallenge.Domain.Enums;
 
 namespace TechChallenge.Application.Features.Veiculos;
 
-public class CriarVeiculoCommand
+public class AtualizarVeiculoCommand
 {
+    public Guid Id { get; set; }
     public TipoVeiculo Tipo { get; set; }
     public string Placa { get; set; }
     public string Modelo { get; set; }

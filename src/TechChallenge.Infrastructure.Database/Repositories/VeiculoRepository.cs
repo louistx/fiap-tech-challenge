@@ -1,9 +1,11 @@
-﻿using TechChallenge.Infrastructure.Abstractions.Repositories;
+﻿using Microsoft.EntityFrameworkCore;
+using TechChallenge.Domain.Entities;
+using TechChallenge.Infrastructure.Abstractions.Repositories;
 using TechChallenge.Infrastructure.Database.Context;
 
 namespace TechChallenge.Infrastructure.Database.Repositories
 {
-    public class VeiculoRepository : IVeiculoRepository
+    public class VeiculoRepository : Repository<Veiculo>, IVeiculoRepository
     {
         #region Properties
 
@@ -13,7 +15,7 @@ namespace TechChallenge.Infrastructure.Database.Repositories
 
         #region Constructor
 
-        public VeiculoRepository(ApplicationDbContext context)
+        public VeiculoRepository(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }
@@ -21,6 +23,11 @@ namespace TechChallenge.Infrastructure.Database.Repositories
         #endregion
 
         #region Members of IVeiculoRepository
+
+        public async Task<Veiculo?> GetByPlacaAsync(string placa)
+        {
+            return await _context.Veiculo.FirstOrDefaultAsync(v => v.Placa == placa);
+        }
 
         #endregion
     }
