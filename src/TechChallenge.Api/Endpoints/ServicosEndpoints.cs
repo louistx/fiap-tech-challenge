@@ -1,5 +1,6 @@
 using TechChallenge.Api.Models.Request;
 using TechChallenge.Api.Models.Response;
+using TechChallenge.Application.Features.Servicos;
 
 namespace TechChallenge.Api.Endpoints;
 
@@ -33,46 +34,73 @@ public static class ServicosEndpoints
             .WithName("AtualizarServico")
             .WithSummary("Atualiza um serviço existente")
             .WithDescription("Atualiza as informações de um serviço existente no banco de dados")
+            .Produces(StatusCodes.Status200OK)
             .ProducesValidationProblem();
 
         group.MapDelete("/{id}", ExcluirServicoAsync)
             .WithName("ExcluirServico")
             .WithSummary("Exclui um serviço existente")
             .WithDescription("Exclui um serviço existente do banco de dados")
-            .ProducesValidationProblem();
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound);
 
         return app;
     }
 
-    private static IResult CriarServicoAsync(CriarServicoRequest request)
+    private static IResult CriarServicoAsync(CriarServicoRequest request, CriarServicoService service)
     {
-        return Results.Created($"/api/v1/servicos/{Guid.NewGuid()}", Guid.NewGuid());
-    }
-
-    private static IResult ObterServicoAsync(Guid id)
-    {
-        var servico = new ServicoResponse
+        var command = new CriarServicoCommand
         {
-            Id = id,
-            Descricao = "Descrição do Serviço",
-            Valor = 0
+            Descricao = request.Descricao,
+            Valor = request.Valor
         };
 
-        return Results.Ok(servico);
+        var id = service.CriarServico(command);
+        return Results.Created($"/api/v1/servicos/{id}", id);
     }
 
-    private static IResult ListarServicosAsync()
+    private static IResult ObterServicoAsync(Guid id, ObterServicoService service)
     {
-        return Results.Ok(new List<ServicoResponse>());
+        var servico = service.ObterServico(id);
+
+        return Results.Ok(new ServicoResponse
+        {
+            Id = servico.Id,
+            Descricao = servico.Descricao,
+            Valor = servico.Valor
+        });
     }
 
-    private static IResult AtualizarServicoAsync(Guid id, AtualizarServicoRequest request)
+    private static IResult ListarServicosAsync(ListarServicosService service)
     {
+        var servicos = service.ListarServicos();
+
+        var response = servicos.Select(s => new ServicoResponse
+        {
+            Id = s.Id,
+            Descricao = s.Descricao,
+            Valor = s.Valor
+        }).ToList();
+
+        return Results.Ok(response);
+    }
+
+    private static IResult AtualizarServicoAsync(Guid id, AtualizarServicoRequest request, AtualizarServicoService service)
+    {
+        var command = new AtualizarServicoCommand
+        {
+            Id = id,
+            Descricao = request.Descricao,
+            Valor = request.Valor
+        };
+
+        service.AtualizarServico(command);
         return Results.Ok();
     }
 
-    private static IResult ExcluirServicoAsync(Guid id)
+    private static IResult ExcluirServicoAsync(Guid id, ExcluirServicoService service)
     {
-        return Results.Ok();
+        service.ExcluirServico(id);
+        return Results.NoContent();
     }
 }

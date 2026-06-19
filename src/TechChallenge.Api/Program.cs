@@ -1,12 +1,12 @@
 using TechChallenge.Api.Endpoints;
 using TechChallenge.Api.Middleware;
+using TechChallenge.Infrastructure.IoC.Injection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 

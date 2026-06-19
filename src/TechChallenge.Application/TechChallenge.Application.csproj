@@ -18,4 +18,9 @@
       <None Remove="Domain\**" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\..\TechChallenge.Infrastructure.Abstractions\TechChallenge.Infrastructure.Abstractions.csproj" />
+      <ProjectReference Include="..\TechChallenge.Domain\TechChallenge.Domain.csproj" />
+    </ItemGroup>
+
 </Project>

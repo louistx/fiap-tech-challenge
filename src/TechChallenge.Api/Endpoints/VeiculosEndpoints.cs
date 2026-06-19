@@ -1,5 +1,6 @@
 using TechChallenge.Api.Models.Request;
 using TechChallenge.Api.Models.Response;
+using TechChallenge.Application.Features.Veiculos;
 
 namespace TechChallenge.Api.Endpoints;
 
@@ -33,49 +34,103 @@ public static class VeiculosEndpoints
             .WithName("AtualizarVeiculo")
             .WithSummary("Atualiza um veículo existente")
             .WithDescription("Atualiza as informações de um veículo existente no banco de dados")
+            .Produces(StatusCodes.Status200OK)
             .ProducesValidationProblem();
 
         group.MapDelete("/{id}", ExcluirVeiculoAsync)
             .WithName("ExcluirVeiculo")
             .WithSummary("Exclui um veículo existente")
             .WithDescription("Exclui um veículo existente do banco de dados")
-            .ProducesValidationProblem();
+            .Produces(StatusCodes.Status204NoContent)
+            .Produces(StatusCodes.Status404NotFound);
 
         return app;
     }
 
-    private static IResult CriarVeiculoAsync(CriarVeiculoRequest request)
+    private static IResult CriarVeiculoAsync(CriarVeiculoRequest request, CriarVeiculoService service)
     {
-        return Results.Created($"/api/v1/veiculos/{Guid.NewGuid()}", Guid.NewGuid());
-    }
-
-    private static IResult ObterVeiculoAsync(Guid id)
-    {
-        var veiculo = new VeiculoResponse
+        var command = new CriarVeiculoCommand
         {
-            Id = id,
-            Placa = "ABC1234",
-            Modelo = "Modelo",
-            Cor = "Cor",
-            Marca = "Marca",
-            Valor = 0
+            Tipo = request.Tipo,
+            Placa = request.Placa,
+            Modelo = request.Modelo,
+            Marca = request.Marca,
+            Cor = request.Cor,
+            Ano = request.Ano,
+            Quilometragem = request.Quilometragem,
+            Valor = request.Valor,
+            ClienteId = request.ClienteId
         };
 
-        return Results.Ok(veiculo);
+        var id = service.CriarVeiculo(command);
+        return Results.Created($"/api/v1/veiculos/{id}", id);
     }
 
-    private static IResult ListarVeiculosAsync()
+    private static IResult ObterVeiculoAsync(Guid id, ObterVeiculoService service)
     {
-        return Results.Ok(new List<VeiculoResponse>());
+        var veiculo = service.ObterVeiculo(id);
+
+        var response = new VeiculoResponse
+        {
+            Id = veiculo.Id,
+            Tipo = veiculo.Tipo,
+            Placa = veiculo.Placa,
+            Modelo = veiculo.Modelo,
+            Marca = veiculo.Marca,
+            Cor = veiculo.Cor,
+            Ano = veiculo.Ano,
+            Quilometragem = veiculo.Quilometragem,
+            Valor = veiculo.Valor,
+            ClienteId = veiculo.ClienteId
+        };
+
+        return Results.Ok(response);
     }
 
-    private static IResult AtualizarVeiculoAsync(Guid id, AtualizarVeiculoRequest request)
+    private static IResult ListarVeiculosAsync(ListarVeiculosService service)
     {
+        var veiculos = service.ListarVeiculos();
+
+        var response = veiculos.Select(v => new VeiculoResponse
+        {
+            Id = v.Id,
+            Tipo = v.Tipo,
+            Placa = v.Placa,
+            Modelo = v.Modelo,
+            Marca = v.Marca,
+            Cor = v.Cor,
+            Ano = v.Ano,
+            Quilometragem = v.Quilometragem,
+            Valor = v.Valor,
+            ClienteId = v.ClienteId
+        }).ToList();
+
+        return Results.Ok(response);
+    }
+
+    private static IResult AtualizarVeiculoAsync(Guid id, AtualizarVeiculoRequest request, AtualizarVeiculoService service)
+    {
+        var command = new AtualizarVeiculoCommand
+        {
+            Id = id,
+            Tipo = request.Tipo,
+            Placa = request.Placa,
+            Modelo = request.Modelo,
+            Marca = request.Marca,
+            Cor = request.Cor,
+            Ano = request.Ano,
+            Quilometragem = request.Quilometragem,
+            Valor = request.Valor,
+            ClienteId = request.ClienteId
+        };
+
+        service.AtualizarVeiculo(command);
         return Results.Ok();
     }
 
-    private static IResult ExcluirVeiculoAsync(Guid id)
+    private static IResult ExcluirVeiculoAsync(Guid id, ExcluirVeiculoService service)
     {
-        return Results.Ok();
+        service.ExcluirVeiculo(id);
+        return Results.NoContent();
     }
 }

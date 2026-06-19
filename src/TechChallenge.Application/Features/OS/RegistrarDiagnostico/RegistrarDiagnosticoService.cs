@@ -16,6 +16,6 @@ public class RegistrarDiagnosticoService
     // RF11 + RF - Verificacao de Estoque
     public bool RegistrarDiagnostico(RegistrarDiagnosticoCommand command)
     {
-        
+
     }
 }
