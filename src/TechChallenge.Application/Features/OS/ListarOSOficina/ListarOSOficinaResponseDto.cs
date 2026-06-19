@@ -1,10 +1,14 @@
+using TechChallenge.Domain.Enums;
+using TechChallenge.Infrastructure.Abstractions.Repositories;
+
 namespace TechChallenge.Application.Features.OS.ListarOSOficina;
 
 public class ListarOSOficinaResponseDto
 {
+    public Guid Id { get; set; }
     public string PlacaVeiculo { get; set; }
     public string NomeMecanico { get; set; }
-    public string RelatolInicial { get; set; }
+    public string RelatoInicial { get; set; }
 }
 
 public class ListarOSOficinaService
@@ -16,9 +20,17 @@ public class ListarOSOficinaService
         _ordemServicoRepository = ordemServicoRepository;
     }
 
-    // RF12: apenas OS com status Em Diagnostico, retorna infos basicas
-    public IEnumerable<ListarOSOficinaResponseDto> ListarOSOficina(ListarOSOficinaQuery query)
+    // RF12: retorna OS Em Diagnóstico com informações básicas para exibição na oficina
+    public List<ListarOSOficinaResponseDto> ListarOSOficina()
     {
-        
+        var ordens = _ordemServicoRepository.GetByStatusAsync(eStatusOS.EmDiagnostico).GetAwaiter().GetResult();
+
+        return ordens.Select(os => new ListarOSOficinaResponseDto
+        {
+            Id = os.Id,
+            PlacaVeiculo = os.Veiculo?.Placa ?? string.Empty,
+            NomeMecanico = os.FuncionarioResponsavel?.Nome ?? string.Empty,
+            RelatoInicial = os.Descricao
+        }).ToList();
     }
 }

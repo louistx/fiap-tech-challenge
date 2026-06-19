@@ -22,4 +22,10 @@
     <Folder Include="Models\Response\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\TechChallenge.Infrastructure.IoC\TechChallenge.Infrastructure.IoC.csproj" />
+    <ProjectReference Include="..\TechChallenge.Application\TechChallenge.Application.csproj" />
+    <ProjectReference Include="..\TechChallenge.Domain\TechChallenge.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

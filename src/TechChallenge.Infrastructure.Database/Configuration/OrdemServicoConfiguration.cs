@@ -28,6 +28,9 @@ namespace TechChallenge.Infrastructure.Database.Configuration
                 .HasForeignKey(os => os.VeiculoId)
                 .IsRequired();
 
+            builder.Property(os => os.Status)
+                .IsRequired();
+
             builder.Property(os => os.DataCriacao)
                 .IsRequired();
 
@@ -36,6 +39,14 @@ namespace TechChallenge.Infrastructure.Database.Configuration
 
             builder.Property(os => os.DataFinalizacao)
                 .IsRequired(false);
+
+            builder.HasMany(os => os.Servicos)
+                .WithMany()
+                .UsingEntity("OrdemServicoServico");
+
+            builder.HasMany(os => os.Produtos)
+                .WithMany()
+                .UsingEntity("OrdemServicoProduto");
         }
     }
 }
