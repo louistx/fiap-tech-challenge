@@ -1,6 +1,17 @@
 services:
   techchallenge.api:
     image: ${DOCKER_REGISTRY-}techchallengeapi
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=db;Database=TechChallenge;User Id=sa;Password=Dev@123;"
+    depends_on:
+      - db
     build:
       context: ..
       dockerfile: src/TechChallenge.Api/Dockerfile
+
+  db:
+    image: mcr.microsoft.com/mssql/server:2025-latest
+    environment:
+      MSSQL_SA_PASSWORD: "Dev@123456"
+      ACCEPT_EULA: "Y"
+      
