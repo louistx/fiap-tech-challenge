@@ -16,6 +16,7 @@
     <Project Path="TechChallenge.Infrastructure.IoC/TechChallenge.Infrastructure.IoC.csproj" Id="08b3a101-7172-491d-a728-02e933217b7c" />
   </Folder>
   <Folder Name="/5 - tests/">
+    <Project Path="tests/TechChallenge.IntegrationTests/TechChallenge.IntegrationTests.csproj" />
     <Project Path="tests\TechChallenge.Tests\TechChallenge.Tests.csproj" />
   </Folder>
   <Project Path="docker-compose/docker-compose.dcproj">
