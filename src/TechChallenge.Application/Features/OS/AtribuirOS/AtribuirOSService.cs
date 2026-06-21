@@ -12,6 +12,6 @@ public class AtribuirOSService
     // RF10: mecanico so pode ter 1 OS por vez; status muda para Em Diagnostico
     public bool AtribuirOS(AtribuirOSCommand command)
     {
-        
+
     }
 }

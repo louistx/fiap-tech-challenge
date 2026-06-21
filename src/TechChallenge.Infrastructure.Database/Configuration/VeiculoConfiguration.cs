@@ -23,9 +23,24 @@ namespace TechChallenge.Infrastructure.Database.Configuration
             builder.Property(v => v.Cor)
                 .HasMaxLength(20);
 
+            builder.Property(v => v.Tipo)
+                .IsRequired();
+
+            builder.Property(v => v.Ano)
+                .IsRequired();
+
+            builder.Property(v => v.Quilometragem)
+                .HasPrecision(18, 2)
+                .IsRequired();
+
             builder.Property(v => v.Valor)
                 .HasPrecision(18, 2)
                 .IsRequired();
+
+            builder.HasOne(v => v.ClienteResponsavel)
+                .WithMany()
+                .HasForeignKey(v => v.ClienteId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using TechChallenge.Application.Features.Veiculos;
 using TechChallenge.Infrastructure.Abstractions.Repositories;
 using TechChallenge.Infrastructure.Database.Context;
 using TechChallenge.Infrastructure.Database.Repositories;
@@ -24,6 +25,12 @@ namespace TechChallenge.Infrastructure.IoC.Injection
             services.AddScoped<IProdutoRepository, ProdutoRepository>();
             services.AddScoped<IServicoRepository, ServicoRepository>();
             services.AddScoped<IVeiculoRepository, VeiculoRepository>();
+
+            services.AddScoped<CriarVeiculoService>();
+            services.AddScoped<ObterVeiculoService>();
+            services.AddScoped<ListarVeiculosService>();
+            services.AddScoped<AtualizarVeiculoService>();
+            services.AddScoped<ExcluirVeiculoService>();
 
             return services;
         }
