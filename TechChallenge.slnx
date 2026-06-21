@@ -12,10 +12,11 @@
   </Folder>
   <Folder Name="/4 - Infrastructure/">
     <Project Path="src/TechChallenge.Infrastructure.Database/TechChallenge.Infrastructure.Database.csproj" />
-    <Project Path="TechChallenge.Infrastructure.Abstractions/TechChallenge.Infrastructure.Abstractions.csproj" Id="6286fdf1-880c-49e7-a7b4-5f31cad45d39" />
-    <Project Path="TechChallenge.Infrastructure.IoC/TechChallenge.Infrastructure.IoC.csproj" Id="08b3a101-7172-491d-a728-02e933217b7c" />
+    <Project Path="src/TechChallenge.Infrastructure.Abstractions/TechChallenge.Infrastructure.Abstractions.csproj" Id="6286fdf1-880c-49e7-a7b4-5f31cad45d39" />
+    <Project Path="src/TechChallenge.Infrastructure.IoC/TechChallenge.Infrastructure.IoC.csproj" Id="08b3a101-7172-491d-a728-02e933217b7c" />
   </Folder>
   <Folder Name="/5 - tests/">
+    <Project Path="tests/TechChallenge.IntegrationTests/TechChallenge.IntegrationTests.csproj" />
     <Project Path="tests\TechChallenge.Tests\TechChallenge.Tests.csproj" />
   </Folder>
   <Project Path="docker-compose/docker-compose.dcproj">
