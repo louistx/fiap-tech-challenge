@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\src\TechChallenge.Application\TechChallenge.Application.csproj" />
     <ProjectReference Include="..\src\TechChallenge.Infrastructure.Database\TechChallenge.Infrastructure.Database.csproj" />
     <ProjectReference Include="..\TechChallenge.Infrastructure.Abstractions\TechChallenge.Infrastructure.Abstractions.csproj" />
   </ItemGroup>

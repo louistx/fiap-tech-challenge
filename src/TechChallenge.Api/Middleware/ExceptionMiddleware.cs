@@ -41,10 +41,12 @@ namespace TechChallenge.Api.Middleware
                     NotFoundException => StatusCodes.Status404NotFound,
                     BadRequestException => StatusCodes.Status400BadRequest,
                     UnauthorizedException => StatusCodes.Status401Unauthorized,
+                    KeyNotFoundException => StatusCodes.Status404NotFound,
+                    InvalidOperationException => StatusCodes.Status400BadRequest,
                     _ => StatusCodes.Status500InternalServerError
                 };
 
-                httpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
+                httpContext.Response.StatusCode = statusCode;
                 httpContext.Response.ContentType = "application/json";
 
                 var response = _env.IsDevelopment()

@@ -19,6 +19,6 @@ public class ListarOSOficinaService
     // RF12: apenas OS com status Em Diagnostico, retorna infos basicas
     public IEnumerable<ListarOSOficinaResponseDto> ListarOSOficina(ListarOSOficinaQuery query)
     {
-        
+        throw new NotImplementedException();
     }
 }

@@ -11,6 +11,6 @@ public class ListarOSService
 
     public IEnumerable<object> ListarOS(ListarOSQuery query)
     {
-        
+
     }
 }
