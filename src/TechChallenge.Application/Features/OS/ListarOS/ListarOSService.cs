@@ -1,3 +1,6 @@
+using TechChallenge.Domain.Entities;
+using TechChallenge.Infrastructure.Abstractions.Repositories;
+
 namespace TechChallenge.Application.Features.OS.ListarOS;
 
 public class ListarOSService
@@ -9,8 +12,11 @@ public class ListarOSService
         _ordemServicoRepository = ordemServicoRepository;
     }
 
-    public IEnumerable<object> ListarOS(ListarOSQuery query)
+    public List<OrdemServico> ListarOS(ListarOSQuery query)
     {
+        if (query.Status.HasValue)
+            return _ordemServicoRepository.GetByStatusAsync(query.Status.Value).GetAwaiter().GetResult();
 
+        return _ordemServicoRepository.GetAllAsync().GetAwaiter().GetResult();
     }
 }

@@ -2,7 +2,8 @@
 
 namespace TechChallenge.Infrastructure.Abstractions.Repositories
 {
-    public interface IServicoRepository : IRepository<Servico>
+    public interface IVeiculoRepository : IRepository<Veiculo>
     {
+        Task<Veiculo?> GetByPlacaAsync(string placa);
     }
 }

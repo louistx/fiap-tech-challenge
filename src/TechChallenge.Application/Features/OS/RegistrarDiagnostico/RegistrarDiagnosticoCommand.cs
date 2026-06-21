@@ -2,7 +2,7 @@ namespace TechChallenge.Application.Features.OS.RegistrarDiagnostico;
 
 public class RegistrarDiagnosticoCommand
 {
-    public int OrdemServicoId { get; set; }
-    public List<int> ServicosIds { get; set; }
-    public List<int> ItensInventarioIds { get; set; }
+    public Guid OrdemServicoId { get; set; }
+    public List<Guid> ServicosIds { get; set; } = [];
+    public List<Guid> ProdutosIds { get; set; } = [];
 }

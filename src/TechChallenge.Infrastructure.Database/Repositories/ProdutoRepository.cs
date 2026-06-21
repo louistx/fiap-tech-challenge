@@ -1,27 +1,11 @@
-﻿using TechChallenge.Infrastructure.Abstractions.Repositories;
+﻿using TechChallenge.Domain.Entities;
+using TechChallenge.Infrastructure.Abstractions.Repositories;
 using TechChallenge.Infrastructure.Database.Context;
 
 namespace TechChallenge.Infrastructure.Database.Repositories
 {
-    public class ProdutoRepository : IProdutoRepository
+    public class ProdutoRepository : Repository<Produto>, IProdutoRepository
     {
-        #region Properties
-
-        private readonly ApplicationDbContext _context;
-
-        #endregion
-
-        #region Constructor
-
-        public ProdutoRepository(ApplicationDbContext context)
-        {
-            _context = context;
-        }
-
-        #endregion
-
-        #region Members of IProdutoRepository
-
-        #endregion
+        public ProdutoRepository(ApplicationDbContext context) : base(context) { }
     }
 }

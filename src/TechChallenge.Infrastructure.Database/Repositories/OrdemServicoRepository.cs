@@ -1,9 +1,12 @@
-﻿using TechChallenge.Infrastructure.Abstractions.Repositories;
+﻿using Microsoft.EntityFrameworkCore;
+using TechChallenge.Domain.Entities;
+using TechChallenge.Domain.Enums;
+using TechChallenge.Infrastructure.Abstractions.Repositories;
 using TechChallenge.Infrastructure.Database.Context;
 
 namespace TechChallenge.Infrastructure.Database.Repositories
 {
-    public class OrdemServicoRepository : IOrdemServicoRepository
+    public class OrdemServicoRepository : Repository<OrdemServico>, IOrdemServicoRepository
     {
         #region Properties
 
@@ -13,7 +16,7 @@ namespace TechChallenge.Infrastructure.Database.Repositories
 
         #region Constructor
 
-        public OrdemServicoRepository(ApplicationDbContext context)
+        public OrdemServicoRepository(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }
@@ -21,6 +24,24 @@ namespace TechChallenge.Infrastructure.Database.Repositories
         #endregion
 
         #region Members of IOrdemServicoRepository
+
+        public async Task<List<OrdemServico>> GetByStatusAsync(eStatusOS status)
+        {
+            return await _context.OrdemServico
+                .Where(os => os.Status == status)
+                .Include(os => os.Veiculo)
+                .Include(os => os.FuncionarioResponsavel)
+                .Include(os => os.ClienteResponsavel)
+                .ToListAsync();
+        }
+
+        public async Task<OrdemServico?> GetOSAtivaMecanicoAsync(Guid mecanicoId)
+        {
+            return await _context.OrdemServico
+                .FirstOrDefaultAsync(os =>
+                    os.FuncionarioResponsavelId == mecanicoId &&
+                    os.Status == eStatusOS.EmDiagnostico);
+        }
 
         #endregion
     }

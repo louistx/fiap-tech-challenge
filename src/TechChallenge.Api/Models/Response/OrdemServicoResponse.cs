@@ -1,9 +1,12 @@
+using TechChallenge.Domain.Enums;
+
 namespace TechChallenge.Api.Models.Response;
 
 public class OrdemServicoResponse
 {
     public Guid Id { get; set; }
     public string Descricao { get; set; } = string.Empty;
+    public eStatusOS Status { get; set; }
     public Guid ClienteResponsavelId { get; set; }
     public Guid FuncionarioResponsavelId { get; set; }
     public Guid VeiculoId { get; set; }
