@@ -26,7 +26,6 @@ public class AtualizarClienteService
         cliente.Nome = command.Nome;
         cliente.Cpf = command.Cpf;
         cliente.Rg = command.Rg;
-        cliente.Endereco ??= new Endereco { Id = Guid.NewGuid() };
         cliente.Endereco.Logradouro = command.Logradouro;
         cliente.Endereco.Complemento = command.Complemento;
         cliente.Endereco.Numero = command.Numero;

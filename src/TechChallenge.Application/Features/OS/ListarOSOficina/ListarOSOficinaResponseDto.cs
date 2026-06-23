@@ -28,8 +28,8 @@ public class ListarOSOficinaService
         return ordens.Select(os => new ListarOSOficinaResponseDto
         {
             Id = os.Id,
-            PlacaVeiculo = os.Veiculo?.Placa ?? string.Empty,
-            NomeMecanico = os.FuncionarioResponsavel?.Nome ?? string.Empty,
+            PlacaVeiculo = os.Veiculo.Placa,
+            NomeMecanico = os.FuncionarioResponsavel.Nome,
             RelatoInicial = os.Descricao
         }).ToList();
     }

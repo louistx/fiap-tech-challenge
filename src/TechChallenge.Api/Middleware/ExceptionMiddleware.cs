@@ -71,8 +71,8 @@ namespace TechChallenge.Api.Middleware
                 }
 
                 var response = _env.IsDevelopment()
-                    ? new ExceptionConfiguration(statusCode.ToString(), ex.Message, ex.StackTrace?.ToString() ?? string.Empty)
-                    : new ExceptionConfiguration(statusCode.ToString(), "Ocorreu um erro ao processar a sua requisição. Por favor, entre em contato conosco e comunique o ocorrido.", ex.Message, ex.StackTrace?.ToString() ?? string.Empty);
+                    ? new ExceptionConfiguration(statusCode.ToString(), ex.Message, ex.StackTrace ?? string.Empty)
+                    : new ExceptionConfiguration(statusCode.ToString(), "Ocorreu um erro ao processar a sua requisição. Por favor, entre em contato conosco e comunique o ocorrido.", ex.Message, ex.StackTrace ?? string.Empty);
 
                 var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
                 var json = JsonSerializer.Serialize(response, options);

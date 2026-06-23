@@ -121,7 +121,7 @@ public static class FuncionariosEndpoints
             Cpf = funcionario.Cpf,
             Rg = funcionario.Rg,
             Cargo = funcionario.TipoFuncionario.ToString(),
-            Endereco = funcionario.Endereco is null ? null : new EnderecoResponse
+            Endereco = new EnderecoResponse
             {
                 Id = funcionario.Endereco.Id,
                 Logradouro = funcionario.Endereco.Logradouro,

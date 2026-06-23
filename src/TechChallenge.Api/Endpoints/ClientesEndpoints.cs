@@ -118,7 +118,7 @@ public static class ClientesEndpoints
             Nome = cliente.Nome,
             Cpf = cliente.Cpf,
             Rg = cliente.Rg,
-            Endereco = cliente.Endereco is null ? null : new EnderecoResponse
+            Endereco = new EnderecoResponse
             {
                 Id = cliente.Endereco.Id,
                 Logradouro = cliente.Endereco.Logradouro,

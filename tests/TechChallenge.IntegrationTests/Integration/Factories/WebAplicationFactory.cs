@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using TechChallenge.Infrastructure.Database.Context;
 
-namespace TechChallenge.Api.Tests.Integration.Factories;
+namespace TechChallenge.IntegrationTests.Integration.Factories;
 
 public class WebAplicationFactory<TProgram> : WebApplicationFactory<TProgram> where TProgram : class
 {
@@ -39,8 +39,8 @@ public class WebAplicationFactory<TProgram> : WebApplicationFactory<TProgram> wh
 
             services.AddDbContext<ApplicationDbContext>((container, options) =>
             {
-                var connection = container.GetRequiredService<DbConnection>();
-                options.UseSqlite(connection);
+                var dbConnection = container.GetRequiredService<DbConnection>();
+                options.UseSqlite(dbConnection);
             });
 
             var provider = services.BuildServiceProvider();
