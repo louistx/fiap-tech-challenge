@@ -220,9 +220,8 @@ flowchart TD
 | --- | --- |
 | `TechChallenge.Api` | Endpoints REST, contratos HTTP, Swagger e middleware |
 | `TechChallenge.Application` | Casos de uso, comandos e coordenação dos fluxos |
-| `TechChallenge.Application.Abstractions` | Contratos da camada de aplicação |
+| `TechChallenge.Application.Abstractions` | Contratos da camada de aplicação, incluindo contratos dos repositórios |
 | `TechChallenge.Domain` | Entidades, enums e regras centrais do negócio |
-| `TechChallenge.Infrastructure.Abstractions` | Contratos dos repositórios |
 | `TechChallenge.Infrastructure.Database` | Entity Framework Core, contexto, configurações, migrations e repositórios |
 | `TechChallenge.Infrastructure.IoC` | Registro de dependências e composição da infraestrutura |
 | `TechChallenge.Tests` | Testes unitários |
@@ -257,11 +256,10 @@ flowchart TD
 ├── src/
 │   ├── TechChallenge.Api/             # API REST
 │   ├── TechChallenge.Application/     # Casos de uso
-│   ├── TechChallenge.Application.Abstractions/
+│   ├── TechChallenge.Application.Abstractions/ # Contratos da aplicação e repositórios
 │   ├── TechChallenge.Domain/          # Entidades de domínio
-│   └── TechChallenge.Infrastructure.Database/
-├── TechChallenge.Infrastructure.Abstractions/
-├── TechChallenge.Infrastructure.IoC/
+│   ├── TechChallenge.Infrastructure.Database/
+│   └── TechChallenge.Infrastructure.IoC/
 ├── tests/
 │   ├── TechChallenge.Tests/
 │   └── TechChallenge.IntegrationTests/
