@@ -1,5 +1,4 @@
 using FluentValidation;
-using TechChallenge.Domain.Entities;
 using TechChallenge.Domain.Enums;
 using TechChallenge.Application.Abstractions.Repositories;
 

@@ -1,5 +1,4 @@
 using FluentValidation;
-using TechChallenge.Domain.Entities;
 using TechChallenge.Application.Abstractions.Repositories;
 
 namespace TechChallenge.Application.Features.Clientes.AtualizarCliente;
