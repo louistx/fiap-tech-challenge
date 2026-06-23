@@ -51,7 +51,7 @@ namespace TechChallenge.Infrastructure.Database.Context
                 throw new InvalidOperationException($"Connection string 'DefaultConnection' not found. Searched base path: {apiPath}");
             }
 
-            optionsBuilder.UseSqlServer(connectionString, b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName));
+            optionsBuilder.UseNpgsql(connectionString, b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName));
 
             return new ApplicationDbContext(optionsBuilder.Options);
         }

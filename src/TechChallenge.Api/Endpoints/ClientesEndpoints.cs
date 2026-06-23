@@ -1,5 +1,11 @@
 using TechChallenge.Api.Models.Request;
 using TechChallenge.Api.Models.Response;
+using TechChallenge.Application.Features.Clientes.AtualizarCliente;
+using TechChallenge.Application.Features.Clientes.CriarCliente;
+using TechChallenge.Application.Features.Clientes.ExcluirCliente;
+using TechChallenge.Application.Features.Clientes.ListarClientes;
+using TechChallenge.Application.Features.Clientes.ObterCliente;
+using TechChallenge.Domain.Entities;
 
 namespace TechChallenge.Api.Endpoints;
 
@@ -45,48 +51,84 @@ public static class ClientesEndpoints
         return app;
     }
 
-    private static IResult CriarClienteAsync(CriarClienteRequest request)
+    private static IResult CriarClienteAsync(CriarClienteRequest request, CriarClienteService service)
     {
-        var guid = Guid.NewGuid();
-        return Results.Created($"/api/v1/clientes/{guid}", guid);
-    }
-
-    private static IResult AtualizarClienteAsync(Guid id, AtualizarClienteRequest request)
-    {
-        return Results.Ok();
-    }
-
-    private static IResult ExcluirClienteAsync(Guid id)
-    {
-        return Results.Ok();
-    }
-
-    private static IResult ObterClienteAsync(Guid id)
-    {
-        var cliente = new ClienteResponse
+        var command = new CriarClienteCommand
         {
-            Id = id,
-            Nome = "Nome do Cliente",
-            Cpf = "00000000000",
-            Rg = "000000000",
-            Endereco = new EnderecoResponse
-            {
-                Id = Guid.NewGuid(),
-                Logradouro = "Logradouro",
-                Complemento = "Complemento",
-                Numero = "0",
-                Bairro = "Bairro",
-                Cidade = "Cidade",
-                Estado = "Estado",
-                Cep = "00000000"
-            }
+            Nome = request.Nome,
+            Cpf = request.Cpf,
+            Rg = request.Rg,
+            Logradouro = request.Endereco.Logradouro,
+            Complemento = request.Endereco.Complemento,
+            Numero = request.Endereco.Numero,
+            Bairro = request.Endereco.Bairro,
+            Cidade = request.Endereco.Cidade,
+            Estado = request.Endereco.Estado,
+            Cep = request.Endereco.Cep
         };
 
-        return Results.Ok(cliente);
+        var id = service.CriarCliente(command);
+        return Results.Created($"/api/v1/clientes/{id}", id);
     }
 
-    private static IResult ListarClientesAsync()
+    private static IResult AtualizarClienteAsync(Guid id, AtualizarClienteRequest request, AtualizarClienteService service)
     {
-        return Results.Ok(new List<ClienteResponse>());
+        var command = new AtualizarClienteCommand
+        {
+            Id = id,
+            Nome = request.Nome,
+            Cpf = request.Cpf,
+            Rg = request.Rg,
+            Logradouro = request.Endereco.Logradouro,
+            Complemento = request.Endereco.Complemento,
+            Numero = request.Endereco.Numero,
+            Bairro = request.Endereco.Bairro,
+            Cidade = request.Endereco.Cidade,
+            Estado = request.Endereco.Estado,
+            Cep = request.Endereco.Cep
+        };
+
+        service.AtualizarCliente(command);
+        return Results.Ok();
+    }
+
+    private static IResult ExcluirClienteAsync(Guid id, ExcluirClienteService service)
+    {
+        service.ExcluirCliente(new ExcluirClienteCommand { Id = id });
+        return Results.NoContent();
+    }
+
+    private static IResult ObterClienteAsync(Guid id, ObterClienteService service)
+    {
+        var cliente = service.ObterCliente(new ObterClienteQuery { Id = id });
+        return Results.Ok(MapearClienteResponse(cliente));
+    }
+
+    private static IResult ListarClientesAsync(ListarClientesService service)
+    {
+        var clientes = service.ListarClientes(new ListarClientesQuery());
+        return Results.Ok(clientes.Select(MapearClienteResponse).ToList());
+    }
+
+    private static ClienteResponse MapearClienteResponse(Cliente cliente)
+    {
+        return new ClienteResponse
+        {
+            Id = cliente.Id,
+            Nome = cliente.Nome,
+            Cpf = cliente.Cpf,
+            Rg = cliente.Rg,
+            Endereco = cliente.Endereco is null ? null : new EnderecoResponse
+            {
+                Id = cliente.Endereco.Id,
+                Logradouro = cliente.Endereco.Logradouro,
+                Complemento = cliente.Endereco.Complemento,
+                Numero = cliente.Endereco.Numero,
+                Bairro = cliente.Endereco.Bairro,
+                Cidade = cliente.Endereco.Cidade,
+                Estado = cliente.Endereco.Estado,
+                Cep = cliente.Endereco.Cep
+            }
+        };
     }
 }

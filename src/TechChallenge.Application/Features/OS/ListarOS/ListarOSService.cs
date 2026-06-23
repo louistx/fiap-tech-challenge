@@ -1,5 +1,5 @@
 using TechChallenge.Domain.Entities;
-using TechChallenge.Infrastructure.Abstractions.Repositories;
+using TechChallenge.Application.Abstractions.Repositories;
 
 namespace TechChallenge.Application.Features.OS.ListarOS;
 

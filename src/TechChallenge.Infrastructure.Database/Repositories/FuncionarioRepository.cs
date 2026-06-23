@@ -1,9 +1,11 @@
-﻿using TechChallenge.Infrastructure.Abstractions.Repositories;
+﻿using Microsoft.EntityFrameworkCore;
+using TechChallenge.Domain.Entities;
+using TechChallenge.Application.Abstractions.Repositories;
 using TechChallenge.Infrastructure.Database.Context;
 
 namespace TechChallenge.Infrastructure.Database.Repositories
 {
-    public class FuncionarioRepository : IFuncionarioRepository
+    public class FuncionarioRepository : Repository<Funcionario>, IFuncionarioRepository
     {
         #region Properties
 
@@ -13,7 +15,7 @@ namespace TechChallenge.Infrastructure.Database.Repositories
 
         #region Constructor
 
-        public FuncionarioRepository(ApplicationDbContext context)
+        public FuncionarioRepository(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }
@@ -21,6 +23,27 @@ namespace TechChallenge.Infrastructure.Database.Repositories
         #endregion
 
         #region Members of IFuncionarioRepository
+
+        public override async Task<Funcionario?> GetByIdAsync(Guid id)
+        {
+            return await _context.Funcionario
+                .Include(f => f.Endereco)
+                .FirstOrDefaultAsync(f => f.Id == id);
+        }
+
+        public override async Task<List<Funcionario>> GetAllAsync()
+        {
+            return await _context.Funcionario
+                .Include(f => f.Endereco)
+                .ToListAsync();
+        }
+
+        public async Task<Funcionario?> GetByDocumentAsync(string document)
+        {
+            return await _context.Funcionario
+                .Include(f => f.Endereco)
+                .FirstOrDefaultAsync(f => f.Cpf == document);
+        }
 
         #endregion
     }

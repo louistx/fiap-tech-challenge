@@ -1,5 +1,11 @@
 using TechChallenge.Api.Models.Request;
 using TechChallenge.Api.Models.Response;
+using TechChallenge.Application.Features.Inventario.AtualizarItemInventario;
+using TechChallenge.Application.Features.Inventario.CriarItemInventario;
+using TechChallenge.Application.Features.Inventario.ExcluirItemInventario;
+using TechChallenge.Application.Features.Inventario.ListarInventario;
+using TechChallenge.Application.Features.Inventario.ObterItemInventario;
+using TechChallenge.Domain.Entities;
 
 namespace TechChallenge.Api.Endpoints;
 
@@ -45,35 +51,56 @@ public static class InventarioEndpoints
         return app;
     }
 
-    private static IResult CriarItemInventarioAsync(CriarProdutoRequest request)
+    private static IResult CriarItemInventarioAsync(CriarProdutoRequest request, CriarItemInventarioService service)
     {
-        return Results.Created($"/api/v1/inventario/{Guid.NewGuid()}", Guid.NewGuid());
-    }
-
-    private static IResult ObterItemInventarioAsync(Guid id)
-    {
-        var produto = new ProdutoResponse
+        var command = new CriarItemInventarioCommand
         {
-            Id = id,
-            Descricao = "Descrição do Item",
-            Valor = 0
+            Descricao = request.Descricao,
+            Valor = request.Valor
         };
 
-        return Results.Ok(produto);
+        var id = service.CriarItemInventario(command);
+        return Results.Created($"/api/v1/produtos/{id}", id);
     }
 
-    private static IResult ListarInventarioAsync()
+    private static IResult ObterItemInventarioAsync(Guid id, ObterItemInventarioService service)
     {
-        return Results.Ok(new List<ProdutoResponse>());
+        var produto = service.ObterItemInventario(new ObterItemInventarioQuery { Id = id });
+        return Results.Ok(MapearProdutoResponse(produto));
     }
 
-    private static IResult AtualizarItemInventarioAsync(Guid id, AtualizarProdutoRequest request)
+    private static IResult ListarInventarioAsync(ListarInventarioService service)
     {
+        var produtos = service.ListarInventario(new ListarInventarioQuery());
+        return Results.Ok(produtos.Select(MapearProdutoResponse).ToList());
+    }
+
+    private static IResult AtualizarItemInventarioAsync(Guid id, AtualizarProdutoRequest request, AtualizarItemInventarioService service)
+    {
+        var command = new AtualizarItemInventarioCommand
+        {
+            Id = id,
+            Descricao = request.Descricao,
+            Valor = request.Valor
+        };
+
+        service.AtualizarItemInventario(command);
         return Results.Ok();
     }
 
-    private static IResult ExcluirItemInventarioAsync(Guid id)
+    private static IResult ExcluirItemInventarioAsync(Guid id, ExcluirItemInventarioService service)
     {
-        return Results.Ok();
+        service.ExcluirItemInventario(new ExcluirItemInventarioCommand { Id = id });
+        return Results.NoContent();
+    }
+
+    private static ProdutoResponse MapearProdutoResponse(Produto produto)
+    {
+        return new ProdutoResponse
+        {
+            Id = produto.Id,
+            Descricao = produto.Descricao,
+            Valor = produto.Valor
+        };
     }
 }

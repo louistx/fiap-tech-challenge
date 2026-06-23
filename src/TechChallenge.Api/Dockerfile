@@ -12,10 +12,15 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["src/TechChallenge.Api/TechChallenge.Api.csproj", "TechChallenge.Api/"]
+COPY ["src/TechChallenge.Api/TechChallenge.Api.csproj", "src/TechChallenge.Api/"]
+COPY ["src/TechChallenge.Application/TechChallenge.Application.csproj", "src/TechChallenge.Application/"]
+COPY ["src/TechChallenge.Application.Abstractions/TechChallenge.Application.Abstractions.csproj", "src/TechChallenge.Application.Abstractions/"]
+COPY ["src/TechChallenge.Domain/TechChallenge.Domain.csproj", "src/TechChallenge.Domain/"]
+COPY ["src/TechChallenge.Infrastructure.Database/TechChallenge.Infrastructure.Database.csproj", "src/TechChallenge.Infrastructure.Database/"]
+COPY ["src/TechChallenge.Infrastructure.IoC/TechChallenge.Infrastructure.IoC.csproj", "src/TechChallenge.Infrastructure.IoC/"]
 RUN dotnet restore "./src/TechChallenge.Api/TechChallenge.Api.csproj"
 COPY . .
-WORKDIR "/src/TechChallenge.Api"
+WORKDIR "/src/src/TechChallenge.Api"
 RUN dotnet build "./TechChallenge.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage

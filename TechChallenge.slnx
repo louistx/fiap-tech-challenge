@@ -5,14 +5,15 @@
   <Folder Name="/1 - presentation/">
     <Project Path="src/TechChallenge.Api/TechChallenge.Api.csproj" />
   </Folder>
-  <Folder Name="/2 - application/">
+  <Folder Name="/2 - domain/">
+    <Project Path="src/TechChallenge.Domain/TechChallenge.Domain.csproj" />
+  </Folder>
+  <Folder Name="/3 - application/">
     <Project Path="src/TechChallenge.Application.Abstractions/TechChallenge.Application.Abstractions.csproj" />
     <Project Path="src/TechChallenge.Application/TechChallenge.Application.csproj" />
-    <Project Path="src/TechChallenge.Domain/TechChallenge.Domain.csproj" />
   </Folder>
   <Folder Name="/4 - Infrastructure/">
     <Project Path="src/TechChallenge.Infrastructure.Database/TechChallenge.Infrastructure.Database.csproj" />
-    <Project Path="src/TechChallenge.Infrastructure.Abstractions/TechChallenge.Infrastructure.Abstractions.csproj" Id="6286fdf1-880c-49e7-a7b4-5f31cad45d39" />
     <Project Path="src/TechChallenge.Infrastructure.IoC/TechChallenge.Infrastructure.IoC.csproj" Id="08b3a101-7172-491d-a728-02e933217b7c" />
   </Folder>
   <Folder Name="/5 - tests/">

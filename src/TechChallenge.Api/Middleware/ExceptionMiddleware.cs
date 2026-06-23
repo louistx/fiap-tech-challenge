@@ -1,4 +1,6 @@
 ﻿using System.Text.Json;
+using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using TechChallenge.Infrastructure.IoC.Exceptions;
 
 namespace TechChallenge.Api.Middleware
@@ -40,6 +42,7 @@ namespace TechChallenge.Api.Middleware
                 {
                     NotFoundException => StatusCodes.Status404NotFound,
                     BadRequestException => StatusCodes.Status400BadRequest,
+                    ValidationException => StatusCodes.Status400BadRequest,
                     UnauthorizedException => StatusCodes.Status401Unauthorized,
                     KeyNotFoundException => StatusCodes.Status404NotFound,
                     InvalidOperationException => StatusCodes.Status400BadRequest,
@@ -48,6 +51,24 @@ namespace TechChallenge.Api.Middleware
 
                 httpContext.Response.StatusCode = statusCode;
                 httpContext.Response.ContentType = "application/json";
+
+                if (ex is ValidationException validationException)
+                {
+                    var errors = validationException.Errors
+                        .GroupBy(error => error.PropertyName)
+                        .ToDictionary(
+                            group => group.Key,
+                            group => group.Select(error => error.ErrorMessage).ToArray());
+
+                    var problemDetails = new ValidationProblemDetails(errors)
+                    {
+                        Status = statusCode,
+                        Title = "Ocorreram erros de validação."
+                    };
+
+                    await httpContext.Response.WriteAsJsonAsync(problemDetails);
+                    return;
+                }
 
                 var response = _env.IsDevelopment()
                     ? new ExceptionConfiguration(statusCode.ToString(), ex.Message, ex.StackTrace?.ToString() ?? string.Empty)

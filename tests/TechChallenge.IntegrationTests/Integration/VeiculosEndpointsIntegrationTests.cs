@@ -1,29 +1,34 @@
-using System.Net.Http.Json;
-using Microsoft.AspNetCore.Mvc.Testing;
-using TechChallenge.Api.Models.Response;
+using FluentAssertions;
+using System.Net;
+using System.Text;
+using TechChallenge.Api.Tests.Integration.Factories;
 
 namespace TechChallenge.Api.Tests.Integration;
 
-public class VeiculosEndpointsIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
+public class VeiculosEndpointsIntegrationTests : IClassFixture<WebAplicationFactory<Program>>
 {
     private readonly HttpClient _client;
-    private readonly WebApplicationFactory<Program> _factory;
 
-    public VeiculosEndpointsIntegrationTests(
-            WebApplicationFactory<Program> factory
-        )
+    public VeiculosEndpointsIntegrationTests(WebAplicationFactory<Program> factory)
     {
-        _factory = factory;
         _client = factory.CreateClient();
     }
     
     [Fact]
-    public void Test()
+    public async Task DeveRetornarBadRequestQuandoCriarVeiculoSemBody()
     {
-        // arrange
-        // act
-        var response = _client.PostAsync("/veiculos", null);
-        // assert
-        
+        var response = await _client.PostAsync("/api/v1/veiculos", null);
+
+        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task DeveRetornarBadRequestQuandoCriarVeiculoComBodyVazio()
+    {
+        using var content = new StringContent("{}", Encoding.UTF8, "application/json");
+
+        var response = await _client.PostAsync("/api/v1/veiculos", content);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 }

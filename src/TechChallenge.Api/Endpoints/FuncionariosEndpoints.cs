@@ -1,5 +1,11 @@
 using TechChallenge.Api.Models.Request;
 using TechChallenge.Api.Models.Response;
+using TechChallenge.Application.Features.Funcionarios.AtualizarFuncionario;
+using TechChallenge.Application.Features.Funcionarios.CriarFuncionario;
+using TechChallenge.Application.Features.Funcionarios.ExcluirFuncionario;
+using TechChallenge.Application.Features.Funcionarios.ListarFuncionarios;
+using TechChallenge.Application.Features.Funcionarios.ObterFuncionario;
+using TechChallenge.Domain.Entities;
 
 namespace TechChallenge.Api.Endpoints;
 
@@ -45,37 +51,87 @@ public static class FuncionariosEndpoints
         return app;
     }
 
-    private static IResult CriarFuncionarioAsync(CriarFuncionarioRequest request)
+    private static IResult CriarFuncionarioAsync(CriarFuncionarioRequest request, CriarFuncionarioService service)
     {
-        return Results.Created($"/api/v1/funcionarios/{Guid.NewGuid()}", Guid.NewGuid());
-    }
-
-    private static IResult ObterFuncionarioAsync(Guid id)
-    {
-        var funcionario = new FuncionarioResponse
+        var command = new CriarFuncionarioCommand
         {
-            Id = id,
-            Nome = "Nome do Funcionário",
-            Cpf = "00000000000",
-            Rg = "000000000",
-            Cargo = "Mecanico"
+            Nome = request.Nome,
+            Cpf = request.Cpf,
+            Rg = request.Rg,
+            Cargo = request.Cargo,
+            Logradouro = request.Endereco.Logradouro,
+            Complemento = request.Endereco.Complemento,
+            Numero = request.Endereco.Numero,
+            Bairro = request.Endereco.Bairro,
+            Cidade = request.Endereco.Cidade,
+            Estado = request.Endereco.Estado,
+            Cep = request.Endereco.Cep
         };
 
-        return Results.Ok(funcionario);
+        var id = service.CriarFuncionario(command);
+        return Results.Created($"/api/v1/funcionarios/{id}", id);
     }
 
-    private static IResult ListarFuncionariosAsync()
+    private static IResult ObterFuncionarioAsync(Guid id, ObterFuncionarioService service)
     {
-        return Results.Ok(new List<FuncionarioResponse>());
+        var funcionario = service.ObterFuncionario(new ObterFuncionarioQuery { Id = id });
+        return Results.Ok(MapearFuncionarioResponse(funcionario));
     }
 
-    private static IResult AtualizarFuncionarioAsync(Guid id, AtualizarFuncionarioRequest request)
+    private static IResult ListarFuncionariosAsync(ListarFuncionariosService service)
     {
+        var funcionarios = service.ListarFuncionarios(new ListarFuncionariosQuery());
+        return Results.Ok(funcionarios.Select(MapearFuncionarioResponse).ToList());
+    }
+
+    private static IResult AtualizarFuncionarioAsync(Guid id, AtualizarFuncionarioRequest request, AtualizarFuncionarioService service)
+    {
+        var command = new AtualizarFuncionarioCommand
+        {
+            Id = id,
+            Nome = request.Nome,
+            Cpf = request.Cpf,
+            Rg = request.Rg,
+            Cargo = request.Cargo,
+            Logradouro = request.Endereco.Logradouro,
+            Complemento = request.Endereco.Complemento,
+            Numero = request.Endereco.Numero,
+            Bairro = request.Endereco.Bairro,
+            Cidade = request.Endereco.Cidade,
+            Estado = request.Endereco.Estado,
+            Cep = request.Endereco.Cep
+        };
+
+        service.AtualizarFuncionario(command);
         return Results.Ok();
     }
 
-    private static IResult ExcluirFuncionarioAsync(Guid id)
+    private static IResult ExcluirFuncionarioAsync(Guid id, ExcluirFuncionarioService service)
     {
-        return Results.Ok();
+        service.ExcluirFuncionario(new ExcluirFuncionarioCommand { Id = id });
+        return Results.NoContent();
+    }
+
+    private static FuncionarioResponse MapearFuncionarioResponse(Funcionario funcionario)
+    {
+        return new FuncionarioResponse
+        {
+            Id = funcionario.Id,
+            Nome = funcionario.Nome,
+            Cpf = funcionario.Cpf,
+            Rg = funcionario.Rg,
+            Cargo = funcionario.TipoFuncionario.ToString(),
+            Endereco = funcionario.Endereco is null ? null : new EnderecoResponse
+            {
+                Id = funcionario.Endereco.Id,
+                Logradouro = funcionario.Endereco.Logradouro,
+                Complemento = funcionario.Endereco.Complemento,
+                Numero = funcionario.Endereco.Numero,
+                Bairro = funcionario.Endereco.Bairro,
+                Cidade = funcionario.Endereco.Cidade,
+                Estado = funcionario.Endereco.Estado,
+                Cep = funcionario.Endereco.Cep
+            }
+        };
     }
 }

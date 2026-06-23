@@ -1,14 +1,14 @@
 using TechChallenge.Domain.Enums;
-using TechChallenge.Infrastructure.Abstractions.Repositories;
+using TechChallenge.Application.Abstractions.Repositories;
 
 namespace TechChallenge.Application.Features.OS.ListarOSOficina;
 
 public class ListarOSOficinaResponseDto
 {
     public Guid Id { get; set; }
-    public string PlacaVeiculo { get; set; }
-    public string NomeMecanico { get; set; }
-    public string RelatoInicial { get; set; }
+    public string PlacaVeiculo { get; set; } = string.Empty;
+    public string NomeMecanico { get; set; } = string.Empty;
+    public string RelatoInicial { get; set; } = string.Empty;
 }
 
 public class ListarOSOficinaService

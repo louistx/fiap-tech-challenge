@@ -1,6 +1,7 @@
+using FluentValidation;
 using TechChallenge.Domain.Entities;
 using TechChallenge.Domain.Enums;
-using TechChallenge.Infrastructure.Abstractions.Repositories;
+using TechChallenge.Application.Abstractions.Repositories;
 
 namespace TechChallenge.Application.Features.OS.RegistrarDiagnostico;
 
@@ -9,20 +10,25 @@ public class RegistrarDiagnosticoService
     private readonly IOrdemServicoRepository _ordemServicoRepository;
     private readonly IServicoRepository _servicoRepository;
     private readonly IProdutoRepository _produtoRepository;
+    private readonly IValidator<RegistrarDiagnosticoCommand> _validator;
 
     public RegistrarDiagnosticoService(
         IOrdemServicoRepository ordemServicoRepository,
         IServicoRepository servicoRepository,
-        IProdutoRepository produtoRepository)
+        IProdutoRepository produtoRepository,
+        IValidator<RegistrarDiagnosticoCommand> validator)
     {
         _ordemServicoRepository = ordemServicoRepository;
         _servicoRepository = servicoRepository;
         _produtoRepository = produtoRepository;
+        _validator = validator;
     }
 
     // RF11: registra serviços e produtos na OS
     public bool RegistrarDiagnostico(RegistrarDiagnosticoCommand command)
     {
+        _validator.ValidateAndThrow(command);
+
         var os = _ordemServicoRepository.GetByIdAsync(command.OrdemServicoId).GetAwaiter().GetResult();
         if (os is null)
             throw new KeyNotFoundException($"OS com Id {command.OrdemServicoId} não encontrada.");

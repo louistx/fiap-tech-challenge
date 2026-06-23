@@ -5,6 +5,7 @@ using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using TechChallenge.Infrastructure.Database.Context;
 
 namespace TechChallenge.Api.Tests.Integration.Factories;
@@ -15,28 +16,38 @@ public class WebAplicationFactory<TProgram> : WebApplicationFactory<TProgram> wh
     {
         builder.ConfigureServices(services =>
         {
+            SQLitePCL.Batteries.Init();
+
             // busca o context na aplicação
             var dbContextDescriptor = services.SingleOrDefault(
                 d => d.ServiceType == 
                      typeof(IDbContextOptionsConfiguration<ApplicationDbContext>));
 
             // remove o context da aplicação
-            services.Remove(dbContextDescriptor);
+            if (dbContextDescriptor is not null)
+            {
+                services.Remove(dbContextDescriptor);
+            }
+
+            services.RemoveAll<DbContextOptions<ApplicationDbContext>>();
+            services.RemoveAll<IDbContextOptionsConfiguration<ApplicationDbContext>>();
 
             // Create open SqliteConnection so EF won't automatically close it.
-            services.AddSingleton<DbConnection>(container =>
-            {
-                var connection = new SqliteConnection("DataSource=:memory:");
-                connection.Open();
-
-                return connection;
-            });
+            var connection = new SqliteConnection("DataSource=:memory:");
+            connection.Open();
+            services.AddSingleton<DbConnection>(connection);
 
             services.AddDbContext<ApplicationDbContext>((container, options) =>
             {
                 var connection = container.GetRequiredService<DbConnection>();
                 options.UseSqlite(connection);
             });
+
+            var provider = services.BuildServiceProvider();
+            using var scope = provider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
         });
 
         builder.UseEnvironment("Testing");

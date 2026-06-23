@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TechChallenge.Domain.Entities;
 using TechChallenge.Domain.Enums;
-using TechChallenge.Infrastructure.Abstractions.Repositories;
+using TechChallenge.Application.Abstractions.Repositories;
 using TechChallenge.Infrastructure.Database.Context;
 
 namespace TechChallenge.Infrastructure.Database.Repositories
@@ -25,6 +25,22 @@ namespace TechChallenge.Infrastructure.Database.Repositories
 
         #region Members of IOrdemServicoRepository
 
+        public override async Task<OrdemServico?> GetByIdAsync(Guid id)
+        {
+            return await _context.OrdemServico
+                .Include(os => os.Servicos)
+                .Include(os => os.Produtos)
+                .FirstOrDefaultAsync(os => os.Id == id);
+        }
+
+        public override async Task<List<OrdemServico>> GetAllAsync()
+        {
+            return await _context.OrdemServico
+                .Include(os => os.Servicos)
+                .Include(os => os.Produtos)
+                .ToListAsync();
+        }
+
         public async Task<List<OrdemServico>> GetByStatusAsync(eStatusOS status)
         {
             return await _context.OrdemServico
@@ -32,6 +48,8 @@ namespace TechChallenge.Infrastructure.Database.Repositories
                 .Include(os => os.Veiculo)
                 .Include(os => os.FuncionarioResponsavel)
                 .Include(os => os.ClienteResponsavel)
+                .Include(os => os.Servicos)
+                .Include(os => os.Produtos)
                 .ToListAsync();
         }
 

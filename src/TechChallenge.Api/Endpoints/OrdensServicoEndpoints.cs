@@ -2,8 +2,10 @@ using TechChallenge.Api.Models.Request;
 using TechChallenge.Api.Models.Response;
 using TechChallenge.Application.Features.OS.AtribuirOS;
 using TechChallenge.Application.Features.OS.CriarOS;
+using TechChallenge.Application.Features.OS.ExcluirOS;
 using TechChallenge.Application.Features.OS.ListarOS;
 using TechChallenge.Application.Features.OS.ListarOSOficina;
+using TechChallenge.Application.Features.OS.ObterOS;
 using TechChallenge.Application.Features.OS.RegistrarDiagnostico;
 using TechChallenge.Domain.Enums;
 
@@ -79,15 +81,9 @@ public static class OrdensServicoEndpoints
         return Results.Created($"/api/v1/ordens-servico/{id}", id);
     }
 
-    private static IResult ObterOrdemServicoAsync(Guid id, ListarOSService service)
+    private static IResult ObterOrdemServicoAsync(Guid id, ObterOSService service)
     {
-        var query = new ListarOSQuery();
-        var lista = service.ListarOS(query);
-        var os = lista.FirstOrDefault(o => o.Id == id);
-
-        if (os is null)
-            return Results.NotFound();
-
+        var os = service.ObterOS(new ObterOSQuery { Id = id });
         return Results.Ok(MapToResponse(os));
     }
 
@@ -128,14 +124,9 @@ public static class OrdensServicoEndpoints
         return Results.Ok();
     }
 
-    private static IResult ExcluirOrdemServicoAsync(Guid id, ListarOSService service)
+    private static IResult ExcluirOrdemServicoAsync(Guid id, ExcluirOSService service)
     {
-        var os = service.ListarOS(new ListarOSQuery()).FirstOrDefault(o => o.Id == id);
-
-        if (os is null)
-            return Results.NotFound();
-
-        // TODO: ExcluirOSService será implementado em feature futura
+        service.ExcluirOS(new ExcluirOSCommand { Id = id });
         return Results.NoContent();
     }
 

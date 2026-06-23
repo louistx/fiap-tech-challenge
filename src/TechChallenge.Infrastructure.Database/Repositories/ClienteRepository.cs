@@ -1,11 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TechChallenge.Domain.Entities;
-using TechChallenge.Infrastructure.Abstractions.Repositories;
+using TechChallenge.Application.Abstractions.Repositories;
 using TechChallenge.Infrastructure.Database.Context;
 
 namespace TechChallenge.Infrastructure.Database.Repositories
 {
-    public class ClienteRepository : IClienteRepository
+    public class ClienteRepository : Repository<Cliente>, IClienteRepository
     {
         #region Properties
 
@@ -15,7 +15,7 @@ namespace TechChallenge.Infrastructure.Database.Repositories
 
         #region Constructor
 
-        public ClienteRepository(ApplicationDbContext context)
+        public ClienteRepository(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }
@@ -24,13 +24,25 @@ namespace TechChallenge.Infrastructure.Database.Repositories
 
         #region Members of IClienteRepository
 
-        public Cliente GetByDocument(string document)
+        public override async Task<Cliente?> GetByIdAsync(Guid id)
         {
-            Cliente entity = _context.Cliente.FirstOrDefaultAsync(c => c.Cpf.Equals(document)).Result;
+            return await _context.Cliente
+                .Include(c => c.Endereco)
+                .FirstOrDefaultAsync(c => c.Id == id);
+        }
 
-            if (entity is null) throw new Exception();
+        public override async Task<List<Cliente>> GetAllAsync()
+        {
+            return await _context.Cliente
+                .Include(c => c.Endereco)
+                .ToListAsync();
+        }
 
-            return entity;            
+        public async Task<Cliente?> GetByDocumentAsync(string document)
+        {
+            return await _context.Cliente
+                .Include(c => c.Endereco)
+                .FirstOrDefaultAsync(c => c.Cpf == document);
         }
 
         #endregion

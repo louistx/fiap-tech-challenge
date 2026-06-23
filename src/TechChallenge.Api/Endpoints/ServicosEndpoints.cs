@@ -1,6 +1,10 @@
 using TechChallenge.Api.Models.Request;
 using TechChallenge.Api.Models.Response;
-using TechChallenge.Application.Features.Servicos;
+using TechChallenge.Application.Features.Servicos.AtualizarServico;
+using TechChallenge.Application.Features.Servicos.CriarServico;
+using TechChallenge.Application.Features.Servicos.ExcluirServico;
+using TechChallenge.Application.Features.Servicos.ListarServicos;
+using TechChallenge.Application.Features.Servicos.ObterServico;
 
 namespace TechChallenge.Api.Endpoints;
 
@@ -61,7 +65,7 @@ public static class ServicosEndpoints
 
     private static IResult ObterServicoAsync(Guid id, ObterServicoService service)
     {
-        var servico = service.ObterServico(id);
+        var servico = service.ObterServico(new ObterServicoQuery { Id = id });
 
         return Results.Ok(new ServicoResponse
         {
@@ -73,7 +77,7 @@ public static class ServicosEndpoints
 
     private static IResult ListarServicosAsync(ListarServicosService service)
     {
-        var servicos = service.ListarServicos();
+        var servicos = service.ListarServicos(new ListarServicosQuery());
 
         var response = servicos.Select(s => new ServicoResponse
         {
@@ -100,7 +104,7 @@ public static class ServicosEndpoints
 
     private static IResult ExcluirServicoAsync(Guid id, ExcluirServicoService service)
     {
-        service.ExcluirServico(id);
+        service.ExcluirServico(new ExcluirServicoCommand { Id = id });
         return Results.NoContent();
     }
 }

@@ -19,8 +19,12 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\TechChallenge.Infrastructure.Abstractions\TechChallenge.Infrastructure.Abstractions.csproj" />
+      <ProjectReference Include="..\TechChallenge.Application.Abstractions\TechChallenge.Application.Abstractions.csproj" />
       <ProjectReference Include="..\TechChallenge.Domain\TechChallenge.Domain.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FluentValidation" Version="12.1.1" />
     </ItemGroup>
 
 </Project>

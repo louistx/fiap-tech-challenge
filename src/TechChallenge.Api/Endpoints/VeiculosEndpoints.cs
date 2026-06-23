@@ -1,6 +1,10 @@
 using TechChallenge.Api.Models.Request;
 using TechChallenge.Api.Models.Response;
-using TechChallenge.Application.Features.Veiculos;
+using TechChallenge.Application.Features.Veiculos.AtualizarVeiculo;
+using TechChallenge.Application.Features.Veiculos.CriarVeiculo;
+using TechChallenge.Application.Features.Veiculos.ExcluirVeiculo;
+using TechChallenge.Application.Features.Veiculos.ListarVeiculos;
+using TechChallenge.Application.Features.Veiculos.ObterVeiculo;
 
 namespace TechChallenge.Api.Endpoints;
 
@@ -68,7 +72,7 @@ public static class VeiculosEndpoints
 
     private static IResult ObterVeiculoAsync(Guid id, ObterVeiculoService service)
     {
-        var veiculo = service.ObterVeiculo(id);
+        var veiculo = service.ObterVeiculo(new ObterVeiculoQuery { Id = id });
 
         var response = new VeiculoResponse
         {
@@ -89,7 +93,7 @@ public static class VeiculosEndpoints
 
     private static IResult ListarVeiculosAsync(ListarVeiculosService service)
     {
-        var veiculos = service.ListarVeiculos();
+        var veiculos = service.ListarVeiculos(new ListarVeiculosQuery());
 
         var response = veiculos.Select(v => new VeiculoResponse
         {
@@ -130,7 +134,7 @@ public static class VeiculosEndpoints
 
     private static IResult ExcluirVeiculoAsync(Guid id, ExcluirVeiculoService service)
     {
-        service.ExcluirVeiculo(id);
+        service.ExcluirVeiculo(new ExcluirVeiculoCommand { Id = id });
         return Results.NoContent();
     }
 }

@@ -7,14 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.9" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.9" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.9" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\src\TechChallenge.Application\TechChallenge.Application.csproj" />
-    <ProjectReference Include="..\src\TechChallenge.Infrastructure.Database\TechChallenge.Infrastructure.Database.csproj" />
-    <ProjectReference Include="..\TechChallenge.Infrastructure.Abstractions\TechChallenge.Infrastructure.Abstractions.csproj" />
+    <ProjectReference Include="..\TechChallenge.Application.Abstractions\TechChallenge.Application.Abstractions.csproj" />
+    <ProjectReference Include="..\TechChallenge.Application\TechChallenge.Application.csproj" />
+    <ProjectReference Include="..\TechChallenge.Infrastructure.Database\TechChallenge.Infrastructure.Database.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿using TechChallenge.Infrastructure.Abstractions.Repositories;
+﻿using TechChallenge.Application.Abstractions.Repositories;
 using TechChallenge.Infrastructure.Database.Context;
 
 namespace TechChallenge.Infrastructure.Database.Repositories

@@ -1,5 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using TechChallenge.Api.Endpoints;
 using TechChallenge.Api.Middleware;
+using TechChallenge.Infrastructure.Database.Context;
 using TechChallenge.Infrastructure.IoC.Injection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +11,13 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
+
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    using var scope = app.Services.CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    context.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
