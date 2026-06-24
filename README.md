@@ -4,7 +4,7 @@ Projeto desenvolvido para a **Pós-Tech da FIAP**, como parte do Tech Challenge 
 
 O objetivo é construir o MVP do back-end de um sistema integrado para uma oficina mecânica, centralizando o cadastro de clientes e veículos, o controle das Ordens de Serviço, a elaboração de orçamentos, a gestão do inventário e o acompanhamento da execução dos serviços.
 
-> **Status do projeto:** em desenvolvimento. O repositório possui a estrutura inicial da API, entidades de domínio, configurações do Entity Framework Core, migrations e contratos de endpoints. Algumas operações ainda retornam dados simulados e funcionalidades como autenticação, transições completas da OS, notificações e controle efetivo de estoque permanecem no roadmap.
+> **Status do projeto:** em desenvolvimento. A API já possui persistência com PostgreSQL, migrations, seeding opcional do administrador inicial, autenticação JWT, refresh tokens, controle de sessões e autorização por perfil. O CRUD principal e parte do fluxo de OS já estão integrados aos casos de uso e repositórios. Transições completas da OS, orçamento/aprovação, notificações, pagamento e controle efetivo de estoque seguem no roadmap.
 
 ## Sumário
 
@@ -203,12 +203,14 @@ flowchart TD
     Domain[Domínio]
     Contracts[Abstrações de infraestrutura]
     Infrastructure[Infraestrutura e persistência]
-    Database[(SQL Server)]
+    Auth[Infraestrutura de autenticação]
+    Database[(PostgreSQL)]
 
     Client --> API
     API --> Application
     Application --> Domain
     Application --> Contracts
+    API --> Auth
     Infrastructure --> Contracts
     Infrastructure --> Domain
     Infrastructure --> Database
@@ -222,6 +224,7 @@ flowchart TD
 | `TechChallenge.Application` | Casos de uso, comandos e coordenação dos fluxos |
 | `TechChallenge.Application.Abstractions` | Contratos da camada de aplicação, incluindo contratos dos repositórios |
 | `TechChallenge.Domain` | Entidades, enums e regras centrais do negócio |
+| `TechChallenge.Infrastructure.Auth` | JWT, hash de senha, refresh tokens, usuário atual e políticas de autorização |
 | `TechChallenge.Infrastructure.Database` | Entity Framework Core, contexto, configurações, migrations e repositórios |
 | `TechChallenge.Infrastructure.IoC` | Registro de dependências e composição da infraestrutura |
 | `TechChallenge.Tests` | Testes unitários |
@@ -233,7 +236,9 @@ flowchart TD
 - **.NET 10**
 - **ASP.NET Core Minimal APIs**
 - **Entity Framework Core 10**
-- **SQL Server**
+- **PostgreSQL**
+- **JWT Bearer Authentication**
+- **FluentValidation**
 - **Swagger / OpenAPI**
 - **xUnit**
 - **Coverlet**
@@ -258,6 +263,7 @@ flowchart TD
 │   ├── TechChallenge.Application/     # Casos de uso
 │   ├── TechChallenge.Application.Abstractions/ # Contratos da aplicação e repositórios
 │   ├── TechChallenge.Domain/          # Entidades de domínio
+│   ├── TechChallenge.Infrastructure.Auth/
 │   ├── TechChallenge.Infrastructure.Database/
 │   └── TechChallenge.Infrastructure.IoC/
 ├── tests/
@@ -274,94 +280,123 @@ Esta seção diferencia os requisitos do produto do que já está efetivamente d
 | --- | --- |
 | Estrutura da solução em camadas | Implementada |
 | Entidades principais do domínio | Implementadas inicialmente |
-| Configurações do Entity Framework Core | Implementadas inicialmente |
-| Migration inicial | Disponível |
-| Middleware global de exceções | Implementado inicialmente |
-| Contratos HTTP de clientes | Disponíveis |
-| Contratos HTTP de veículos | Disponíveis |
-| Contratos HTTP de funcionários | Disponíveis |
-| Contratos HTTP de serviços | Disponíveis |
-| Contratos HTTP de produtos | Disponíveis |
-| Contratos HTTP de Ordens de Serviço | Disponíveis |
-| Persistência completa dos endpoints | Em desenvolvimento |
+| Configurações do Entity Framework Core | Implementadas com PostgreSQL |
+| Migrations | Disponíveis |
+| Middleware global de exceções | Implementado |
+| CRUD de clientes | Implementado |
+| CRUD de veículos | Implementado |
+| CRUD de funcionários | Implementado |
+| CRUD de serviços | Implementado |
+| CRUD de produtos/inventário | Implementado |
+| Fluxos iniciais de Ordens de Serviço | Implementados parcialmente |
+| Autenticação JWT | Implementada |
+| Refresh token e controle de sessões | Implementados |
+| Hash de senha PBKDF2 | Implementado |
+| RBAC por perfil de usuário | Implementado |
+| Seeding opcional do administrador inicial | Implementado |
 | Estados e transições da OS | Em desenvolvimento |
 | Geração e aprovação do orçamento | Planejada |
-| Controle efetivo de estoque | Planejado |
+| Controle efetivo de estoque | Em desenvolvimento |
 | Notificações ao cliente | Planejadas |
-| Autenticação JWT | Planejada |
-| Validação completa de CPF, CNPJ e placa | Planejada |
+| Validação completa de CPF, CNPJ e placa | Implementada parcialmente |
 | Monitoramento do tempo médio | Planejado |
-| Testes dos fluxos críticos | Estrutura criada; cenários ainda pendentes |
+| Testes dos fluxos críticos | Implementados parcialmente |
 | Cobertura mínima de 80% | Ainda não atingida |
 
-> Os endpoints atuais servem como contratos iniciais da API. Parte deles retorna identificadores gerados, objetos de exemplo ou listas vazias e ainda precisa ser integrada aos casos de uso e repositórios.
+> A autorização possui política de fallback: por padrão, todo endpoint exige usuário autenticado. As exceções explícitas são login, refresh token, Swagger/OpenAPI e demais rotas marcadas com `AllowAnonymous`.
 
 ## Endpoints
 
 Todos os endpoints utilizam o prefixo `/api/v1`.
 
+### Autenticação
+
+| Método | Rota | Descrição | Acesso |
+| --- | --- | --- | --- |
+| `POST` | `/api/v1/auth/login` | Autentica usuário e retorna access token e refresh token | Anônimo |
+| `POST` | `/api/v1/auth/refresh` | Renova access token usando refresh token | Anônimo |
+| `GET` | `/api/v1/auth/me` | Retorna dados do usuário autenticado | Autenticado |
+| `POST` | `/api/v1/auth/logout` | Revoga a sessão atual | Autenticado |
+| `POST` | `/api/v1/auth/logout-all` | Revoga todas as sessões do usuário autenticado | Autenticado |
+| `PATCH` | `/api/v1/auth/senha` | Troca a senha do usuário autenticado | Autenticado |
+| `GET` | `/api/v1/auth/sessoes` | Lista sessões ativas do usuário autenticado | Autenticado |
+| `DELETE` | `/api/v1/auth/sessoes/{sessaoId}` | Revoga uma sessão específica | Autenticado |
+
 ### Clientes
 
-| Método | Rota | Descrição |
-| --- | --- | --- |
-| `POST` | `/api/v1/clientes` | Cadastra um cliente |
-| `GET` | `/api/v1/clientes` | Lista os clientes |
-| `GET` | `/api/v1/clientes/{id}` | Consulta um cliente |
-| `PUT` | `/api/v1/clientes/{id}` | Atualiza um cliente |
-| `DELETE` | `/api/v1/clientes/{id}` | Exclui um cliente |
+| Método | Rota | Descrição | Acesso |
+| --- | --- | --- | --- |
+| `POST` | `/api/v1/clientes` | Cadastra um cliente | Administrador ou Vendedor |
+| `GET` | `/api/v1/clientes` | Lista os clientes | Autenticado |
+| `GET` | `/api/v1/clientes/{id}` | Consulta um cliente | Autenticado |
+| `PUT` | `/api/v1/clientes/{id}` | Atualiza um cliente | Administrador ou Vendedor |
+| `DELETE` | `/api/v1/clientes/{id}` | Exclui um cliente | Administrador ou Vendedor |
 
 ### Veículos
 
-| Método | Rota | Descrição |
-| --- | --- | --- |
-| `POST` | `/api/v1/veiculos` | Cadastra um veículo |
-| `GET` | `/api/v1/veiculos` | Lista os veículos |
-| `GET` | `/api/v1/veiculos/{id}` | Consulta um veículo |
-| `PUT` | `/api/v1/veiculos/{id}` | Atualiza um veículo |
-| `DELETE` | `/api/v1/veiculos/{id}` | Exclui um veículo |
+| Método | Rota | Descrição | Acesso |
+| --- | --- | --- | --- |
+| `POST` | `/api/v1/veiculos` | Cadastra um veículo | Administrador ou Vendedor |
+| `GET` | `/api/v1/veiculos` | Lista os veículos | Autenticado |
+| `GET` | `/api/v1/veiculos/{id}` | Consulta um veículo | Autenticado |
+| `PUT` | `/api/v1/veiculos/{id}` | Atualiza um veículo | Administrador ou Vendedor |
+| `DELETE` | `/api/v1/veiculos/{id}` | Exclui um veículo | Administrador ou Vendedor |
 
 ### Funcionários
 
-| Método | Rota | Descrição |
-| --- | --- | --- |
-| `POST` | `/api/v1/funcionarios` | Cadastra um funcionário |
-| `GET` | `/api/v1/funcionarios` | Lista os funcionários |
-| `GET` | `/api/v1/funcionarios/{id}` | Consulta um funcionário |
-| `PUT` | `/api/v1/funcionarios/{id}` | Atualiza um funcionário |
-| `DELETE` | `/api/v1/funcionarios/{id}` | Exclui um funcionário |
+| Método | Rota | Descrição | Acesso |
+| --- | --- | --- | --- |
+| `POST` | `/api/v1/funcionarios` | Cadastra um funcionário | Administrador |
+| `GET` | `/api/v1/funcionarios` | Lista os funcionários | Administrador |
+| `GET` | `/api/v1/funcionarios/{id}` | Consulta um funcionário | Administrador |
+| `PUT` | `/api/v1/funcionarios/{id}` | Atualiza um funcionário | Administrador |
+| `DELETE` | `/api/v1/funcionarios/{id}` | Exclui um funcionário | Administrador |
 
 ### Serviços
 
-| Método | Rota | Descrição |
-| --- | --- | --- |
-| `POST` | `/api/v1/servicos` | Cadastra um serviço |
-| `GET` | `/api/v1/servicos` | Lista os serviços |
-| `GET` | `/api/v1/servicos/{id}` | Consulta um serviço |
-| `PUT` | `/api/v1/servicos/{id}` | Atualiza um serviço |
-| `DELETE` | `/api/v1/servicos/{id}` | Exclui um serviço |
+| Método | Rota | Descrição | Acesso |
+| --- | --- | --- | --- |
+| `POST` | `/api/v1/servicos` | Cadastra um serviço | Administrador ou Vendedor |
+| `GET` | `/api/v1/servicos` | Lista os serviços | Autenticado |
+| `GET` | `/api/v1/servicos/{id}` | Consulta um serviço | Autenticado |
+| `PUT` | `/api/v1/servicos/{id}` | Atualiza um serviço | Administrador ou Vendedor |
+| `DELETE` | `/api/v1/servicos/{id}` | Exclui um serviço | Administrador ou Vendedor |
 
 ### Produtos e inventário
 
-| Método | Rota | Descrição |
-| --- | --- | --- |
-| `POST` | `/api/v1/produtos` | Cadastra um produto |
-| `GET` | `/api/v1/produtos` | Lista o inventário |
-| `GET` | `/api/v1/produtos/{id}` | Consulta um produto |
-| `PUT` | `/api/v1/produtos/{id}` | Atualiza um produto |
-| `DELETE` | `/api/v1/produtos/{id}` | Exclui um produto |
+| Método | Rota | Descrição | Acesso |
+| --- | --- | --- | --- |
+| `POST` | `/api/v1/produtos` | Cadastra um produto | Administrador ou Vendedor |
+| `GET` | `/api/v1/produtos` | Lista o inventário | Autenticado |
+| `GET` | `/api/v1/produtos/{id}` | Consulta um produto | Autenticado |
+| `PUT` | `/api/v1/produtos/{id}` | Atualiza um produto | Administrador ou Vendedor |
+| `DELETE` | `/api/v1/produtos/{id}` | Exclui um produto | Administrador ou Vendedor |
 
 ### Ordens de Serviço
 
-| Método | Rota | Descrição |
-| --- | --- | --- |
-| `POST` | `/api/v1/ordens-servico` | Cria uma OS |
-| `GET` | `/api/v1/ordens-servico` | Lista as Ordens de Serviço |
-| `GET` | `/api/v1/ordens-servico/{id}` | Consulta uma OS |
-| `GET` | `/api/v1/ordens-servico/oficina` | Lista as OS destinadas à visualização da oficina |
-| `PUT` | `/api/v1/ordens-servico/{id}` | Atualiza uma OS |
-| `PATCH` | `/api/v1/ordens-servico/{id}/atribuir` | Atribui a OS a um mecânico |
-| `PATCH` | `/api/v1/ordens-servico/{id}/diagnostico` | Registra serviços e produtos do diagnóstico |
-| `DELETE` | `/api/v1/ordens-servico/{id}` | Exclui uma OS |
+| Método | Rota | Descrição | Acesso |
+| --- | --- | --- | --- |
+| `POST` | `/api/v1/ordens-servico` | Cria uma OS | Autenticado |
+| `GET` | `/api/v1/ordens-servico` | Lista as Ordens de Serviço | Autenticado |
+| `GET` | `/api/v1/ordens-servico/{id}` | Consulta uma OS | Autenticado |
+| `GET` | `/api/v1/ordens-servico/oficina` | Lista as OS destinadas à visualização da oficina | Autenticado |
+| `PATCH` | `/api/v1/ordens-servico/{id}/atribuir` | Atribui a OS a um mecânico | Autenticado |
+| `PATCH` | `/api/v1/ordens-servico/{id}/diagnostico` | Registra serviços e produtos do diagnóstico | Autenticado |
+| `DELETE` | `/api/v1/ordens-servico/{id}` | Exclui uma OS | Autenticado |
+
+### Usuários
+
+| Método | Rota | Descrição | Acesso |
+| --- | --- | --- | --- |
+| `POST` | `/api/v1/usuarios` | Cria usuário | Administrador |
+| `GET` | `/api/v1/usuarios` | Lista usuários | Administrador |
+| `GET` | `/api/v1/usuarios/{id}` | Consulta usuário | Administrador |
+| `PATCH` | `/api/v1/usuarios/{id}/tipo` | Altera perfil do usuário | Administrador |
+| `PATCH` | `/api/v1/usuarios/{id}/vincular-funcionario` | Vincula usuário a funcionário | Administrador |
+| `PATCH` | `/api/v1/usuarios/{id}/desvincular-funcionario` | Desvincula usuário de funcionário | Administrador |
+| `PATCH` | `/api/v1/usuarios/{id}/ativar` | Ativa usuário | Administrador |
+| `PATCH` | `/api/v1/usuarios/{id}/desativar` | Desativa usuário e revoga sessões | Administrador |
+| `PATCH` | `/api/v1/usuarios/{id}/resetar-senha` | Redefine senha de usuário | Administrador |
 
 ## Como executar localmente
 
@@ -370,7 +405,7 @@ Todos os endpoints utilizam o prefixo `/api/v1`.
 - [.NET SDK 10](https://dotnet.microsoft.com/download/dotnet/10.0)
 - Git
 - Docker Desktop, caso utilize containers
-- SQL Server, para executar a persistência quando a integração estiver habilitada
+- PostgreSQL local, ou Docker Compose para subir o banco
 
 ### 1. Clonar o repositório
 
@@ -385,22 +420,36 @@ cd fiap-tech-challenge
 dotnet restore src/TechChallenge.Api/TechChallenge.Api.csproj
 ```
 
-### 3. Configurar a conexão com o banco
+### 3. Configurar conexão, JWT e usuário inicial
 
 Não mantenha usuário e senha reais no `appsettings.json`. Para desenvolvimento local, utilize User Secrets:
 
 ```bash
 dotnet user-secrets set \
   "ConnectionStrings:DefaultConnection" \
-  "Server=localhost,1433;Database=TechChallenge;User Id=sa;Password=SUA_SENHA;TrustServerCertificate=True" \
+  "Host=localhost;Port=5432;Database=TechChallenge;Username=postgres;Password=SUA_SENHA" \
+  --project src/TechChallenge.Api/TechChallenge.Api.csproj
+
+dotnet user-secrets set \
+  "Jwt:SecretKey" \
+  "troque-por-uma-chave-com-mais-de-32-caracteres" \
+  --project src/TechChallenge.Api/TechChallenge.Api.csproj
+
+dotnet user-secrets set \
+  "Seed:AdminPassword" \
+  "SenhaAdmin123" \
   --project src/TechChallenge.Api/TechChallenge.Api.csproj
 ```
 
 Também é possível utilizar a variável de ambiente:
 
 ```bash
-export ConnectionStrings__DefaultConnection="Server=localhost,1433;Database=TechChallenge;User Id=sa;Password=SUA_SENHA;TrustServerCertificate=True"
+export ConnectionStrings__DefaultConnection="Host=localhost;Port=5432;Database=TechChallenge;Username=postgres;Password=SUA_SENHA"
+export Jwt__SecretKey="troque-por-uma-chave-com-mais-de-32-caracteres"
+export Seed__AdminPassword="SenhaAdmin123"
 ```
+
+Se `Seed:AdminPassword` estiver configurado e a tabela de usuários estiver vazia, a aplicação cria o usuário inicial `admin`. Em desenvolvimento, `appsettings.Development.json` já traz valores locais para bootstrap.
 
 ### 4. Compilar a API
 
@@ -436,11 +485,11 @@ dotnet restore TechChallenge.slnx
 dotnet build TechChallenge.slnx --no-restore
 ```
 
-> Alguns projetos de aplicação e infraestrutura ainda estão sendo integrados. Enquanto essa consolidação não for concluída, a compilação completa pode apontar implementações pendentes que não impedem a execução isolada da API.
+> A aplicação executa migrations automaticamente na inicialização, exceto no ambiente `Testing`.
 
 ## Execução com Docker
 
-O repositório possui `Dockerfile` e arquivos de Docker Compose para a API. O comando previsto para subir o ambiente é:
+O repositório possui `Dockerfile` e Docker Compose com API e PostgreSQL:
 
 A partir da raiz:
 
@@ -466,17 +515,20 @@ docker compose \
   down
 ```
 
-> **Limitação atual:** o Docker Compose contém somente a API. O serviço do SQL Server e sua configuração de conexão ainda precisam ser adicionados para que o ambiente completo seja iniciado por um único comando. O fluxo de build do container também precisa ser validado após a consolidação das referências entre os projetos; portanto, a execução direta com `dotnet run` é o caminho principal no estado atual.
+O PostgreSQL fica exposto localmente em:
+
+```text
+localhost:5432
+```
 
 ## Banco de dados
 
-O projeto utiliza **SQL Server** por meio do Entity Framework Core.
+O projeto utiliza **PostgreSQL** por meio do Entity Framework Core e provider Npgsql.
 
 ### Justificativa
 
-O SQL Server foi escolhido porque:
+O PostgreSQL foi escolhido porque:
 
-- possui integração oficial com .NET e Entity Framework Core;
 - oferece transações e integridade referencial para os dados da OS;
 - atende bem aos relacionamentos entre clientes, veículos, funcionários, serviços e produtos;
 - permite migrations versionadas junto ao código;
@@ -487,7 +539,7 @@ O repositório já contém:
 - `ApplicationDbContext`;
 - mapeamentos das entidades;
 - repositórios iniciais;
-- migration inicial;
+- migrations versionadas;
 - factory para operações de design time.
 
 Para trabalhar com migrations, instale a ferramenta do Entity Framework caso ela ainda não esteja disponível:
@@ -506,16 +558,16 @@ dotnet ef database update \
 
 ## Testes
 
-O projeto utilizará o **xUnit** como framework para criação e execução dos testes automatizados em .NET.
+O projeto utiliza **xUnit** como framework para criação e execução dos testes automatizados em .NET.
 
-Os testes serão organizados em dois projetos:
+Os testes estão organizados em dois projetos:
 
 - `TechChallenge.Tests`: testes unitários das entidades, regras de domínio e serviços de aplicação;
 - `TechChallenge.IntegrationTests`: testes de integração da API, banco de dados, repositórios e fluxos completos.
 
-Entre os principais cenários que deverão ser testados estão:
+Entre os principais cenários cobertos ou em expansão estão:
 
-- cadastro e validação de clientes e veículos;
+- cadastro e validação de clientes, veículos, serviços, usuários e autenticação;
 - criação e consulta de Ordens de Serviço;
 - atribuição de uma OS a um mecânico;
 - mudanças válidas e inválidas de estado da OS;
@@ -551,20 +603,33 @@ dotnet test TechChallenge.slnx \
 
 O **Coverlet** será utilizado em conjunto com o xUnit para medir a cobertura dos testes.
 
-> **Situação atual:** os projetos de teste e as dependências do xUnit já foram criados, mas os testes dos fluxos de negócio ainda não foram implementados. A meta do desafio é atingir pelo menos 80% de cobertura nos domínios críticos.
+> **Situação atual:** há testes unitários para autenticação, hash de senha, refresh token, criação de usuários, clientes, veículos e fluxos de OS, além de testes de integração para endpoints principais. A meta do desafio segue sendo atingir pelo menos 80% de cobertura nos domínios críticos.
 
 ## Segurança
 
-O escopo de segurança do projeto inclui:
+O escopo de segurança implementado inclui:
 
-- autenticação JWT para endpoints administrativos;
-- autorização por perfil de funcionário;
-- validação de CPF, CNPJ e placa;
+- autenticação JWT Bearer;
+- access token com claims `sub`, `role`, `name`, `sid` e `funcionarioId`;
+- refresh token opaco armazenado como hash SHA-256;
+- rotação de refresh token;
+- logout por sessão e logout de todas as sessões;
+- listagem e revogação de sessões ativas;
+- hash de senha com PBKDF2;
+- política de senha com mínimo de 8 caracteres, letra e número;
+- autorização por perfil de usuário: `Administrador`, `Vendedor` e `Mecanico`;
+- fallback policy exigindo autenticação por padrão;
 - proteção dos segredos de conexão;
 - tratamento padronizado de exceções;
-- análise de vulnerabilidades das dependências e do código.
+- análise de vulnerabilidades das dependências e do código como etapa operacional.
 
-O middleware de exceções já possui uma estrutura inicial. Autenticação, autorização e validações completas ainda precisam ser implementadas.
+Políticas disponíveis:
+
+| Política | Perfis |
+| --- | --- |
+| `AdminOnly` | `Administrador` |
+| `AdminOuVendedor` | `Administrador`, `Vendedor` |
+| `Mecanico` | `Mecanico` |
 
 Para verificar dependências vulneráveis:
 
@@ -596,20 +661,24 @@ Os resultados relevantes devem ser registrados no relatório de vulnerabilidades
 - [x] Criar os projetos de domínio, aplicação, API e infraestrutura.
 - [x] Modelar as entidades iniciais.
 - [x] Configurar o Entity Framework Core e a migration inicial.
-- [x] Criar os contratos iniciais dos endpoints.
+- [x] Integrar PostgreSQL via EF Core/Npgsql.
+- [x] Criar e integrar endpoints principais aos casos de uso.
+- [x] Implementar autenticação JWT.
+- [x] Implementar refresh tokens, logout e controle de sessões.
+- [x] Implementar hash de senha e política mínima de senha.
+- [x] Implementar RBAC por perfil de usuário.
+- [x] Adicionar PostgreSQL ao Docker Compose.
+- [x] Criar testes unitários e de integração iniciais.
 - [x] Documentar DDD e Event Storming.
-- [ ] Consolidar referências e injeção de dependências entre as camadas.
-- [ ] Integrar todos os endpoints aos casos de uso e repositórios.
-- [ ] Modelar os estados e as regras de transição da OS.
+- [ ] Refinar políticas de acesso por endpoint de OS, diferenciando vendedor, mecânico e administrador.
+- [ ] Completar estados e regras de transição da OS.
 - [ ] Implementar orçamento e aprovação do cliente.
 - [ ] Implementar aprovação parcial, reprovação e negociação.
 - [ ] Implementar controle, reserva e baixa de estoque.
-- [ ] Implementar autenticação e autorização JWT.
-- [ ] Implementar validações de CPF, CNPJ e placa.
+- [ ] Completar validações de CPF, CNPJ e placa nos fluxos restantes.
 - [ ] Implementar notificações.
 - [ ] Implementar pagamento, recibo e entrega.
-- [ ] Adicionar SQL Server ao Docker Compose.
-- [ ] Implementar testes unitários e de integração.
+- [ ] Ampliar testes unitários e de integração dos fluxos críticos.
 - [ ] Atingir cobertura mínima de 80% nos fluxos críticos.
 - [ ] Executar e documentar a análise de vulnerabilidades.
 
