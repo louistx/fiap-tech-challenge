@@ -16,6 +16,7 @@ public static class ServicosEndpoints
 
         group.MapPost("/", CriarServicoAsync)
             .WithName("CriarServico")
+            .RequireAuthorization("AdminOuVendedor")
             .WithSummary("Cria um novo serviço")
             .WithDescription("Adiciona um novo serviço ao banco de dados")
             .Produces<Guid>(StatusCodes.Status201Created)
@@ -36,6 +37,7 @@ public static class ServicosEndpoints
 
         group.MapPut("/{id}", AtualizarServicoAsync)
             .WithName("AtualizarServico")
+            .RequireAuthorization("AdminOuVendedor")
             .WithSummary("Atualiza um serviço existente")
             .WithDescription("Atualiza as informações de um serviço existente no banco de dados")
             .Produces(StatusCodes.Status200OK)
@@ -43,6 +45,7 @@ public static class ServicosEndpoints
 
         group.MapDelete("/{id}", ExcluirServicoAsync)
             .WithName("ExcluirServico")
+            .RequireAuthorization("AdminOuVendedor")
             .WithSummary("Exclui um serviço existente")
             .WithDescription("Exclui um serviço existente do banco de dados")
             .Produces(StatusCodes.Status204NoContent)

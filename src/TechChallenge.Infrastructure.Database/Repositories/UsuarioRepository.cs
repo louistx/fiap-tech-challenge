@@ -1,0 +1,33 @@
+using Microsoft.EntityFrameworkCore;
+using TechChallenge.Domain.Entities;
+using TechChallenge.Application.Abstractions.Repositories;
+using TechChallenge.Infrastructure.Database.Context;
+
+namespace TechChallenge.Infrastructure.Database.Repositories
+{
+    public class UsuarioRepository : Repository<Usuario>, IUsuarioRepository
+    {
+        private readonly ApplicationDbContext _context;
+
+        public UsuarioRepository(ApplicationDbContext context) : base(context)
+        {
+            _context = context;
+        }
+
+        public async Task<Usuario?> GetByLoginAsync(string login)
+        {
+            return await _context.Usuario
+                .FirstOrDefaultAsync(u => u.Login == login);
+        }
+
+        public async Task<bool> ExisteLoginAsync(string login)
+        {
+            return await _context.Usuario.AnyAsync(u => u.Login == login);
+        }
+
+        public async Task<bool> ExisteVinculoFuncionarioAsync(Guid funcionarioId)
+        {
+            return await _context.Usuario.AnyAsync(u => u.FuncionarioId == funcionarioId);
+        }
+    }
+}

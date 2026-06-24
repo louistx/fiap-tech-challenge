@@ -18,6 +18,7 @@ public static class InventarioEndpoints
 
         group.MapPost("/", CriarItemInventarioAsync)
             .WithName("CriarItemInventario")
+            .RequireAuthorization("AdminOuVendedor")
             .WithSummary("Cria um novo item de inventário")
             .WithDescription("Adiciona um novo item de inventário ao banco de dados")
             .Produces<Guid>(StatusCodes.Status201Created)
@@ -38,12 +39,14 @@ public static class InventarioEndpoints
 
         group.MapPut("/{id}", AtualizarItemInventarioAsync)
             .WithName("AtualizarItemInventario")
+            .RequireAuthorization("AdminOuVendedor")
             .WithSummary("Atualiza um item de inventário existente")
             .WithDescription("Atualiza as informações de um item de inventário existente no banco de dados")
             .ProducesValidationProblem();
 
         group.MapDelete("/{id}", ExcluirItemInventarioAsync)
             .WithName("ExcluirItemInventario")
+            .RequireAuthorization("AdminOuVendedor")
             .WithSummary("Exclui um item de inventário existente")
             .WithDescription("Exclui um item de inventário existente do banco de dados")
             .ProducesValidationProblem();

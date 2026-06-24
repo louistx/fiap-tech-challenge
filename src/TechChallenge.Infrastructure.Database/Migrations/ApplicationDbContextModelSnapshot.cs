@@ -226,6 +226,62 @@ namespace TechChallenge.Infrastructure.Database.Migrations
                     b.ToTable("Produto");
                 });
 
+            modelBuilder.Entity("TechChallenge.Domain.Entities.RefreshToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CriadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("ExpiraEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("IpCriacao")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<string>("MotivoRevogacao")
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<DateTime?>("RevogadoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("SessaoExpiraEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("SessaoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("SubstituidoPorId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("SessaoId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("RefreshToken");
+                });
+
             modelBuilder.Entity("TechChallenge.Domain.Entities.Servico", b =>
                 {
                     b.Property<Guid>("Id")
@@ -244,6 +300,41 @@ namespace TechChallenge.Infrastructure.Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Servico");
+                });
+
+            modelBuilder.Entity("TechChallenge.Domain.Entities.Usuario", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean");
+
+                    b.Property<Guid?>("FuncionarioId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Login")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<byte>("TipoUsuario")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FuncionarioId")
+                        .IsUnique();
+
+                    b.HasIndex("Login")
+                        .IsUnique();
+
+                    b.ToTable("Usuario");
                 });
 
             modelBuilder.Entity("TechChallenge.Domain.Entities.Veiculo", b =>
@@ -375,6 +466,26 @@ namespace TechChallenge.Infrastructure.Database.Migrations
                     b.Navigation("Veiculo");
                 });
 
+            modelBuilder.Entity("TechChallenge.Domain.Entities.RefreshToken", b =>
+                {
+                    b.HasOne("TechChallenge.Domain.Entities.Usuario", "Usuario")
+                        .WithMany("RefreshTokens")
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("TechChallenge.Domain.Entities.Usuario", b =>
+                {
+                    b.HasOne("TechChallenge.Domain.Entities.Funcionario", "Funcionario")
+                        .WithMany()
+                        .HasForeignKey("FuncionarioId");
+
+                    b.Navigation("Funcionario");
+                });
+
             modelBuilder.Entity("TechChallenge.Domain.Entities.Veiculo", b =>
                 {
                     b.HasOne("TechChallenge.Domain.Entities.Cliente", "ClienteResponsavel")
@@ -384,6 +495,11 @@ namespace TechChallenge.Infrastructure.Database.Migrations
                         .IsRequired();
 
                     b.Navigation("ClienteResponsavel");
+                });
+
+            modelBuilder.Entity("TechChallenge.Domain.Entities.Usuario", b =>
+                {
+                    b.Navigation("RefreshTokens");
                 });
 #pragma warning restore 612, 618
         }

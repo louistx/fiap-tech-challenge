@@ -480,3 +480,8 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# Doc de trabalho interno (nao oficial)
+PROXIMOS-PASSOS.md
+JWT-DESIGN.md
+OS-STATE-MACHINE.md

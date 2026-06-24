@@ -13,6 +13,7 @@
     <Project Path="src/TechChallenge.Application/TechChallenge.Application.csproj" />
   </Folder>
   <Folder Name="/4 - Infrastructure/">
+    <Project Path="src/TechChallenge.Infrastructure.Auth/TechChallenge.Infrastructure.Auth.csproj" />
     <Project Path="src/TechChallenge.Infrastructure.Database/TechChallenge.Infrastructure.Database.csproj" />
     <Project Path="src/TechChallenge.Infrastructure.IoC/TechChallenge.Infrastructure.IoC.csproj" Id="08b3a101-7172-491d-a728-02e933217b7c" />
   </Folder>

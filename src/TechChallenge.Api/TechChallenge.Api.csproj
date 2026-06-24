@@ -30,6 +30,7 @@
   <ItemGroup>
     <ProjectReference Include="..\TechChallenge.Application\TechChallenge.Application.csproj" />
     <ProjectReference Include="..\TechChallenge.Domain\TechChallenge.Domain.csproj" />
+    <ProjectReference Include="..\TechChallenge.Infrastructure.Auth\TechChallenge.Infrastructure.Auth.csproj" />
     <ProjectReference Include="..\TechChallenge.Infrastructure.IoC\TechChallenge.Infrastructure.IoC.csproj" />
   </ItemGroup>
 

@@ -21,6 +21,7 @@
     <ProjectReference Include="..\..\src\TechChallenge.Application.Abstractions\TechChallenge.Application.Abstractions.csproj" />
     <ProjectReference Include="..\..\src\TechChallenge.Application\TechChallenge.Application.csproj" />
     <ProjectReference Include="..\..\src\TechChallenge.Domain\TechChallenge.Domain.csproj" />
+    <ProjectReference Include="..\..\src\TechChallenge.Infrastructure.Auth\TechChallenge.Infrastructure.Auth.csproj" />
   </ItemGroup>
 
   <ItemGroup>
