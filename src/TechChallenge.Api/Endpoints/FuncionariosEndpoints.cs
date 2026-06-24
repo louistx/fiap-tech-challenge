@@ -1,3 +1,4 @@
+using System;
 using TechChallenge.Api.Models.Request;
 using TechChallenge.Api.Models.Response;
 using TechChallenge.Application.Features.Funcionarios.AtualizarFuncionario;
@@ -59,7 +60,7 @@ public static class FuncionariosEndpoints
             Nome = request.Nome,
             Cpf = request.Cpf,
             Rg = request.Rg,
-            Cargo = request.Cargo,
+            Cargo = request.Cargo.ToString(),
             Logradouro = request.Endereco.Logradouro,
             Complemento = request.Endereco.Complemento,
             Numero = request.Endereco.Numero,

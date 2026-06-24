@@ -1,3 +1,4 @@
+using System;
 namespace TechChallenge.Application.Features.Usuarios.ResetarSenha;
 
 public class ResetarSenhaCommand

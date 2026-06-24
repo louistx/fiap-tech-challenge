@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using TechChallenge.Application.Abstractions.Repositories;
 using TechChallenge.Domain.Entities;
 using TechChallenge.Infrastructure.Database.Context;

@@ -1,3 +1,4 @@
+using System;
 namespace TechChallenge.Application.Features.Usuarios.VincularFuncionario;
 
 public class VincularFuncionarioCommand

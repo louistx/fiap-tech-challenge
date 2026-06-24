@@ -1,9 +1,11 @@
+using System;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using TechChallenge.Application.Abstractions.Auth;
 using TechChallenge.Domain.Enums;
 
 namespace TechChallenge.Infrastructure.Auth;
+
 public class CurrentUser : ICurrentUser
 {
     private readonly ClaimsPrincipal? _principal;

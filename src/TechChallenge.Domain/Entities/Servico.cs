@@ -1,3 +1,4 @@
+using System;
 namespace TechChallenge.Domain.Entities;
 
 public class Servico

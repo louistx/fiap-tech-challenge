@@ -1,5 +1,7 @@
+using System;
 using FluentValidation;
 using TechChallenge.Application.Abstractions.Repositories;
+using TechChallenge.Domain.Entities;
 using TechChallenge.Domain.Enums;
 
 namespace TechChallenge.Application.Features.OS.RegistrarDiagnostico;
@@ -7,14 +9,14 @@ namespace TechChallenge.Application.Features.OS.RegistrarDiagnostico;
 public class RegistrarDiagnosticoService
 {
     private readonly IOrdemServicoRepository _ordemServicoRepository;
-    private readonly IOrdemServicoServicosRepository _servicoRepository;
-    private readonly IOrdemServicoProdutosRepository _produtoRepository;
+    private readonly IServicoRepository _servicoRepository;
+    private readonly IProdutoRepository _produtoRepository;
     private readonly IValidator<RegistrarDiagnosticoCommand> _validator;
 
     public RegistrarDiagnosticoService(
         IOrdemServicoRepository ordemServicoRepository,
-        IOrdemServicoServicosRepository servicoRepository,
-        IOrdemServicoProdutosRepository produtoRepository,
+        IServicoRepository servicoRepository,
+        IProdutoRepository produtoRepository,
         IValidator<RegistrarDiagnosticoCommand> validator)
     {
         _ordemServicoRepository = ordemServicoRepository;
@@ -41,7 +43,12 @@ public class RegistrarDiagnosticoService
             if (servico is null)
                 throw new KeyNotFoundException($"Serviço com Id {servicoId} não encontrado.");
 
-            os.Servicos.Add(servico);
+            os.Servicos.Add(new OrdemServicoServicos
+            {
+                ServicoId = servico.Id,
+                Servico = servico,
+                Valor = (double)servico.Valor
+            });
         }
 
         foreach (var produtoId in command.ProdutosIds)
@@ -50,7 +57,12 @@ public class RegistrarDiagnosticoService
             if (produto is null)
                 throw new KeyNotFoundException($"Produto com Id {produtoId} não encontrado.");
 
-            os.Produtos.Add(produto);
+            os.Produtos.Add(new OrdemServicoProdutos
+            {
+                ProdutoId = produto.Id,
+                Produto = produto,
+                Valor = (double)produto.Valor
+            });
         }
 
         os.DataAtualizacao = DateTime.UtcNow;

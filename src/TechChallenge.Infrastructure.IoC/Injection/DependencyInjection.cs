@@ -54,6 +54,8 @@ namespace TechChallenge.Infrastructure.IoC.Injection
             services.AddScoped<IEnderecoRepository, EnderecoRepository>();
             services.AddScoped<IFuncionarioRepository, FuncionarioRepository>();
             services.AddScoped<IOrdemServicoRepository, OrdemServicoRepository>();
+            services.AddScoped<IOrdemServicoServicosRepository, OrdemServicoServicosRepository>();
+            services.AddScoped<IOrdemServicoProdutosRepository, OrdemServicoProdutosRepository>();
             services.AddScoped<IProdutoRepository, ProdutoRepository>();
             services.AddScoped<IServicoRepository, ServicoRepository>();
             services.AddScoped<IVeiculoRepository, VeiculoRepository>();

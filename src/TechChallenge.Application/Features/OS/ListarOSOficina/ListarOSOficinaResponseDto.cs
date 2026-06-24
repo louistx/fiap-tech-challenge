@@ -1,3 +1,4 @@
+using System;
 using TechChallenge.Domain.Enums;
 using TechChallenge.Application.Abstractions.Repositories;
 

@@ -1,3 +1,4 @@
+using System;
 namespace TechChallenge.Application.Features.OS.AtribuirOS;
 
 public class AtribuirOSCommand

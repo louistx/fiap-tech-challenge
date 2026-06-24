@@ -1,4 +1,5 @@
-﻿namespace TechChallenge.Application.Abstractions.Repositories
+﻿using System;
+namespace TechChallenge.Application.Abstractions.Repositories
 {
     public interface IRepository<T> where T : class
     {

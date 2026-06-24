@@ -1,3 +1,4 @@
+using System;
 using TechChallenge.Domain.Entities;
 
 namespace TechChallenge.Application.Abstractions.Auth

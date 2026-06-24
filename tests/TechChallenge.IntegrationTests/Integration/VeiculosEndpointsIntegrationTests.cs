@@ -13,7 +13,7 @@ public class VeiculosEndpointsIntegrationTests : IClassFixture<WebAplicationFact
     {
         _client = factory.CreateClient();
     }
-    
+
     [Fact]
     public async Task DeveRetornarBadRequestQuandoCriarVeiculoSemBody()
     {

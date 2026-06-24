@@ -1,3 +1,4 @@
+using System;
 namespace TechChallenge.Application.Features.OS.ExcluirOS;
 
 public class ExcluirOSCommand

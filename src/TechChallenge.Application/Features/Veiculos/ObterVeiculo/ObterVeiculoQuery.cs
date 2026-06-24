@@ -1,3 +1,4 @@
+using System;
 namespace TechChallenge.Application.Features.Veiculos.ObterVeiculo;
 
 public class ObterVeiculoQuery

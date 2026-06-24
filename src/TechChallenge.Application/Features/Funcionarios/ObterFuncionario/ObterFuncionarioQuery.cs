@@ -1,3 +1,4 @@
+using System;
 namespace TechChallenge.Application.Features.Funcionarios.ObterFuncionario;
 
 public class ObterFuncionarioQuery

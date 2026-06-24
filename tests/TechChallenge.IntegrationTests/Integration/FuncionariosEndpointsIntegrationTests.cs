@@ -1,8 +1,10 @@
+using System;
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using TechChallenge.Api.Models.Request;
 using TechChallenge.Api.Models.Response;
+using TechChallenge.Domain.Enums;
 using TechChallenge.IntegrationTests.Integration.Factories;
 
 namespace TechChallenge.IntegrationTests.Integration;
@@ -19,7 +21,7 @@ public class FuncionariosEndpointsIntegrationTests : IClassFixture<WebAplication
     [Fact]
     public async Task DeveExecutarCrudDeFuncionario()
     {
-        var criarRequest = CriarFuncionarioRequest("52998224725", "Mecanico");
+        var criarRequest = CriarFuncionarioRequest("52998224725", eTipoFuncionario.Mecanico);
 
         var criarResponse = await _client.PostAsJsonAsync("/api/v1/funcionarios", criarRequest);
 
@@ -34,7 +36,7 @@ public class FuncionariosEndpointsIntegrationTests : IClassFixture<WebAplication
         funcionario.Should().NotBeNull();
         funcionario.Nome.Should().Be(criarRequest.Nome);
         funcionario.Cpf.Should().Be(criarRequest.Cpf);
-        funcionario.Cargo.Should().Be(criarRequest.Cargo);
+        funcionario.Cargo.Should().Be(criarRequest.Cargo.ToString());
         funcionario.Endereco.Should().NotBeNull();
         funcionario.Endereco.Cidade.Should().Be(criarRequest.Endereco.Cidade);
 
@@ -64,14 +66,21 @@ public class FuncionariosEndpointsIntegrationTests : IClassFixture<WebAplication
     [Fact]
     public async Task DeveRetornarBadRequestQuandoFuncionarioInvalido()
     {
-        var request = CriarFuncionarioRequest("12345678901", "CargoInvalido");
+        var request = new
+        {
+            Nome = "Joao Funcionario",
+            Cpf = "12345678901",
+            Rg = "123456789",
+            Cargo = "CargoInvalido",
+            Endereco = CriarEnderecoRequest("Sao Paulo")
+        };
 
         var response = await _client.PostAsJsonAsync("/api/v1/funcionarios", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    private static CriarFuncionarioRequest CriarFuncionarioRequest(string cpf, string cargo)
+    private static CriarFuncionarioRequest CriarFuncionarioRequest(string cpf, eTipoFuncionario cargo)
     {
         return new CriarFuncionarioRequest
         {

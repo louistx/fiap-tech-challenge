@@ -1,3 +1,4 @@
+using System;
 using TechChallenge.Api.Models.Request;
 using TechChallenge.Api.Models.Response;
 using TechChallenge.Application.Features.OS.AtribuirOS;
@@ -141,7 +142,7 @@ public static class OrdensServicoEndpoints
         DataCriacao = os.DataCriacao,
         DataAtualizacao = os.DataAtualizacao,
         DataFinalizacao = os.DataFinalizacao,
-        Servicos = os.Servicos.Select(s => new ServicoResponse { Id = s.Id, Descricao = s.Descricao, Valor = s.Valor }).ToList(),
-        Produtos = os.Produtos.Select(p => new ProdutoResponse { Id = p.Id, Descricao = p.Descricao, Valor = p.Valor }).ToList()
+        Servicos = os.Servicos.Select(s => new ServicoResponse { Id = s.Servico.Id, Descricao = s.Servico.Descricao, Valor = (decimal)s.Valor }).ToList(),
+        Produtos = os.Produtos.Select(p => new ProdutoResponse { Id = p.Produto.Id, Descricao = p.Produto.Descricao, Valor = (decimal)p.Valor }).ToList()
     };
 }

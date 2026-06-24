@@ -1,3 +1,4 @@
+using System;
 namespace TechChallenge.Application.Features.Inventario.AtualizarItemInventario;
 
 public class AtualizarItemInventarioCommand

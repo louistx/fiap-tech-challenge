@@ -40,9 +40,6 @@ namespace TechChallenge.Infrastructure.Database.Configuration
             builder.Property(os => os.DataFinalizacao)
                 .IsRequired(false);
 
-            builder.HasMany(os => os.Servicos);
-            builder.HasMany(os => os.Produtos);
-
             builder.Property(os => os.Valor);
             builder.Property(os => os.Desconto);
             builder.Property(os => os.Acrescimo);

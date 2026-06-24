@@ -1,3 +1,4 @@
+using System;
 using TechChallenge.Domain.Enums;
 
 namespace TechChallenge.Domain.Entities;

@@ -37,7 +37,7 @@ public class WebAplicationFactory<TProgram> : WebApplicationFactory<TProgram> wh
 
             // busca o context na aplicação
             var dbContextDescriptor = services.SingleOrDefault(
-                d => d.ServiceType == 
+                d => d.ServiceType ==
                      typeof(IDbContextOptionsConfiguration<ApplicationDbContext>));
 
             // remove o context da aplicação

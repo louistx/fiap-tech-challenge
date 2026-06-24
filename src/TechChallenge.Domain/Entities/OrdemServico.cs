@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using TechChallenge.Domain.Enums;
 
 namespace TechChallenge.Domain.Entities;

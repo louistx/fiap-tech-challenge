@@ -1,3 +1,4 @@
+using System;
 namespace TechChallenge.Application.Features.Usuarios.AlterarStatus;
 
 public class AlterarStatusUsuarioCommand

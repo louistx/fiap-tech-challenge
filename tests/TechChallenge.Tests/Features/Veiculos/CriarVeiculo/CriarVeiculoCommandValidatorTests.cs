@@ -1,3 +1,4 @@
+using System;
 using FluentAssertions;
 using TechChallenge.Application.Features.Veiculos.CriarVeiculo;
 using TechChallenge.Domain.Enums;

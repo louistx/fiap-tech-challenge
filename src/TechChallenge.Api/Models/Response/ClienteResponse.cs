@@ -1,3 +1,4 @@
+using System;
 namespace TechChallenge.Api.Models.Response;
 
 public class ClienteResponse

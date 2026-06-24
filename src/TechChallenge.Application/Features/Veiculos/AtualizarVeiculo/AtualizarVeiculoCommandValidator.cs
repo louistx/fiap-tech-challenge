@@ -1,3 +1,4 @@
+using System;
 using FluentValidation;
 
 namespace TechChallenge.Application.Features.Veiculos.AtualizarVeiculo;

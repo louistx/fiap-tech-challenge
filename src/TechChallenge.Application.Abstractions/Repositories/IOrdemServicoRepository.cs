@@ -1,4 +1,5 @@
-﻿using TechChallenge.Domain.Entities;
+﻿using System;
+using TechChallenge.Domain.Entities;
 using TechChallenge.Domain.Enums;
 
 namespace TechChallenge.Application.Abstractions.Repositories

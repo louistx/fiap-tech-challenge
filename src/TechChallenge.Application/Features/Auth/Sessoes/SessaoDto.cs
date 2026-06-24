@@ -1,3 +1,4 @@
+using System;
 namespace TechChallenge.Application.Features.Auth.Sessoes;
 
 public record SessaoDto(

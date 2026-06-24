@@ -1,3 +1,4 @@
+using System;
 using FluentValidation;
 using TechChallenge.Application.Abstractions.Auth;
 using TechChallenge.Application.Abstractions.Repositories;

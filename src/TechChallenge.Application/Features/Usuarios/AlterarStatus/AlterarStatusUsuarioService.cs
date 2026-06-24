@@ -1,3 +1,4 @@
+using System;
 using TechChallenge.Application.Abstractions.Repositories;
 
 namespace TechChallenge.Application.Features.Usuarios.AlterarStatus;
