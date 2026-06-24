@@ -3,9 +3,9 @@ using System.Net.Http.Json;
 using FluentAssertions;
 using TechChallenge.Api.Models.Request;
 using TechChallenge.Api.Models.Response;
-using TechChallenge.Api.Tests.Integration.Factories;
+using TechChallenge.IntegrationTests.Integration.Factories;
 
-namespace TechChallenge.Api.Tests.Integration;
+namespace TechChallenge.IntegrationTests.Integration;
 
 public class FuncionariosEndpointsIntegrationTests : IClassFixture<WebAplicationFactory<Program>>
 {
@@ -32,11 +32,11 @@ public class FuncionariosEndpointsIntegrationTests : IClassFixture<WebAplication
         obterResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         var funcionario = await obterResponse.Content.ReadFromJsonAsync<FuncionarioResponse>();
         funcionario.Should().NotBeNull();
-        funcionario!.Nome.Should().Be(criarRequest.Nome);
+        funcionario.Nome.Should().Be(criarRequest.Nome);
         funcionario.Cpf.Should().Be(criarRequest.Cpf);
         funcionario.Cargo.Should().Be(criarRequest.Cargo);
         funcionario.Endereco.Should().NotBeNull();
-        funcionario.Endereco!.Cidade.Should().Be(criarRequest.Endereco.Cidade);
+        funcionario.Endereco.Cidade.Should().Be(criarRequest.Endereco.Cidade);
 
         var listarResponse = await _client.GetAsync("/api/v1/funcionarios");
         listarResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -49,7 +49,7 @@ public class FuncionariosEndpointsIntegrationTests : IClassFixture<WebAplication
 
         var funcionarioAtualizado = await _client.GetFromJsonAsync<FuncionarioResponse>($"/api/v1/funcionarios/{funcionarioId}");
         funcionarioAtualizado.Should().NotBeNull();
-        funcionarioAtualizado!.Nome.Should().Be(atualizarRequest.Nome);
+        funcionarioAtualizado.Nome.Should().Be(atualizarRequest.Nome);
         funcionarioAtualizado.Cpf.Should().Be(atualizarRequest.Cpf);
         funcionarioAtualizado.Cargo.Should().Be(atualizarRequest.Cargo);
         funcionarioAtualizado.Endereco!.Cidade.Should().Be(atualizarRequest.Endereco.Cidade);

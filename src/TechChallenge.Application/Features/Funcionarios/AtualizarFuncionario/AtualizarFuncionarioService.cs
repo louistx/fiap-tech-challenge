@@ -1,5 +1,4 @@
 using FluentValidation;
-using TechChallenge.Domain.Entities;
 using TechChallenge.Domain.Enums;
 using TechChallenge.Application.Abstractions.Repositories;
 
@@ -31,7 +30,6 @@ public class AtualizarFuncionarioService
         funcionario.Cpf = command.Cpf;
         funcionario.Rg = command.Rg;
         funcionario.TipoFuncionario = tipoFuncionario;
-        funcionario.Endereco ??= new Endereco { Id = Guid.NewGuid() };
         funcionario.Endereco.Logradouro = command.Logradouro;
         funcionario.Endereco.Complemento = command.Complemento;
         funcionario.Endereco.Numero = command.Numero;

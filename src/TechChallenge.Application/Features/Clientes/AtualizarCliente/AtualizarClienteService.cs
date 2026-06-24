@@ -1,5 +1,4 @@
 using FluentValidation;
-using TechChallenge.Domain.Entities;
 using TechChallenge.Application.Abstractions.Repositories;
 
 namespace TechChallenge.Application.Features.Clientes.AtualizarCliente;
@@ -26,7 +25,6 @@ public class AtualizarClienteService
         cliente.Nome = command.Nome;
         cliente.Cpf = command.Cpf;
         cliente.Rg = command.Rg;
-        cliente.Endereco ??= new Endereco { Id = Guid.NewGuid() };
         cliente.Endereco.Logradouro = command.Logradouro;
         cliente.Endereco.Complemento = command.Complemento;
         cliente.Endereco.Numero = command.Numero;

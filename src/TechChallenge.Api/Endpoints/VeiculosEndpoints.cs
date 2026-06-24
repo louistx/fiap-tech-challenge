@@ -16,6 +16,7 @@ public static class VeiculosEndpoints
 
         group.MapPost("/", CriarVeiculoAsync)
             .WithName("CriarVeiculo")
+            .RequireAuthorization("AdminOuVendedor")
             .WithSummary("Cria um novo veículo")
             .WithDescription("Adiciona um novo veículo ao banco de dados")
             .Produces<Guid>(StatusCodes.Status201Created)
@@ -36,6 +37,7 @@ public static class VeiculosEndpoints
 
         group.MapPut("/{id}", AtualizarVeiculoAsync)
             .WithName("AtualizarVeiculo")
+            .RequireAuthorization("AdminOuVendedor")
             .WithSummary("Atualiza um veículo existente")
             .WithDescription("Atualiza as informações de um veículo existente no banco de dados")
             .Produces(StatusCodes.Status200OK)
@@ -43,6 +45,7 @@ public static class VeiculosEndpoints
 
         group.MapDelete("/{id}", ExcluirVeiculoAsync)
             .WithName("ExcluirVeiculo")
+            .RequireAuthorization("AdminOuVendedor")
             .WithSummary("Exclui um veículo existente")
             .WithDescription("Exclui um veículo existente do banco de dados")
             .Produces(StatusCodes.Status204NoContent)

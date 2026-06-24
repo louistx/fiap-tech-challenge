@@ -3,9 +3,9 @@ using System.Net.Http.Json;
 using FluentAssertions;
 using TechChallenge.Api.Models.Request;
 using TechChallenge.Api.Models.Response;
-using TechChallenge.Api.Tests.Integration.Factories;
+using TechChallenge.IntegrationTests.Integration.Factories;
 
-namespace TechChallenge.Api.Tests.Integration;
+namespace TechChallenge.IntegrationTests.Integration;
 
 public class ClientesEndpointsIntegrationTests : IClassFixture<WebAplicationFactory<Program>>
 {
@@ -32,10 +32,10 @@ public class ClientesEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         obterResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         var cliente = await obterResponse.Content.ReadFromJsonAsync<ClienteResponse>();
         cliente.Should().NotBeNull();
-        cliente!.Nome.Should().Be(criarRequest.Nome);
+        cliente.Nome.Should().Be(criarRequest.Nome);
         cliente.Cpf.Should().Be(criarRequest.Cpf);
         cliente.Endereco.Should().NotBeNull();
-        cliente.Endereco!.Cidade.Should().Be(criarRequest.Endereco.Cidade);
+        cliente.Endereco.Cidade.Should().Be(criarRequest.Endereco.Cidade);
 
         var listarResponse = await _client.GetAsync("/api/v1/clientes");
         listarResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -48,7 +48,7 @@ public class ClientesEndpointsIntegrationTests : IClassFixture<WebAplicationFact
 
         var clienteAtualizado = await _client.GetFromJsonAsync<ClienteResponse>($"/api/v1/clientes/{clienteId}");
         clienteAtualizado.Should().NotBeNull();
-        clienteAtualizado!.Nome.Should().Be(atualizarRequest.Nome);
+        clienteAtualizado.Nome.Should().Be(atualizarRequest.Nome);
         clienteAtualizado.Cpf.Should().Be(atualizarRequest.Cpf);
         clienteAtualizado.Endereco!.Cidade.Should().Be(atualizarRequest.Endereco.Cidade);
 

@@ -18,6 +18,7 @@ public static class ClientesEndpoints
 
         group.MapPost("/", CriarClienteAsync)
             .WithName("CriarCliente")
+            .RequireAuthorization("AdminOuVendedor")
             .WithSummary("Cria um novo cliente")
             .WithDescription("Adiciona um novo cliente ao banco de dados")
             .Produces<Guid>(StatusCodes.Status201Created)
@@ -38,12 +39,14 @@ public static class ClientesEndpoints
 
         group.MapPut("/{id}", AtualizarClienteAsync)
             .WithName("AtualizarCliente")
+            .RequireAuthorization("AdminOuVendedor")
             .WithSummary("Atualiza um cliente existente")
             .WithDescription("Atualiza as informações de um cliente existente no banco de dados")
             .ProducesValidationProblem();
 
         group.MapDelete("/{id}", ExcluirClienteAsync)
             .WithName("ExcluirCliente")
+            .RequireAuthorization("AdminOuVendedor")
             .WithSummary("Exclui um cliente existente")
             .WithDescription("Exclui um cliente existente do banco de dados")
             .ProducesValidationProblem();
@@ -118,7 +121,7 @@ public static class ClientesEndpoints
             Nome = cliente.Nome,
             Cpf = cliente.Cpf,
             Rg = cliente.Rg,
-            Endereco = cliente.Endereco is null ? null : new EnderecoResponse
+            Endereco = new EnderecoResponse
             {
                 Id = cliente.Endereco.Id,
                 Logradouro = cliente.Endereco.Logradouro,

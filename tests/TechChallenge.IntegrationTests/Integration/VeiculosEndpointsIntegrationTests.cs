@@ -1,9 +1,9 @@
 using FluentAssertions;
 using System.Net;
 using System.Text;
-using TechChallenge.Api.Tests.Integration.Factories;
+using TechChallenge.IntegrationTests.Integration.Factories;
 
-namespace TechChallenge.Api.Tests.Integration;
+namespace TechChallenge.IntegrationTests.Integration;
 
 public class VeiculosEndpointsIntegrationTests : IClassFixture<WebAplicationFactory<Program>>
 {
@@ -19,7 +19,7 @@ public class VeiculosEndpointsIntegrationTests : IClassFixture<WebAplicationFact
     {
         var response = await _client.PostAsync("/api/v1/veiculos", null);
 
-        response.StatusCode.Should().Be(System.Net.HttpStatusCode.BadRequest);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Fact]

@@ -14,7 +14,8 @@ public static class FuncionariosEndpoints
     public static IEndpointRouteBuilder MapFuncionariosEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/v1/funcionarios")
-            .WithName("Funcionarios");
+            .WithName("Funcionarios")
+            .RequireAuthorization("AdminOnly");
 
         group.MapPost("/", CriarFuncionarioAsync)
             .WithName("CriarFuncionario")
@@ -121,7 +122,7 @@ public static class FuncionariosEndpoints
             Cpf = funcionario.Cpf,
             Rg = funcionario.Rg,
             Cargo = funcionario.TipoFuncionario.ToString(),
-            Endereco = funcionario.Endereco is null ? null : new EnderecoResponse
+            Endereco = new EnderecoResponse
             {
                 Id = funcionario.Endereco.Id,
                 Logradouro = funcionario.Endereco.Logradouro,

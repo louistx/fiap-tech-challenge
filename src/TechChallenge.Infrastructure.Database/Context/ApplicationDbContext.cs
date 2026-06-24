@@ -17,6 +17,8 @@ namespace TechChallenge.Infrastructure.Database.Context
         public DbSet<Produto> Produto { get; set; }
         public DbSet<Servico> Servico { get; set; }
         public DbSet<Veiculo> Veiculo { get; set; }
+        public DbSet<Usuario> Usuario { get; set; }
+        public DbSet<RefreshToken> RefreshToken { get; set; }
         public DbSet<OrdemServicoProdutos> OrdemServicoProdutos { get; set; }
         public DbSet<OrdemServicoServicos> OrdemServicoServicos { get; set; }
 

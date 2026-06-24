@@ -1,22 +1,39 @@
 using System.Data.Common;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using TechChallenge.Infrastructure.Database.Context;
 
-namespace TechChallenge.Api.Tests.Integration.Factories;
+namespace TechChallenge.IntegrationTests.Integration.Factories;
 
 public class WebAplicationFactory<TProgram> : WebApplicationFactory<TProgram> where TProgram : class
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.ConfigureAppConfiguration(config =>
+        {
+            config.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Jwt:SecretKey"] = "test-secret-key-com-mais-de-32-caracteres-1234567890",
+                ["Jwt:Issuer"] = "techchallenge-api",
+                ["Jwt:Audience"] = "techchallenge-clients",
+                ["Jwt:RefreshOverlapSeconds"] = "0"
+            });
+        });
+
         builder.ConfigureServices(services =>
         {
             SQLitePCL.Batteries.Init();
+
+            // Substitui o JWT Bearer pelo esquema de teste (autentica como Administrador por padrão).
+            services.AddAuthentication(TestAuthHandler.SchemeName)
+                .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestAuthHandler.SchemeName, _ => { });
 
             // busca o context na aplicação
             var dbContextDescriptor = services.SingleOrDefault(
@@ -39,8 +56,8 @@ public class WebAplicationFactory<TProgram> : WebApplicationFactory<TProgram> wh
 
             services.AddDbContext<ApplicationDbContext>((container, options) =>
             {
-                var connection = container.GetRequiredService<DbConnection>();
-                options.UseSqlite(connection);
+                var dbConnection = container.GetRequiredService<DbConnection>();
+                options.UseSqlite(dbConnection);
             });
 
             var provider = services.BuildServiceProvider();
