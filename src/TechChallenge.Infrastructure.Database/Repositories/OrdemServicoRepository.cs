@@ -28,16 +28,16 @@ namespace TechChallenge.Infrastructure.Database.Repositories
         public override async Task<OrdemServico?> GetByIdAsync(Guid id)
         {
             return await _context.OrdemServico
-                .Include(os => os.Servicos)
-                .Include(os => os.Produtos)
+                .Include(os => os.Servicos.Where(oss => oss.OrdemServicoId == id))
+                .Include(os => os.Produtos.Where(osp => osp.OrdemServicoId == id))
                 .FirstOrDefaultAsync(os => os.Id == id);
         }
 
         public override async Task<List<OrdemServico>> GetAllAsync()
         {
             return await _context.OrdemServico
-                .Include(os => os.Servicos)
-                .Include(os => os.Produtos)
+                .Include(os => os.Servicos.Where(oss => oss.OrdemServicoId == os.Id))
+                .Include(os => os.Produtos.Where(osp => osp.OrdemServicoId == os.Id))
                 .ToListAsync();
         }
 
@@ -48,8 +48,8 @@ namespace TechChallenge.Infrastructure.Database.Repositories
                 .Include(os => os.Veiculo)
                 .Include(os => os.FuncionarioResponsavel)
                 .Include(os => os.ClienteResponsavel)
-                .Include(os => os.Servicos)
-                .Include(os => os.Produtos)
+                .Include(os => os.Servicos.Where(oss => oss.OrdemServicoId == os.Id))
+                .Include(os => os.Produtos.Where(osp => osp.OrdemServicoId == os.Id))
                 .ToListAsync();
         }
 

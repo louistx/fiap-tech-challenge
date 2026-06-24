@@ -40,13 +40,12 @@ namespace TechChallenge.Infrastructure.Database.Configuration
             builder.Property(os => os.DataFinalizacao)
                 .IsRequired(false);
 
-            builder.HasMany(os => os.Servicos)
-                .WithMany()
-                .UsingEntity("OrdemServicoServico");
+            builder.HasMany(os => os.Servicos);
+            builder.HasMany(os => os.Produtos);
 
-            builder.HasMany(os => os.Produtos)
-                .WithMany()
-                .UsingEntity("OrdemServicoProduto");
+            builder.Property(os => os.Valor);
+            builder.Property(os => os.Desconto);
+            builder.Property(os => os.Acrescimo);
         }
     }
 }

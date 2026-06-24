@@ -13,9 +13,12 @@ public class OrdemServico
     public Funcionario FuncionarioResponsavel { get; set; }
     public Guid VeiculoId { get; set; }
     public Veiculo Veiculo { get; set; }
-    public ICollection<Servico> Servicos { get; set; } = new List<Servico>();
-    public ICollection<Produto> Produtos { get; set; } = new List<Produto>();
+    public ICollection<OrdemServicoServicos> Servicos { get; set; } = new List<OrdemServicoServicos>();
+    public ICollection<OrdemServicoProdutos> Produtos { get; set; } = new List<OrdemServicoProdutos>();
     public DateTime DataCriacao { get; set; }
     public DateTime? DataAtualizacao { get; set; }
     public DateTime? DataFinalizacao { get; set; }
+    public double Valor { get; set; }
+    public double Desconto { get; set; }
+    public double Acrescimo { get; set; }
 }

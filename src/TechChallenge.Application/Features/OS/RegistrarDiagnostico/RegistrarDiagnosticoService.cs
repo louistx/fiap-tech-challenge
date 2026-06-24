@@ -1,21 +1,20 @@
 using FluentValidation;
-using TechChallenge.Domain.Entities;
-using TechChallenge.Domain.Enums;
 using TechChallenge.Application.Abstractions.Repositories;
+using TechChallenge.Domain.Enums;
 
 namespace TechChallenge.Application.Features.OS.RegistrarDiagnostico;
 
 public class RegistrarDiagnosticoService
 {
     private readonly IOrdemServicoRepository _ordemServicoRepository;
-    private readonly IServicoRepository _servicoRepository;
-    private readonly IProdutoRepository _produtoRepository;
+    private readonly IOrdemServicoServicosRepository _servicoRepository;
+    private readonly IOrdemServicoProdutosRepository _produtoRepository;
     private readonly IValidator<RegistrarDiagnosticoCommand> _validator;
 
     public RegistrarDiagnosticoService(
         IOrdemServicoRepository ordemServicoRepository,
-        IServicoRepository servicoRepository,
-        IProdutoRepository produtoRepository,
+        IOrdemServicoServicosRepository servicoRepository,
+        IOrdemServicoProdutosRepository produtoRepository,
         IValidator<RegistrarDiagnosticoCommand> validator)
     {
         _ordemServicoRepository = ordemServicoRepository;
