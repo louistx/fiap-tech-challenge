@@ -6,6 +6,18 @@ namespace TechChallenge.Domain.Entities;
 
 public class OrdemServico
 {
+    private static readonly Dictionary<eStatusOS, eStatusOS[]> Transicoes = new()
+    {
+        [eStatusOS.Recebida] = [eStatusOS.EmDiagnostico, eStatusOS.Cancelada],
+        [eStatusOS.EmDiagnostico] = [eStatusOS.AguardandoAprovacao, eStatusOS.Cancelada],
+        [eStatusOS.AguardandoAprovacao] = [eStatusOS.EmExecucao, eStatusOS.Reprovada, eStatusOS.Cancelada],
+        [eStatusOS.Reprovada] = [eStatusOS.EmDiagnostico, eStatusOS.Cancelada],
+        [eStatusOS.EmExecucao] = [eStatusOS.Finalizada, eStatusOS.Cancelada],
+        [eStatusOS.Finalizada] = [eStatusOS.Entregue],
+        [eStatusOS.Entregue] = [],
+        [eStatusOS.Cancelada] = []
+    };
+
     public Guid Id { get; set; }
     public string Descricao { get; set; } = string.Empty;
     public eStatusOS Status { get; set; }
@@ -23,4 +35,16 @@ public class OrdemServico
     public double Valor { get; set; }
     public double Desconto { get; set; }
     public double Acrescimo { get; set; }
+
+    public void TransicionarPara(eStatusOS novoStatus)
+    {
+        if (!Transicoes.TryGetValue(Status, out var permitidos) || !permitidos.Contains(novoStatus))
+            throw new InvalidOperationException($"Transição inválida: {Status} -> {novoStatus}.");
+
+        Status = novoStatus;
+        DataAtualizacao = DateTime.UtcNow;
+
+        if (novoStatus == eStatusOS.Finalizada)
+            DataFinalizacao = DateTime.UtcNow;
+    }
 }

@@ -48,7 +48,6 @@ public class CriarOSService
         {
             Id = Guid.NewGuid(),
             Descricao = command.Descricao,
-            // RF04: ao ser criada fica Criada, depois transiciona para Recebida (fila)
             Status = eStatusOS.Recebida,
             ClienteResponsavelId = command.ClienteResponsavelId,
             FuncionarioResponsavelId = command.FuncionarioResponsavelId,

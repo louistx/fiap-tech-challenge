@@ -64,7 +64,8 @@ namespace TechChallenge.Infrastructure.Database.Repositories
             return await _context.OrdemServico
                 .FirstOrDefaultAsync(os =>
                     os.FuncionarioResponsavelId == mecanicoId &&
-                    os.Status == eStatusOS.EmDiagnostico);
+                    (os.Status == eStatusOS.EmDiagnostico ||
+                     os.Status == eStatusOS.EmExecucao));
         }
 
         #endregion

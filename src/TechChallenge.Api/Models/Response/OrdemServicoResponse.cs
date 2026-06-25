@@ -14,6 +14,7 @@ public class OrdemServicoResponse
     public DateTime DataCriacao { get; set; }
     public DateTime? DataAtualizacao { get; set; }
     public DateTime? DataFinalizacao { get; set; }
+    public double Valor { get; set; }
     public List<ServicoResponse> Servicos { get; set; } = [];
     public List<ProdutoResponse> Produtos { get; set; } = [];
 }

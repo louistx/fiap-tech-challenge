@@ -90,6 +90,7 @@ namespace TechChallenge.Infrastructure.Auth
                 .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build())
                 .AddPolicy("AdminOnly", policy => policy.RequireRole("Administrador"))
                 .AddPolicy("AdminOuVendedor", policy => policy.RequireRole("Administrador", "Vendedor"))
+                .AddPolicy("MecanicoOuVendedor", policy => policy.RequireRole("Administrador", "Mecanico", "Vendedor"))
                 .AddPolicy("Mecanico", policy => policy.RequireRole("Mecanico"));
 
             return services;
