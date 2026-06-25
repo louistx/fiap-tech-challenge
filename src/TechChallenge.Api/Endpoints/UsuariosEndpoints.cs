@@ -61,12 +61,12 @@ public static class UsuariosEndpoints
 
         group.MapPatch("/{id}/desativar", DesativarUsuarioAsync)
             .WithName("DesativarUsuario")
-            .WithSummary("Desativa o usuário e revoga as sessões")
+            .WithSummary("Desativa o usuário e revoga os refresh tokens")
             .Produces(StatusCodes.Status204NoContent);
 
         group.MapPatch("/{id}/resetar-senha", ResetarSenhaAsync)
             .WithName("ResetarSenha")
-            .WithSummary("Define uma nova senha e revoga as sessões")
+            .WithSummary("Define uma nova senha e revoga os refresh tokens")
             .Produces(StatusCodes.Status204NoContent)
             .ProducesValidationProblem();
 

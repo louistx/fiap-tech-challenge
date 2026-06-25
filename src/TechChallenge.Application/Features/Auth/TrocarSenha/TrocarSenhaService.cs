@@ -44,9 +44,9 @@ public class TrocarSenhaService
         usuario.PasswordHash = _passwordHasher.Hash(command.NovaSenha);
         _usuarioRepository.UpdateAsync(usuario).GetAwaiter().GetResult();
 
-        // Invalida todas as sessões: força relogin com a nova senha.
+        // Invalida todos os refresh tokens: força relogin com a nova senha.
         _refreshTokenRepository
-            .RevogarTodasDoUsuarioAsync(usuario.Id, "troca-senha", DateTime.UtcNow)
+            .RevogarTodasDoUsuarioAsync(usuario.Id, DateTime.UtcNow)
             .GetAwaiter().GetResult();
     }
 }

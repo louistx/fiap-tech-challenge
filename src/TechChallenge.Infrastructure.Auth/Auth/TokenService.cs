@@ -16,7 +16,6 @@ namespace TechChallenge.Infrastructure.Auth
         public const string ClaimRole = "role";
         public const string ClaimNome = "name";
         public const string ClaimFuncionarioId = "funcionarioId";
-        public const string ClaimSessaoId = "sid";
 
         private readonly JwtOptions _options;
 
@@ -25,7 +24,7 @@ namespace TechChallenge.Infrastructure.Auth
             _options = options.Value;
         }
 
-        public AccessTokenResult GerarAccessToken(Usuario usuario, Guid sessaoId)
+        public AccessTokenResult GerarAccessToken(Usuario usuario)
         {
             var agora = DateTime.UtcNow;
             var expira = agora.AddMinutes(_options.AccessTokenMinutes);
@@ -35,7 +34,6 @@ namespace TechChallenge.Infrastructure.Auth
                 new(ClaimSub, usuario.Id.ToString()),
                 new(ClaimNome, usuario.Login),
                 new(ClaimRole, usuario.TipoUsuario.ToString()),
-                new(ClaimSessaoId, sessaoId.ToString()),
                 new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 

@@ -25,11 +25,11 @@ public class AlterarStatusUsuarioService
         usuario.Ativo = command.Ativo;
         _usuarioRepository.UpdateAsync(usuario).GetAwaiter().GetResult();
 
-        // Desativar derruba todas as sessões ativas.
+        // Desativar derruba todos os refresh tokens ativos.
         if (!command.Ativo)
         {
             _refreshTokenRepository
-                .RevogarTodasDoUsuarioAsync(usuario.Id, "usuario-desativado", DateTime.UtcNow)
+                .RevogarTodasDoUsuarioAsync(usuario.Id, DateTime.UtcNow)
                 .GetAwaiter().GetResult();
         }
     }

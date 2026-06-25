@@ -36,7 +36,7 @@ public class ResetarSenhaService
         _usuarioRepository.UpdateAsync(usuario).GetAwaiter().GetResult();
 
         _refreshTokenRepository
-            .RevogarTodasDoUsuarioAsync(usuario.Id, "reset-senha", DateTime.UtcNow)
+            .RevogarTodasDoUsuarioAsync(usuario.Id, DateTime.UtcNow)
             .GetAwaiter().GetResult();
     }
 }

@@ -5,7 +5,7 @@ using TechChallenge.Application.Abstractions.Auth;
 using TechChallenge.Application.Features.Auth.Login;
 using TechChallenge.Application.Features.Auth.Logout;
 using TechChallenge.Application.Features.Auth.Refresh;
-using TechChallenge.Application.Features.Auth.Sessoes;
+using TechChallenge.Application.Features.Auth.RefreshTokens;
 using TechChallenge.Application.Features.Auth.TrocarSenha;
 using TechChallenge.Application.Features.Usuarios.ObterUsuario;
 
@@ -42,13 +42,13 @@ public static class AuthEndpoints
         group.MapPost("/logout", LogoutAsync)
             .RequireAuthorization()
             .WithName("Logout")
-            .WithSummary("Revoga a sessão atual (claim sid do token)")
+            .WithSummary("Revoga os refresh tokens ativos do usuário autenticado")
             .Produces(StatusCodes.Status204NoContent);
 
         group.MapPost("/logout-all", LogoutTodasAsync)
             .RequireAuthorization()
             .WithName("LogoutTodas")
-            .WithSummary("Revoga todas as sessões do usuário autenticado")
+            .WithSummary("Revoga todos os refresh tokens do usuário autenticado")
             .Produces(StatusCodes.Status204NoContent);
 
         group.MapPatch("/senha", TrocarSenhaAsync)
@@ -58,16 +58,16 @@ public static class AuthEndpoints
             .Produces(StatusCodes.Status204NoContent)
             .ProducesValidationProblem();
 
-        group.MapGet("/sessoes", ListarSessoes)
+        group.MapGet("/refresh-tokens", ListarRefreshTokens)
             .RequireAuthorization()
-            .WithName("ListarSessoes")
-            .WithSummary("Lista as sessões ativas do usuário autenticado")
-            .Produces<List<SessaoResponse>>();
+            .WithName("ListarRefreshTokens")
+            .WithSummary("Lista os refresh tokens ativos do usuário autenticado")
+            .Produces<List<RefreshTokenResponse>>();
 
-        group.MapDelete("/sessoes/{sessaoId}", RevogarSessao)
+        group.MapDelete("/refresh-tokens/{refreshTokenId}", RevogarRefreshToken)
             .RequireAuthorization()
-            .WithName("RevogarSessao")
-            .WithSummary("Revoga uma sessão específica")
+            .WithName("RevogarRefreshToken")
+            .WithSummary("Revoga um refresh token específico")
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound);
 
@@ -79,9 +79,7 @@ public static class AuthEndpoints
         var command = new LoginCommand
         {
             Login = request.Login,
-            Senha = request.Senha,
-            UserAgent = http.Request.Headers.UserAgent.ToString(),
-            Ip = http.Connection.RemoteIpAddress?.ToString()
+            Senha = request.Senha
         };
 
         var resultado = service.Login(command);
@@ -129,17 +127,17 @@ public static class AuthEndpoints
         return Results.NoContent();
     }
 
-    private static IResult ListarSessoes(ListarSessoesService service)
+    private static IResult ListarRefreshTokens(ListarRefreshTokensService service)
     {
-        var sessoes = service.ListarSessoes()
-            .Select(s => new SessaoResponse(s.SessaoId, s.CriadoEm, s.ExpiraEm, s.UserAgent, s.IpCriacao))
+        var tokens = service.ListarRefreshTokens()
+            .Select(s => new RefreshTokenResponse(s.Id, s.CriadoEm, s.ExpiraEm))
             .ToList();
-        return Results.Ok(sessoes);
+        return Results.Ok(tokens);
     }
 
-    private static IResult RevogarSessao(Guid sessaoId, RevogarSessaoService service)
+    private static IResult RevogarRefreshToken(Guid refreshTokenId, RevogarRefreshTokenService service)
     {
-        service.RevogarSessao(sessaoId);
+        service.RevogarRefreshToken(refreshTokenId);
         return Results.NoContent();
     }
 

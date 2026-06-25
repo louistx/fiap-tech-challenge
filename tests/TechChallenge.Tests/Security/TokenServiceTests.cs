@@ -28,14 +28,13 @@ public class TokenServiceTests
             TipoUsuario = eTipoUsuario.Administrador
         };
 
-        var sessaoId = Guid.NewGuid();
-        var resultado = CriarService().GerarAccessToken(usuario, sessaoId);
+        var resultado = CriarService().GerarAccessToken(usuario);
 
         var token = new JwtSecurityTokenHandler().ReadJwtToken(resultado.Token);
         token.Claims.Should().Contain(c => c.Type == "sub" && c.Value == usuario.Id.ToString());
         token.Claims.Should().Contain(c => c.Type == "role" && c.Value == "Administrador");
         token.Claims.Should().Contain(c => c.Type == "name" && c.Value == "admin");
-        token.Claims.Should().Contain(c => c.Type == "sid" && c.Value == sessaoId.ToString());
+        token.Claims.Should().NotContain(c => c.Type == "sid");
         resultado.ExpiraEm.Should().BeAfter(DateTime.UtcNow);
     }
 
@@ -51,7 +50,7 @@ public class TokenServiceTests
             FuncionarioId = funcionarioId
         };
 
-        var resultado = CriarService().GerarAccessToken(usuario, Guid.NewGuid());
+        var resultado = CriarService().GerarAccessToken(usuario);
 
         var token = new JwtSecurityTokenHandler().ReadJwtToken(resultado.Token);
         token.Claims.Should().Contain(c => c.Type == "funcionarioId" && c.Value == funcionarioId.ToString());

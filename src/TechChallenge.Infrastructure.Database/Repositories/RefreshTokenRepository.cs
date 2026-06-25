@@ -22,40 +22,16 @@ namespace TechChallenge.Infrastructure.Database.Repositories
                 .FirstOrDefaultAsync(t => t.TokenHash == hash);
         }
 
-        public async Task<List<RefreshToken>> GetSessaoAsync(Guid sessaoId)
-        {
-            return await _context.RefreshToken
-                .Where(t => t.SessaoId == sessaoId)
-                .ToListAsync();
-        }
-
         public async Task<List<RefreshToken>> GetAtivasDoUsuarioAsync(Guid usuarioId, DateTime agora)
         {
             return await _context.RefreshToken
                 .Where(t => t.UsuarioId == usuarioId
                             && t.RevogadoEm == null
-                            && t.SubstituidoPorId == null
-                            && agora < t.ExpiraEm
-                            && agora < t.SessaoExpiraEm)
+                            && agora < t.ExpiraEm)
                 .ToListAsync();
         }
 
-        public async Task RevogarSessaoAsync(Guid sessaoId, string motivo, DateTime agora)
-        {
-            var tokens = await _context.RefreshToken
-                .Where(t => t.SessaoId == sessaoId && t.RevogadoEm == null)
-                .ToListAsync();
-
-            foreach (var token in tokens)
-            {
-                token.RevogadoEm = agora;
-                token.MotivoRevogacao = motivo;
-            }
-
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task RevogarTodasDoUsuarioAsync(Guid usuarioId, string motivo, DateTime agora)
+        public async Task RevogarTodasDoUsuarioAsync(Guid usuarioId, DateTime agora)
         {
             var tokens = await _context.RefreshToken
                 .Where(t => t.UsuarioId == usuarioId && t.RevogadoEm == null)
@@ -64,7 +40,6 @@ namespace TechChallenge.Infrastructure.Database.Repositories
             foreach (var token in tokens)
             {
                 token.RevogadoEm = agora;
-                token.MotivoRevogacao = motivo;
             }
 
             await _context.SaveChangesAsync();

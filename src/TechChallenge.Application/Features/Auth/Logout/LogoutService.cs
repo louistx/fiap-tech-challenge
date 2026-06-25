@@ -17,25 +17,23 @@ public class LogoutService
         _currentUser = currentUser;
     }
 
-    // Revoga a sessão atual (claim "sid" do access token).
     public void Logout()
     {
-        if (_currentUser.SessaoId is not { } sessaoId)
-            throw new UnauthorizedAccessException("Sessão não identificada.");
+        if (_currentUser.UsuarioId is not { } usuarioId)
+            throw new UnauthorizedAccessException("Usuário não autenticado.");
 
         _refreshTokenRepository
-            .RevogarSessaoAsync(sessaoId, "logout", DateTime.UtcNow)
+            .RevogarTodasDoUsuarioAsync(usuarioId, DateTime.UtcNow)
             .GetAwaiter().GetResult();
     }
 
-    // Revoga todas as sessões do usuário autenticado.
     public void LogoutTodas()
     {
         if (_currentUser.UsuarioId is not { } usuarioId)
             throw new UnauthorizedAccessException("Usuário não autenticado.");
 
         _refreshTokenRepository
-            .RevogarTodasDoUsuarioAsync(usuarioId, "logout-all", DateTime.UtcNow)
+            .RevogarTodasDoUsuarioAsync(usuarioId, DateTime.UtcNow)
             .GetAwaiter().GetResult();
     }
 }

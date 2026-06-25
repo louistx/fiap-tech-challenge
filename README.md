@@ -4,7 +4,7 @@ Projeto desenvolvido para a **Pós-Tech da FIAP**, como parte do Tech Challenge 
 
 O objetivo é construir o MVP do back-end de um sistema integrado para uma oficina mecânica, centralizando o cadastro de clientes e veículos, o controle das Ordens de Serviço, a elaboração de orçamentos, a gestão do inventário e o acompanhamento da execução dos serviços.
 
-> **Status do projeto:** em desenvolvimento. A API já possui persistência com PostgreSQL, migrations, seeding opcional do administrador inicial, autenticação JWT, refresh tokens, controle de sessões e autorização por perfil. O CRUD principal e parte do fluxo de OS já estão integrados aos casos de uso e repositórios. Transições completas da OS, orçamento/aprovação, notificações, pagamento e controle efetivo de estoque seguem no roadmap.
+> **Status do projeto:** em desenvolvimento. A API já possui persistência com PostgreSQL, migrations, seeding opcional do administrador inicial, autenticação JWT, refresh tokens e autorização por perfil. O CRUD principal e parte do fluxo de OS já estão integrados aos casos de uso e repositórios. Transições completas da OS, orçamento/aprovação, notificações, pagamento e controle efetivo de estoque seguem no roadmap.
 
 ## Sumário
 
@@ -290,7 +290,7 @@ Esta seção diferencia os requisitos do produto do que já está efetivamente d
 | CRUD de produtos/inventário | Implementado |
 | Fluxos iniciais de Ordens de Serviço | Implementados parcialmente |
 | Autenticação JWT | Implementada |
-| Refresh token e controle de sessões | Implementados |
+| Refresh token | Implementado |
 | Hash de senha PBKDF2 | Implementado |
 | RBAC por perfil de usuário | Implementado |
 | Seeding opcional do administrador inicial | Implementado |
@@ -316,11 +316,11 @@ Todos os endpoints utilizam o prefixo `/api/v1`.
 | `POST` | `/api/v1/auth/login` | Autentica usuário e retorna access token e refresh token | Anônimo |
 | `POST` | `/api/v1/auth/refresh` | Renova access token usando refresh token | Anônimo |
 | `GET` | `/api/v1/auth/me` | Retorna dados do usuário autenticado | Autenticado |
-| `POST` | `/api/v1/auth/logout` | Revoga a sessão atual | Autenticado |
-| `POST` | `/api/v1/auth/logout-all` | Revoga todas as sessões do usuário autenticado | Autenticado |
+| `POST` | `/api/v1/auth/logout` | Revoga os refresh tokens ativos do usuário autenticado | Autenticado |
+| `POST` | `/api/v1/auth/logout-all` | Revoga os refresh tokens ativos do usuário autenticado | Autenticado |
 | `PATCH` | `/api/v1/auth/senha` | Troca a senha do usuário autenticado | Autenticado |
-| `GET` | `/api/v1/auth/sessoes` | Lista sessões ativas do usuário autenticado | Autenticado |
-| `DELETE` | `/api/v1/auth/sessoes/{sessaoId}` | Revoga uma sessão específica | Autenticado |
+| `GET` | `/api/v1/auth/refresh-tokens` | Lista refresh tokens ativos do usuário autenticado | Autenticado |
+| `DELETE` | `/api/v1/auth/refresh-tokens/{refreshTokenId}` | Revoga um refresh token específico | Autenticado |
 
 ### Clientes
 
@@ -395,7 +395,7 @@ Todos os endpoints utilizam o prefixo `/api/v1`.
 | `PATCH` | `/api/v1/usuarios/{id}/vincular-funcionario` | Vincula usuário a funcionário | Administrador |
 | `PATCH` | `/api/v1/usuarios/{id}/desvincular-funcionario` | Desvincula usuário de funcionário | Administrador |
 | `PATCH` | `/api/v1/usuarios/{id}/ativar` | Ativa usuário | Administrador |
-| `PATCH` | `/api/v1/usuarios/{id}/desativar` | Desativa usuário e revoga sessões | Administrador |
+| `PATCH` | `/api/v1/usuarios/{id}/desativar` | Desativa usuário e revoga refresh tokens | Administrador |
 | `PATCH` | `/api/v1/usuarios/{id}/resetar-senha` | Redefine senha de usuário | Administrador |
 
 ## Como executar localmente
@@ -610,11 +610,11 @@ O **Coverlet** será utilizado em conjunto com o xUnit para medir a cobertura do
 O escopo de segurança implementado inclui:
 
 - autenticação JWT Bearer;
-- access token com claims `sub`, `role`, `name`, `sid` e `funcionarioId`;
+- access token com claims `sub`, `role`, `name` e `funcionarioId`;
 - refresh token opaco armazenado como hash SHA-256;
 - rotação de refresh token;
-- logout por sessão e logout de todas as sessões;
-- listagem e revogação de sessões ativas;
+- logout revogando refresh tokens ativos;
+- listagem e revogação de refresh tokens ativos;
 - hash de senha com PBKDF2;
 - política de senha com mínimo de 8 caracteres, letra e número;
 - autorização por perfil de usuário: `Administrador`, `Vendedor` e `Mecanico`;
@@ -664,7 +664,7 @@ Os resultados relevantes devem ser registrados no relatório de vulnerabilidades
 - [x] Integrar PostgreSQL via EF Core/Npgsql.
 - [x] Criar e integrar endpoints principais aos casos de uso.
 - [x] Implementar autenticação JWT.
-- [x] Implementar refresh tokens, logout e controle de sessões.
+- [x] Implementar refresh tokens e logout.
 - [x] Implementar hash de senha e política mínima de senha.
 - [x] Implementar RBAC por perfil de usuário.
 - [x] Adicionar PostgreSQL ao Docker Compose.

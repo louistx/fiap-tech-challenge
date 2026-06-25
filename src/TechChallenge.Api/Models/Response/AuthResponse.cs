@@ -13,9 +13,7 @@ public record UsuarioLogadoResponse(
     string TipoUsuario,
     Guid? FuncionarioId);
 
-public record SessaoResponse(
-    Guid SessaoId,
+public record RefreshTokenResponse(
+    Guid Id,
     DateTime CriadoEm,
-    DateTime ExpiraEm,
-    string? UserAgent,
-    string? IpCriacao);
+    DateTime ExpiraEm);

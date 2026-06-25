@@ -92,15 +92,15 @@ public class UsuariosEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         var refreshed = await refreshResponse.Content.ReadFromJsonAsync<LoginResponse>();
         refreshed!.RefreshToken.Should().NotBe(login.RefreshToken);
 
-        // Reuso do refresh antigo (overlap 0 no teste) -> detectado, 401.
+        // Reuso do refresh antigo revogado -> 401.
         var reuseResponse = await _client.PostAsJsonAsync("/api/v1/auth/refresh",
             new RefreshRequest { RefreshToken = login.RefreshToken });
         reuseResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
 
-        // Sessão revogada: o refresh novo também deixa de funcionar.
+        // Refresh novo continua válido, pois não há cadeia de sessão.
         var aposReuso = await _client.PostAsJsonAsync("/api/v1/auth/refresh",
             new RefreshRequest { RefreshToken = refreshed.RefreshToken });
-        aposReuso.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        aposReuso.StatusCode.Should().Be(HttpStatusCode.OK);
     }
 
     [Fact]

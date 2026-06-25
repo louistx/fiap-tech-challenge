@@ -21,8 +21,6 @@ public class CurrentUser : ICurrentUser
 
     public Guid? FuncionarioId => LerGuid(TokenService.ClaimFuncionarioId);
 
-    public Guid? SessaoId => LerGuid(TokenService.ClaimSessaoId);
-
     public eTipoUsuario? TipoUsuario =>
         Enum.TryParse<eTipoUsuario>(_principal?.FindFirstValue(TokenService.ClaimRole), out var tipo)
             ? tipo

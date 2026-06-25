@@ -9,7 +9,5 @@ namespace TechChallenge.Infrastructure.Auth
         public string SecretKey { get; set; } = string.Empty;
         public int AccessTokenMinutes { get; set; } = 15;
         public int RefreshTokenDays { get; set; } = 7;
-        public int RefreshSessionMaxDays { get; set; } = 30;
-        public int RefreshOverlapSeconds { get; set; } = 10;
     }
 }

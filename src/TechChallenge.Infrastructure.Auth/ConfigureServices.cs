@@ -9,7 +9,7 @@ using TechChallenge.Application.Abstractions.Repositories;
 using TechChallenge.Application.Features.Auth.Login;
 using TechChallenge.Application.Features.Auth.Logout;
 using TechChallenge.Application.Features.Auth.Refresh;
-using TechChallenge.Application.Features.Auth.Sessoes;
+using TechChallenge.Application.Features.Auth.RefreshTokens;
 using TechChallenge.Application.Features.Auth.TrocarSenha;
 using TechChallenge.Application.Features.Usuarios.AlterarStatus;
 using TechChallenge.Application.Features.Usuarios.AlterarTipo;
@@ -48,8 +48,8 @@ namespace TechChallenge.Infrastructure.Auth
             services.AddScoped<RefreshService>();
             services.AddScoped<TrocarSenhaService>();
             services.AddScoped<LogoutService>();
-            services.AddScoped<ListarSessoesService>();
-            services.AddScoped<RevogarSessaoService>();
+            services.AddScoped<ListarRefreshTokensService>();
+            services.AddScoped<RevogarRefreshTokenService>();
 
             services.AddScoped<CriarUsuarioService>();
             services.AddScoped<ListarUsuariosService>();

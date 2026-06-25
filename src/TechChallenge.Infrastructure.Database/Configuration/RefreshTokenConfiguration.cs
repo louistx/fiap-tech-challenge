@@ -17,15 +17,8 @@ namespace TechChallenge.Infrastructure.Database.Configuration
             builder.HasIndex(t => t.TokenHash)
                 .IsUnique();
 
-            builder.HasIndex(t => t.SessaoId);
-
-            builder.Property(t => t.SessaoId).IsRequired();
             builder.Property(t => t.CriadoEm).IsRequired();
             builder.Property(t => t.ExpiraEm).IsRequired();
-            builder.Property(t => t.SessaoExpiraEm).IsRequired();
-            builder.Property(t => t.MotivoRevogacao).HasMaxLength(40);
-            builder.Property(t => t.UserAgent).HasMaxLength(256);
-            builder.Property(t => t.IpCriacao).HasMaxLength(64);
         }
     }
 }

@@ -7,7 +7,7 @@ namespace TechChallenge.Application.Abstractions.Auth
 
     public interface ITokenService
     {
-        AccessTokenResult GerarAccessToken(Usuario usuario, Guid sessaoId);  // sessaoId vira claim "sid"
+        AccessTokenResult GerarAccessToken(Usuario usuario);
         string GerarRefreshToken();                 // valor cru aleatório (256-bit)
         string HashRefreshToken(string tokenCru);   // SHA-256 -> armazenar/comparar
     }

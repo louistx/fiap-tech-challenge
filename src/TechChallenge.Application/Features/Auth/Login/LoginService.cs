@@ -42,8 +42,7 @@ public class LoginService
         if (!_passwordHasher.Verify(command.Senha, usuario.PasswordHash))
             throw new UnauthorizedAccessException("Credenciais inválidas.");
 
-        var sessaoId = Guid.NewGuid();
-        var access = _tokenService.GerarAccessToken(usuario, sessaoId);
+        var access = _tokenService.GerarAccessToken(usuario);
         var refreshCru = _tokenService.GerarRefreshToken();
 
         var agora = DateTime.UtcNow;
@@ -52,12 +51,8 @@ public class LoginService
             Id = Guid.NewGuid(),
             UsuarioId = usuario.Id,
             TokenHash = _tokenService.HashRefreshToken(refreshCru),
-            SessaoId = sessaoId,
             CriadoEm = agora,
-            ExpiraEm = agora.AddDays(_settings.RefreshTokenDays),
-            SessaoExpiraEm = agora.AddDays(_settings.RefreshSessionMaxDays),
-            UserAgent = command.UserAgent,
-            IpCriacao = command.Ip
+            ExpiraEm = agora.AddDays(_settings.RefreshTokenDays)
         };
 
         _refreshTokenRepository.AddAsync(refreshToken).GetAwaiter().GetResult();

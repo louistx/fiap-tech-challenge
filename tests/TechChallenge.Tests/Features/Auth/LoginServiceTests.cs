@@ -20,7 +20,6 @@ public class LoginServiceTests
     private LoginService CriarService()
     {
         _settings.SetupGet(s => s.RefreshTokenDays).Returns(7);
-        _settings.SetupGet(s => s.RefreshSessionMaxDays).Returns(30);
         return new LoginService(_usuarios.Object, _refresh.Object, _hasher.Object,
             _tokens.Object, _settings.Object, new LoginCommandValidator());
     }
@@ -73,7 +72,7 @@ public class LoginServiceTests
         };
         _usuarios.Setup(r => r.GetByLoginAsync("admin")).ReturnsAsync(usuario);
         _hasher.Setup(h => h.Verify("Senha@123", "h")).Returns(true);
-        _tokens.Setup(t => t.GerarAccessToken(usuario, It.IsAny<Guid>()))
+        _tokens.Setup(t => t.GerarAccessToken(usuario))
             .Returns(new AccessTokenResult("jwt", DateTime.UtcNow.AddMinutes(15)));
         _tokens.Setup(t => t.GerarRefreshToken()).Returns("cru");
         _tokens.Setup(t => t.HashRefreshToken("cru")).Returns("hash");
@@ -89,7 +88,7 @@ public class LoginServiceTests
         salvo.Should().NotBeNull();
         salvo!.TokenHash.Should().Be("hash");
         salvo.UsuarioId.Should().Be(usuario.Id);
-        salvo.SessaoId.Should().NotBeEmpty();
+        salvo.ExpiraEm.Should().BeAfter(salvo.CriadoEm);
         _refresh.Verify(r => r.AddAsync(It.IsAny<RefreshToken>()), Times.Once);
     }
 }

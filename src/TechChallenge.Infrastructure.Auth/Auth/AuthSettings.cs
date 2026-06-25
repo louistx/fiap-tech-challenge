@@ -13,7 +13,5 @@ namespace TechChallenge.Infrastructure.Auth
         }
 
         public int RefreshTokenDays => _options.RefreshTokenDays;
-        public int RefreshSessionMaxDays => _options.RefreshSessionMaxDays;
-        public int RefreshOverlapSeconds => _options.RefreshOverlapSeconds;
     }
 }
