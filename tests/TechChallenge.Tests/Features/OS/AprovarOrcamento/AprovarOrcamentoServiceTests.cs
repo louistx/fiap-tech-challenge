@@ -1,0 +1,43 @@
+using FluentAssertions;
+using Moq;
+using TechChallenge.Application.Abstractions.Repositories;
+using TechChallenge.Application.Features.OS.AprovarOrcamento;
+using TechChallenge.Domain.Entities;
+using TechChallenge.Domain.Enums;
+
+namespace TechChallenge.Tests.Features.OS.AprovarOrcamento;
+
+public class AprovarOrcamentoServiceTests
+{
+    [Fact]
+    public void DeveAprovarOrcamentoEIniciarExecucao()
+    {
+        var os = new OrdemServico { Id = Guid.NewGuid(), Status = eStatusOS.AguardandoAprovacao };
+        var repository = new Mock<IOrdemServicoRepository>();
+        repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
+        repository.Setup(repo => repo.UpdateAsync(os)).ReturnsAsync(os);
+        var service = new AprovarOrcamentoService(repository.Object, new AprovarOrcamentoCommandValidator());
+
+        var resultado = service.AprovarOrcamento(new AprovarOrcamentoCommand { OrdemServicoId = os.Id });
+
+        resultado.Should().BeTrue();
+        os.Status.Should().Be(eStatusOS.EmExecucao);
+        os.DataAtualizacao.Should().NotBeNull();
+        repository.Verify(repo => repo.UpdateAsync(os), Times.Once);
+    }
+
+    [Fact]
+    public void DeveBloquearAprovacaoQuandoOSNaoAguardarAprovacao()
+    {
+        var os = new OrdemServico { Id = Guid.NewGuid(), Status = eStatusOS.EmDiagnostico };
+        var repository = new Mock<IOrdemServicoRepository>();
+        repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
+        var service = new AprovarOrcamentoService(repository.Object, new AprovarOrcamentoCommandValidator());
+
+        var act = () => service.AprovarOrcamento(new AprovarOrcamentoCommand { OrdemServicoId = os.Id });
+
+        act.Should().Throw<InvalidOperationException>()
+            .WithMessage($"Transição inválida: {eStatusOS.EmDiagnostico} -> {eStatusOS.EmExecucao}.");
+        repository.Verify(repo => repo.UpdateAsync(It.IsAny<OrdemServico>()), Times.Never);
+    }
+}

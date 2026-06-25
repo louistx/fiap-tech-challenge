@@ -71,7 +71,7 @@ public class AtribuirOSServiceTests
         });
 
         act.Should().Throw<InvalidOperationException>()
-            .WithMessage($"Mecânico já possui uma OS em diagnóstico (Id: {osAtiva.Id}).");
+            .WithMessage($"Mecânico já possui uma OS ativa (Id: {osAtiva.Id}).");
         ordemServicoRepository.Verify(repo => repo.UpdateAsync(It.IsAny<OrdemServico>()), Times.Never);
     }
 
@@ -79,7 +79,7 @@ public class AtribuirOSServiceTests
     public void DeveImpedirAtribuicaoQuandoOSNaoEstiverRecebida()
     {
         var mecanicoId = Guid.NewGuid();
-        var ordemServico = new OrdemServico { Id = Guid.NewGuid(), Status = eStatusOS.Criada };
+        var ordemServico = new OrdemServico { Id = Guid.NewGuid(), Status = eStatusOS.Finalizada };
         var funcionarioRepository = new Mock<IFuncionarioRepository>();
         var ordemServicoRepository = new Mock<IOrdemServicoRepository>();
         funcionarioRepository.Setup(repo => repo.GetByIdAsync(mecanicoId))
@@ -100,7 +100,7 @@ public class AtribuirOSServiceTests
         });
 
         act.Should().Throw<InvalidOperationException>()
-            .WithMessage($"Apenas OS com status Recebida podem ser atribuídas. Status atual: {ordemServico.Status}.");
+            .WithMessage($"Transição inválida: {ordemServico.Status} -> {eStatusOS.EmDiagnostico}.");
         ordemServicoRepository.Verify(repo => repo.UpdateAsync(It.IsAny<OrdemServico>()), Times.Never);
     }
 }
