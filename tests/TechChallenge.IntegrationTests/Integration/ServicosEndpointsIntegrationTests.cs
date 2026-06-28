@@ -37,7 +37,7 @@ public class ServicosEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         obterResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         var servico = await obterResponse.Content.ReadFromJsonAsync<ServicoResponse>();
         servico.Should().NotBeNull();
-        servico!.Descricao.Should().Be(criarRequest.Descricao);
+        servico.Descricao.Should().Be(criarRequest.Descricao);
         servico.Valor.Should().Be(criarRequest.Valor);
 
         var listarResponse = await _client.GetAsync("/api/v1/servicos");
@@ -55,7 +55,7 @@ public class ServicosEndpointsIntegrationTests : IClassFixture<WebAplicationFact
 
         var servicoAtualizado = await _client.GetFromJsonAsync<ServicoResponse>($"/api/v1/servicos/{servicoId}");
         servicoAtualizado.Should().NotBeNull();
-        servicoAtualizado!.Descricao.Should().Be(atualizarRequest.Descricao);
+        servicoAtualizado.Descricao.Should().Be(atualizarRequest.Descricao);
         servicoAtualizado.Valor.Should().Be(atualizarRequest.Valor);
 
         var excluirResponse = await _client.DeleteAsync($"/api/v1/servicos/{servicoId}");

@@ -8,7 +8,7 @@ public class CriarFuncionarioRequest
     public string Cpf { get; set; } = string.Empty;
     public string Rg { get; set; } = string.Empty;
     public eTipoFuncionario Cargo { get; set; }
-    public EnderecoRequest Endereco { get; set; } = new();
+    public EnderecoRequest? Endereco { get; set; }
 }
 
 public class AtualizarFuncionarioRequest
@@ -17,5 +17,5 @@ public class AtualizarFuncionarioRequest
     public string Cpf { get; set; } = string.Empty;
     public string Rg { get; set; } = string.Empty;
     public string Cargo { get; set; } = string.Empty;
-    public EnderecoRequest Endereco { get; set; } = new();
+    public EnderecoRequest? Endereco { get; set; }
 }

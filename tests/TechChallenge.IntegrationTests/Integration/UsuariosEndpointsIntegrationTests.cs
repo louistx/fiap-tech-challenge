@@ -38,7 +38,7 @@ public class UsuariosEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         obterResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         var usuario = await obterResponse.Content.ReadFromJsonAsync<UsuarioResponse>();
         usuario.Should().NotBeNull();
-        usuario!.Login.Should().Be("vendedor.teste");
+        usuario.Login.Should().Be("vendedor.teste");
         usuario.TipoUsuario.Should().Be("Vendedor");
         usuario.Ativo.Should().BeTrue();
     }
@@ -82,7 +82,7 @@ public class UsuariosEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         loginResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         var login = await loginResponse.Content.ReadFromJsonAsync<LoginResponse>();
         login.Should().NotBeNull();
-        login!.AccessToken.Should().NotBeNullOrWhiteSpace();
+        login.AccessToken.Should().NotBeNullOrWhiteSpace();
         login.RefreshToken.Should().NotBeNullOrWhiteSpace();
 
         // Rotação: novo par, refresh diferente.
@@ -90,7 +90,8 @@ public class UsuariosEndpointsIntegrationTests : IClassFixture<WebAplicationFact
             new RefreshRequest { RefreshToken = login.RefreshToken });
         refreshResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         var refreshed = await refreshResponse.Content.ReadFromJsonAsync<LoginResponse>();
-        refreshed!.RefreshToken.Should().NotBe(login.RefreshToken);
+        refreshed.Should().NotBeNull();
+        refreshed.RefreshToken.Should().NotBe(login.RefreshToken);
 
         // Reuso do refresh antigo revogado -> 401.
         var reuseResponse = await _client.PostAsJsonAsync("/api/v1/auth/refresh",

@@ -86,7 +86,7 @@ public class LoginServiceTests
         resultado.AccessToken.Should().Be("jwt");
         resultado.RefreshToken.Should().Be("cru");
         salvo.Should().NotBeNull();
-        salvo!.TokenHash.Should().Be("hash");
+        salvo.TokenHash.Should().Be("hash");
         salvo.UsuarioId.Should().Be(usuario.Id);
         salvo.ExpiraEm.Should().BeAfter(salvo.CriadoEm);
         _refresh.Verify(r => r.AddAsync(It.IsAny<RefreshToken>()), Times.Once);

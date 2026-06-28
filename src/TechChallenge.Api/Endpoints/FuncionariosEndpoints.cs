@@ -55,19 +55,21 @@ public static class FuncionariosEndpoints
 
     private static IResult CriarFuncionarioAsync(CriarFuncionarioRequest request, CriarFuncionarioService service)
     {
+        var endereco = request.Endereco ?? new EnderecoRequest();
+
         var command = new CriarFuncionarioCommand
         {
             Nome = request.Nome,
             Cpf = request.Cpf,
             Rg = request.Rg,
             Cargo = request.Cargo.ToString(),
-            Logradouro = request.Endereco.Logradouro,
-            Complemento = request.Endereco.Complemento,
-            Numero = request.Endereco.Numero,
-            Bairro = request.Endereco.Bairro,
-            Cidade = request.Endereco.Cidade,
-            Estado = request.Endereco.Estado,
-            Cep = request.Endereco.Cep
+            Logradouro = endereco.Logradouro ?? string.Empty,
+            Complemento = endereco.Complemento ?? string.Empty,
+            Numero = endereco.Numero ?? string.Empty,
+            Bairro = endereco.Bairro ?? string.Empty,
+            Cidade = endereco.Cidade ?? string.Empty,
+            Estado = endereco.Estado ?? string.Empty,
+            Cep = endereco.Cep ?? string.Empty
         };
 
         var id = service.CriarFuncionario(command);
@@ -88,6 +90,8 @@ public static class FuncionariosEndpoints
 
     private static IResult AtualizarFuncionarioAsync(Guid id, AtualizarFuncionarioRequest request, AtualizarFuncionarioService service)
     {
+        var endereco = request.Endereco ?? new EnderecoRequest();
+
         var command = new AtualizarFuncionarioCommand
         {
             Id = id,
@@ -95,13 +99,13 @@ public static class FuncionariosEndpoints
             Cpf = request.Cpf,
             Rg = request.Rg,
             Cargo = request.Cargo,
-            Logradouro = request.Endereco.Logradouro,
-            Complemento = request.Endereco.Complemento,
-            Numero = request.Endereco.Numero,
-            Bairro = request.Endereco.Bairro,
-            Cidade = request.Endereco.Cidade,
-            Estado = request.Endereco.Estado,
-            Cep = request.Endereco.Cep
+            Logradouro = endereco.Logradouro ?? string.Empty,
+            Complemento = endereco.Complemento ?? string.Empty,
+            Numero = endereco.Numero ?? string.Empty,
+            Bairro = endereco.Bairro ?? string.Empty,
+            Cidade = endereco.Cidade ?? string.Empty,
+            Estado = endereco.Estado ?? string.Empty,
+            Cep = endereco.Cep ?? string.Empty
         };
 
         service.AtualizarFuncionario(command);

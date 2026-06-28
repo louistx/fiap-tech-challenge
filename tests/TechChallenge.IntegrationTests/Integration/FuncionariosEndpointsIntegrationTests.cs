@@ -38,7 +38,7 @@ public class FuncionariosEndpointsIntegrationTests : IClassFixture<WebAplication
         funcionario.Cpf.Should().Be("529.982.247-25");
         funcionario.Cargo.Should().Be(criarRequest.Cargo.ToString());
         funcionario.Endereco.Should().NotBeNull();
-        funcionario.Endereco.Cidade.Should().Be(criarRequest.Endereco.Cidade);
+        funcionario.Endereco.Cidade.Should().Be(criarRequest.Endereco!.Cidade);
 
         var listarResponse = await _client.GetAsync("/api/v1/funcionarios");
         listarResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -54,7 +54,7 @@ public class FuncionariosEndpointsIntegrationTests : IClassFixture<WebAplication
         funcionarioAtualizado.Nome.Should().Be(atualizarRequest.Nome);
         funcionarioAtualizado.Cpf.Should().Be("390.533.447-05");
         funcionarioAtualizado.Cargo.Should().Be(atualizarRequest.Cargo);
-        funcionarioAtualizado.Endereco!.Cidade.Should().Be(atualizarRequest.Endereco.Cidade);
+        funcionarioAtualizado.Endereco!.Cidade.Should().Be(atualizarRequest.Endereco!.Cidade);
 
         var excluirResponse = await _client.DeleteAsync($"/api/v1/funcionarios/{funcionarioId}");
         excluirResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);

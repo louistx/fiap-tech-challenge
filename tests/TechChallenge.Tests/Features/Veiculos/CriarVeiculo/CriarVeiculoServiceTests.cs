@@ -34,7 +34,7 @@ public class CriarVeiculoServiceTests
 
         veiculoId.Should().NotBeEmpty();
         veiculoCriado.Should().NotBeNull();
-        veiculoCriado!.Id.Should().Be(veiculoId);
+        veiculoCriado.Id.Should().Be(veiculoId);
         veiculoCriado.Placa.Should().Be(placaFormatada);
         veiculoCriado.ClienteId.Should().Be(command.ClienteId);
         veiculoRepository.Verify(repo => repo.GetByPlacaAsync(placaFormatada), Times.Once);
@@ -64,7 +64,7 @@ public class CriarVeiculoServiceTests
         service.CriarVeiculo(command);
 
         veiculoCriado.Should().NotBeNull();
-        veiculoCriado!.Placa.Should().Be("ABC1D23");
+        veiculoCriado.Placa.Should().Be("ABC1D23");
     }
 
     [Fact]

@@ -43,7 +43,7 @@ public class CriarUsuarioServiceTests
 
         id.Should().NotBeEmpty();
         salvo.Should().NotBeNull();
-        salvo!.PasswordHash.Should().Be("hash");
+        salvo.PasswordHash.Should().Be("hash");
         salvo.TipoUsuario.Should().Be(eTipoUsuario.Vendedor);
     }
 

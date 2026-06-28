@@ -37,7 +37,7 @@ public class ClientesEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         cliente.Nome.Should().Be(criarRequest.Nome);
         cliente.Cpf.Should().Be("529.982.247-25");
         cliente.Endereco.Should().NotBeNull();
-        cliente.Endereco.Cidade.Should().Be(criarRequest.Endereco.Cidade);
+        cliente.Endereco.Cidade.Should().Be(criarRequest.Endereco!.Cidade);
 
         var listarResponse = await _client.GetAsync("/api/v1/clientes");
         listarResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -52,7 +52,7 @@ public class ClientesEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         clienteAtualizado.Should().NotBeNull();
         clienteAtualizado.Nome.Should().Be(atualizarRequest.Nome);
         clienteAtualizado.Cpf.Should().Be("390.533.447-05");
-        clienteAtualizado.Endereco!.Cidade.Should().Be(atualizarRequest.Endereco.Cidade);
+        clienteAtualizado.Endereco!.Cidade.Should().Be(atualizarRequest.Endereco!.Cidade);
 
         var excluirResponse = await _client.DeleteAsync($"/api/v1/clientes/{clienteId}");
         excluirResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);

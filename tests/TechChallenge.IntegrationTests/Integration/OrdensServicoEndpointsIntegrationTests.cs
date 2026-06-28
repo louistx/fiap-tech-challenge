@@ -39,7 +39,7 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var os = await response.Content.ReadFromJsonAsync<OrdemServicoResponse>();
         os.Should().NotBeNull();
-        os!.Status.Should().Be(eStatusOS.Entregue);
+        os.Status.Should().Be(eStatusOS.Entregue);
         os.Valor.Should().Be(120);
         os.DataFinalizacao.Should().NotBeNull();
     }

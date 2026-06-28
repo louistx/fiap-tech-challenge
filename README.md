@@ -521,6 +521,71 @@ O PostgreSQL fica exposto localmente em:
 localhost:5432
 ```
 
+### SonarQube local
+
+Para subir o SonarQube local:
+
+```bash
+docker compose \
+  -f docker-compose/docker-compose.yml \
+  -f docker-compose/docker-compose.override.yml \
+  up -d sonarqube
+```
+
+O SonarQube fica disponível em:
+
+```text
+http://localhost:9000
+```
+
+No primeiro acesso, use `admin`/`admin` e altere a senha. Para publicar uma análise local, o scanner não reutiliza a sessão do navegador; ele precisa de um token do próprio SonarQube local.
+
+Crie o token em:
+
+```text
+My Account > Security > Generate Tokens
+```
+
+Depois execute a análise com cobertura a partir da raiz do repositório:
+
+```bash
+export SONAR_TOKEN="seu-token"
+
+dotnet tool restore
+
+dotnet tool run dotnet-sonarscanner -- begin \
+  /k:"fiap-tech-challenge" \
+  /d:sonar.host.url="http://localhost:9000" \
+  /d:sonar.token="$SONAR_TOKEN" \
+  /d:sonar.cs.opencover.reportsPaths=".sonar/coverage/**/coverage.opencover.xml" \
+  /d:sonar.coverage.exclusions="**/Migrations/**,**/Program.cs"
+
+dotnet build TechChallenge.slnx --no-incremental
+
+dotnet test tests/TechChallenge.Tests/TechChallenge.Tests.csproj \
+  --no-build \
+  /p:CollectCoverage=true \
+  /p:CoverletOutputFormat=opencover \
+  /p:CoverletOutput=../../.sonar/coverage/unit/
+
+dotnet test tests/TechChallenge.IntegrationTests/TechChallenge.IntegrationTests.csproj \
+  --no-build \
+  /p:CollectCoverage=true \
+  /p:CoverletOutputFormat=opencover \
+  /p:CoverletOutput=../../.sonar/coverage/integration/
+
+dotnet tool run dotnet-sonarscanner -- end \
+  /d:sonar.token="$SONAR_TOKEN"
+```
+
+Após o processamento, acesse o relatório em:
+
+```text
+http://localhost:9000/dashboard?id=fiap-tech-challenge
+```
+
+Essa configuração usa o banco embutido do SonarQube e é indicada apenas para análise local. Em Linux, caso o container não inicie, ajuste `vm.max_map_count` conforme a recomendação exibida pelo próprio container.
+
 ## Banco de dados
 
 O projeto utiliza **PostgreSQL** por meio do Entity Framework Core e provider Npgsql.

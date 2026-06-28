@@ -27,7 +27,7 @@ public class CriarClienteServiceTests
 
         clienteId.Should().NotBeEmpty();
         clienteCriado.Should().NotBeNull();
-        clienteCriado!.Id.Should().Be(clienteId);
+        clienteCriado.Id.Should().Be(clienteId);
         clienteCriado.Nome.Should().Be(command.Nome);
         clienteCriado.Cpf.Should().Be(cpfFormatado);
         clienteCriado.Endereco.Cidade.Should().Be(command.Cidade);

@@ -1,4 +1,3 @@
-using System;
 using TechChallenge.Api.Models.Request;
 using TechChallenge.Api.Models.Response;
 using TechChallenge.Application.Features.Clientes.AtualizarCliente;
