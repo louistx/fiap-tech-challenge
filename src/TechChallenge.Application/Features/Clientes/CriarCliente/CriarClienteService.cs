@@ -2,6 +2,7 @@ using System;
 using FluentValidation;
 using TechChallenge.Domain.Entities;
 using TechChallenge.Application.Abstractions.Repositories;
+using TechChallenge.Application.Validation;
 
 namespace TechChallenge.Application.Features.Clientes.CriarCliente;
 
@@ -19,17 +20,18 @@ public class CriarClienteService
     public Guid CriarCliente(CriarClienteCommand command)
     {
         _validator.ValidateAndThrow(command);
+        var cpf = CpfValidator.Formatar(command.Cpf);
 
-        var clienteExiste = _clienteRepository.GetByDocumentAsync(command.Cpf).GetAwaiter().GetResult();
+        var clienteExiste = _clienteRepository.GetByDocumentAsync(cpf).GetAwaiter().GetResult();
         if (clienteExiste is not null)
-            throw new InvalidOperationException($"Já existe um cliente cadastrado com o CPF {command.Cpf}.");
+            throw new InvalidOperationException($"Já existe um cliente cadastrado com o CPF {cpf}.");
 
         var cliente = new Cliente
         {
             Id = Guid.NewGuid(),
             Nome = command.Nome,
             Rg = command.Rg,
-            Cpf = command.Cpf,
+            Cpf = cpf,
             Endereco = new Endereco
             {
                 Id = Guid.NewGuid(),

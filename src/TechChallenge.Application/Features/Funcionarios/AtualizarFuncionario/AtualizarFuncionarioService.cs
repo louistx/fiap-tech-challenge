@@ -1,6 +1,7 @@
 using FluentValidation;
 using TechChallenge.Domain.Enums;
 using TechChallenge.Application.Abstractions.Repositories;
+using TechChallenge.Application.Validation;
 
 namespace TechChallenge.Application.Features.Funcionarios.AtualizarFuncionario;
 
@@ -18,6 +19,7 @@ public class AtualizarFuncionarioService
     public bool AtualizarFuncionario(AtualizarFuncionarioCommand command)
     {
         _validator.ValidateAndThrow(command);
+        var cpf = CpfValidator.Formatar(command.Cpf);
 
         var funcionario = _funcionarioRepository.GetByIdAsync(command.Id).GetAwaiter().GetResult();
         if (funcionario is null)
@@ -27,7 +29,7 @@ public class AtualizarFuncionarioService
             throw new InvalidOperationException($"Cargo {command.Cargo} inválido.");
 
         funcionario.Nome = command.Nome;
-        funcionario.Cpf = command.Cpf;
+        funcionario.Cpf = cpf;
         funcionario.Rg = command.Rg;
         funcionario.TipoFuncionario = tipoFuncionario;
         funcionario.Endereco.Logradouro = command.Logradouro;

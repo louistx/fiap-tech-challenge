@@ -35,7 +35,7 @@ public class FuncionariosEndpointsIntegrationTests : IClassFixture<WebAplication
         var funcionario = await obterResponse.Content.ReadFromJsonAsync<FuncionarioResponse>();
         funcionario.Should().NotBeNull();
         funcionario.Nome.Should().Be(criarRequest.Nome);
-        funcionario.Cpf.Should().Be(criarRequest.Cpf);
+        funcionario.Cpf.Should().Be("529.982.247-25");
         funcionario.Cargo.Should().Be(criarRequest.Cargo.ToString());
         funcionario.Endereco.Should().NotBeNull();
         funcionario.Endereco.Cidade.Should().Be(criarRequest.Endereco.Cidade);
@@ -52,7 +52,7 @@ public class FuncionariosEndpointsIntegrationTests : IClassFixture<WebAplication
         var funcionarioAtualizado = await _client.GetFromJsonAsync<FuncionarioResponse>($"/api/v1/funcionarios/{funcionarioId}");
         funcionarioAtualizado.Should().NotBeNull();
         funcionarioAtualizado.Nome.Should().Be(atualizarRequest.Nome);
-        funcionarioAtualizado.Cpf.Should().Be(atualizarRequest.Cpf);
+        funcionarioAtualizado.Cpf.Should().Be("390.533.447-05");
         funcionarioAtualizado.Cargo.Should().Be(atualizarRequest.Cargo);
         funcionarioAtualizado.Endereco!.Cidade.Should().Be(atualizarRequest.Endereco.Cidade);
 

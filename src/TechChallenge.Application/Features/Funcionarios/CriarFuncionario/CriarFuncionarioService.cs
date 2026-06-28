@@ -3,6 +3,7 @@ using FluentValidation;
 using TechChallenge.Domain.Entities;
 using TechChallenge.Domain.Enums;
 using TechChallenge.Application.Abstractions.Repositories;
+using TechChallenge.Application.Validation;
 
 namespace TechChallenge.Application.Features.Funcionarios.CriarFuncionario;
 
@@ -20,10 +21,11 @@ public class CriarFuncionarioService
     public Guid CriarFuncionario(CriarFuncionarioCommand command)
     {
         _validator.ValidateAndThrow(command);
+        var cpf = CpfValidator.Formatar(command.Cpf);
 
-        var funcionarioExiste = _funcionarioRepository.GetByDocumentAsync(command.Cpf).GetAwaiter().GetResult();
+        var funcionarioExiste = _funcionarioRepository.GetByDocumentAsync(cpf).GetAwaiter().GetResult();
         if (funcionarioExiste is not null)
-            throw new InvalidOperationException($"Já existe um funcionário cadastrado com o CPF {command.Cpf}.");
+            throw new InvalidOperationException($"Já existe um funcionário cadastrado com o CPF {cpf}.");
 
         if (!Enum.TryParse<eTipoFuncionario>(command.Cargo, true, out var tipoFuncionario))
             throw new InvalidOperationException($"Cargo {command.Cargo} inválido.");
@@ -32,7 +34,7 @@ public class CriarFuncionarioService
         {
             Id = Guid.NewGuid(),
             Nome = command.Nome,
-            Cpf = command.Cpf,
+            Cpf = cpf,
             Rg = command.Rg,
             TipoFuncionario = tipoFuncionario,
             Endereco = new Endereco

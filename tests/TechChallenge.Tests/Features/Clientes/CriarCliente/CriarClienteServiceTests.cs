@@ -13,9 +13,10 @@ public class CriarClienteServiceTests
     public void DeveCriarClienteQuandoCommandForValidoECpfNaoExistir()
     {
         var command = CriarCommandValido();
+        const string cpfFormatado = "529.982.247-25";
         Cliente? clienteCriado = null;
         var repository = new Mock<IClienteRepository>();
-        repository.Setup(repo => repo.GetByDocumentAsync(command.Cpf))
+        repository.Setup(repo => repo.GetByDocumentAsync(cpfFormatado))
             .ReturnsAsync((Cliente?)null);
         repository.Setup(repo => repo.AddAsync(It.IsAny<Cliente>()))
             .Callback<Cliente>(cliente => clienteCriado = cliente)
@@ -28,8 +29,9 @@ public class CriarClienteServiceTests
         clienteCriado.Should().NotBeNull();
         clienteCriado!.Id.Should().Be(clienteId);
         clienteCriado.Nome.Should().Be(command.Nome);
-        clienteCriado.Cpf.Should().Be(command.Cpf);
+        clienteCriado.Cpf.Should().Be(cpfFormatado);
         clienteCriado.Endereco.Cidade.Should().Be(command.Cidade);
+        repository.Verify(repo => repo.GetByDocumentAsync(cpfFormatado), Times.Once);
         repository.Verify(repo => repo.AddAsync(It.IsAny<Cliente>()), Times.Once);
     }
 
@@ -37,15 +39,16 @@ public class CriarClienteServiceTests
     public void DeveImpedirCriacaoQuandoCpfJaEstiverCadastrado()
     {
         var command = CriarCommandValido();
+        const string cpfFormatado = "529.982.247-25";
         var repository = new Mock<IClienteRepository>();
-        repository.Setup(repo => repo.GetByDocumentAsync(command.Cpf))
-            .ReturnsAsync(new Cliente { Id = Guid.NewGuid(), Cpf = command.Cpf });
+        repository.Setup(repo => repo.GetByDocumentAsync(cpfFormatado))
+            .ReturnsAsync(new Cliente { Id = Guid.NewGuid(), Cpf = cpfFormatado });
         var service = new CriarClienteService(repository.Object, new CriarClienteCommandValidator());
 
         var act = () => service.CriarCliente(command);
 
         act.Should().Throw<InvalidOperationException>()
-            .WithMessage($"Já existe um cliente cadastrado com o CPF {command.Cpf}.");
+            .WithMessage($"Já existe um cliente cadastrado com o CPF {cpfFormatado}.");
         repository.Verify(repo => repo.AddAsync(It.IsAny<Cliente>()), Times.Never);
     }
 

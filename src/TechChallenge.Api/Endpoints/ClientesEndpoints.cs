@@ -57,18 +57,20 @@ public static class ClientesEndpoints
 
     private static IResult CriarClienteAsync(CriarClienteRequest request, CriarClienteService service)
     {
+        var endereco = request.Endereco ?? new EnderecoRequest();
+
         var command = new CriarClienteCommand
         {
-            Nome = request.Nome,
-            Cpf = request.Cpf,
-            Rg = request.Rg,
-            Logradouro = request.Endereco.Logradouro,
-            Complemento = request.Endereco.Complemento,
-            Numero = request.Endereco.Numero,
-            Bairro = request.Endereco.Bairro,
-            Cidade = request.Endereco.Cidade,
-            Estado = request.Endereco.Estado,
-            Cep = request.Endereco.Cep
+            Nome = request.Nome ?? string.Empty,
+            Cpf = request.Cpf ?? string.Empty,
+            Rg = request.Rg ?? string.Empty,
+            Logradouro = endereco.Logradouro ?? string.Empty,
+            Complemento = endereco.Complemento ?? string.Empty,
+            Numero = endereco.Numero ?? string.Empty,
+            Bairro = endereco.Bairro ?? string.Empty,
+            Cidade = endereco.Cidade ?? string.Empty,
+            Estado = endereco.Estado ?? string.Empty,
+            Cep = endereco.Cep ?? string.Empty
         };
 
         var id = service.CriarCliente(command);
@@ -77,19 +79,21 @@ public static class ClientesEndpoints
 
     private static IResult AtualizarClienteAsync(Guid id, AtualizarClienteRequest request, AtualizarClienteService service)
     {
+        var endereco = request.Endereco ?? new EnderecoRequest();
+
         var command = new AtualizarClienteCommand
         {
             Id = id,
-            Nome = request.Nome,
-            Cpf = request.Cpf,
-            Rg = request.Rg,
-            Logradouro = request.Endereco.Logradouro,
-            Complemento = request.Endereco.Complemento,
-            Numero = request.Endereco.Numero,
-            Bairro = request.Endereco.Bairro,
-            Cidade = request.Endereco.Cidade,
-            Estado = request.Endereco.Estado,
-            Cep = request.Endereco.Cep
+            Nome = request.Nome ?? string.Empty,
+            Cpf = request.Cpf ?? string.Empty,
+            Rg = request.Rg ?? string.Empty,
+            Logradouro = endereco.Logradouro ?? string.Empty,
+            Complemento = endereco.Complemento ?? string.Empty,
+            Numero = endereco.Numero ?? string.Empty,
+            Bairro = endereco.Bairro ?? string.Empty,
+            Cidade = endereco.Cidade ?? string.Empty,
+            Estado = endereco.Estado ?? string.Empty,
+            Cep = endereco.Cep ?? string.Empty
         };
 
         service.AtualizarCliente(command);

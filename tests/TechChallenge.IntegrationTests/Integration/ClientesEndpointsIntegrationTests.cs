@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 using FluentAssertions;
 using TechChallenge.Api.Models.Request;
 using TechChallenge.Api.Models.Response;
@@ -34,7 +35,7 @@ public class ClientesEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         var cliente = await obterResponse.Content.ReadFromJsonAsync<ClienteResponse>();
         cliente.Should().NotBeNull();
         cliente.Nome.Should().Be(criarRequest.Nome);
-        cliente.Cpf.Should().Be(criarRequest.Cpf);
+        cliente.Cpf.Should().Be("529.982.247-25");
         cliente.Endereco.Should().NotBeNull();
         cliente.Endereco.Cidade.Should().Be(criarRequest.Endereco.Cidade);
 
@@ -50,7 +51,7 @@ public class ClientesEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         var clienteAtualizado = await _client.GetFromJsonAsync<ClienteResponse>($"/api/v1/clientes/{clienteId}");
         clienteAtualizado.Should().NotBeNull();
         clienteAtualizado.Nome.Should().Be(atualizarRequest.Nome);
-        clienteAtualizado.Cpf.Should().Be(atualizarRequest.Cpf);
+        clienteAtualizado.Cpf.Should().Be("390.533.447-05");
         clienteAtualizado.Endereco!.Cidade.Should().Be(atualizarRequest.Endereco.Cidade);
 
         var excluirResponse = await _client.DeleteAsync($"/api/v1/clientes/{clienteId}");
@@ -69,6 +70,46 @@ public class ClientesEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         var response = await _client.PostAsJsonAsync("/api/v1/clientes", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task DeveCriarClienteQuandoRgEEnderecoNaoForemInformados()
+    {
+        var request = new CriarClienteRequest
+        {
+            Nome = "Maria Cliente",
+            Cpf = "52998224725"
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/clientes", request);
+        var body = await response.Content.ReadAsStringAsync();
+
+        response.StatusCode.Should().Be(HttpStatusCode.Created, body);
+    }
+
+    [Fact]
+    public async Task DeveRetornarProblemDetailsSemDetalhesInternosQuandoClienteJaExiste()
+    {
+        var request = CriarClienteRequest("121.344.187-02");
+
+        var criarResponse = await _client.PostAsJsonAsync("/api/v1/clientes", request);
+        criarResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+
+        request.Cpf = "121344187-02";
+        var response = await _client.PostAsJsonAsync("/api/v1/clientes", request);
+        var body = await response.Content.ReadAsStringAsync();
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest, body);
+
+        using var json = JsonDocument.Parse(body);
+        var root = json.RootElement;
+
+        root.GetProperty("status").GetInt32().Should().Be((int)HttpStatusCode.BadRequest);
+        root.GetProperty("title").GetString().Should().Be("Requisição inválida.");
+        root.GetProperty("detail").GetString().Should().Be("Já existe um cliente cadastrado com o CPF 121.344.187-02.");
+        root.TryGetProperty("traceId", out _).Should().BeTrue();
+        root.TryGetProperty("details", out _).Should().BeFalse();
+        root.TryGetProperty("stackTrace", out _).Should().BeFalse();
     }
 
     private static CriarClienteRequest CriarClienteRequest(string cpf)

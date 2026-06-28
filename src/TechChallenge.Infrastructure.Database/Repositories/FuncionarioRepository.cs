@@ -41,9 +41,11 @@ namespace TechChallenge.Infrastructure.Database.Repositories
 
         public async Task<Funcionario?> GetByDocumentAsync(string document)
         {
+            var documentWithoutMask = document.Replace(".", "").Replace("-", "").Replace(" ", "");
+
             return await _context.Funcionario
                 .Include(f => f.Endereco)
-                .FirstOrDefaultAsync(f => f.Cpf == document);
+                .FirstOrDefaultAsync(f => f.Cpf.Replace(".", "").Replace("-", "").Replace(" ", "") == documentWithoutMask);
         }
 
         #endregion

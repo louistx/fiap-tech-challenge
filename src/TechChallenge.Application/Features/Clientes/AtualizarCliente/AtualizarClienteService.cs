@@ -1,5 +1,6 @@
 using FluentValidation;
 using TechChallenge.Application.Abstractions.Repositories;
+using TechChallenge.Application.Validation;
 
 namespace TechChallenge.Application.Features.Clientes.AtualizarCliente;
 
@@ -17,13 +18,14 @@ public class AtualizarClienteService
     public bool AtualizarCliente(AtualizarClienteCommand command)
     {
         _validator.ValidateAndThrow(command);
+        var cpf = CpfValidator.Formatar(command.Cpf);
 
         var cliente = _clienteRepository.GetByIdAsync(command.Id).GetAwaiter().GetResult();
         if (cliente is null)
             throw new KeyNotFoundException($"Cliente com Id {command.Id} não encontrado.");
 
         cliente.Nome = command.Nome;
-        cliente.Cpf = command.Cpf;
+        cliente.Cpf = cpf;
         cliente.Rg = command.Rg;
         cliente.Endereco.Logradouro = command.Logradouro;
         cliente.Endereco.Complemento = command.Complemento;

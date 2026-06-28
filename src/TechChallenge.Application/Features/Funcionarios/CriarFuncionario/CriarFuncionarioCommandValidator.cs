@@ -15,7 +15,7 @@ public class CriarFuncionarioCommandValidator : AbstractValidator<CriarFuncionar
         RuleFor(command => command.Cpf)
             .NotEmpty()
             .MaximumLength(14)
-            .Must(DocumentoValidator.CpfValido)
+            .Must(CpfValidator.CpfValido)
             .WithMessage("CPF inválido.");
 
         RuleFor(command => command.Rg)

@@ -17,7 +17,7 @@ public class AtualizarClienteCommandValidator : AbstractValidator<AtualizarClien
         RuleFor(command => command.Cpf)
             .NotEmpty()
             .MaximumLength(14)
-            .Must(DocumentoValidator.CpfValido)
+            .Must(CpfValidator.CpfValido)
             .WithMessage("CPF inválido.");
 
         RuleFor(command => command.Rg)

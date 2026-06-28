@@ -1,6 +1,6 @@
 namespace TechChallenge.Application.Validation;
 
-public static class DocumentoValidator
+public static class CpfValidator
 {
     public static bool CpfValido(string cpf)
     {
@@ -15,6 +15,12 @@ public static class DocumentoValidator
         var segundoDigito = CalcularDigito(digits[..10], 11);
 
         return digits[9] == primeiroDigito && digits[10] == segundoDigito;
+    }
+
+    public static string Formatar(string cpf)
+    {
+        var digits = ApenasDigitos(cpf);
+        return $"{digits[..3]}.{digits[3..6]}.{digits[6..9]}-{digits[9..]}";
     }
 
     private static string ApenasDigitos(string value)
