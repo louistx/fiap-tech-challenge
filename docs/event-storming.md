@@ -75,7 +75,7 @@ Depois que cliente e veículo são identificados, o administrador registra a sol
 4. O veículo é vinculado à OS.
 5. A OS é encaminhada para a fila da oficina com o estado **Recebida**.
 
-O quadro apresenta diretamente o estado `Recebida`. Os requisitos também citam o estado `Criada`; portanto, a interpretação adotada é que a OS é criada e, logo depois, recebida pela fila da oficina.
+O quadro apresenta diretamente o estado `Recebida`. Essa foi a interpretação adotada no código: a OS é persistida diretamente como `Recebida`, sem manter um estado intermediário `Criada`.
 
 **Comando sugerido:** `CriarOrdemServico`
 
@@ -174,7 +174,7 @@ O cliente visualiza o orçamento e decide se autoriza a execução.
 - **Reprovação:** o cliente não autoriza a execução.
 - **Negociação de valor:** o cliente solicita uma revisão dos valores antes de tomar a decisão.
 
-Somente a aprovação integral possui uma transição final explícita no quadro. Os resultados da aprovação parcial, da reprovação e da negociação ainda precisam ser definidos.
+No código, a aprovação integral leva a OS diretamente para `EmExecucao`. A reprovação leva para `Reprovada`, permitindo o retorno a `EmDiagnostico` para revisão. Aprovação parcial e negociação ainda precisam ser definidas.
 
 **Comandos sugeridos:**
 
@@ -340,9 +340,7 @@ Outros agregados ou contextos relevantes são:
 
 - Qual documento identifica unicamente o cliente.
 - Como tratar um veículo associado anteriormente a outro cliente.
-- Se o estado `Criada` deve ser persistido ou se a OS nasce diretamente como `Recebida`.
 - O que acontece depois de uma aprovação parcial.
-- Se uma reprovação cancela a OS ou permite um novo orçamento.
 - Quem pode conceder descontos durante uma negociação.
 - Como reservar o estoque enquanto o cliente avalia o orçamento.
 - Como registrar compras externas e materiais pedidos por fora.
@@ -352,21 +350,23 @@ Outros agregados ou contextos relevantes são:
 
 ## Relação com o código atual
 
-O quadro representa o processo de negócio desejado. No código atual, as entidades básicas e algumas rotas já existem, mas a maior parte das regras ainda não foi implementada.
+O quadro representa o processo de negócio desejado. No código atual, os cadastros e o ciclo principal da OS já estão integrados à persistência, enquanto os fluxos complementares permanecem no roadmap.
 
 | Parte do Event Storming | Situação atual |
 | --- | --- |
 | Cliente, veículo, funcionário, serviço, produto e OS | Entidades existentes |
-| Cadastro e consulta | Rotas iniciais com respostas simuladas |
-| Criação e consulta da OS | Rotas existentes, sem persistência integrada |
-| Atribuição ao mecânico | Comando e serviço iniciados |
-| Registro do diagnóstico | Comando e serviço iniciados |
-| Estados e transições da OS | Ainda não modelados |
-| Orçamento e itens com quantidade/preço histórico | Ainda não modelados |
-| Aprovação integral, parcial, reprovação e negociação | Ainda não implementadas |
+| Cadastro e consulta | CRUD integrado aos casos de uso e repositórios |
+| Criação e consulta da OS | Implementadas com persistência PostgreSQL |
+| Atribuição ao mecânico | Implementada com limite de uma OS ativa por mecânico |
+| Registro do diagnóstico | Implementado com serviços e produtos associados |
+| Estados e transições da OS | Máquina de estados implementada no domínio |
+| Orçamento e preços históricos dos itens | Cálculo e cópia dos preços implementados; quantidade ainda não modelada |
+| Aprovação integral e reprovação | Implementadas; a OS reprovada pode retornar ao diagnóstico |
+| Aprovação parcial e negociação | Ainda não implementadas |
 | Reserva e baixa de estoque | Ainda não implementadas |
 | Notificações | Ainda não implementadas |
-| Execução, inspeção, retrabalho e entrega | Ainda não implementados |
+| Execução, finalização e entrega | Implementadas no ciclo de estados |
+| Inspeção e retrabalho | Ainda não implementados |
 | Pagamento e recibo | Ainda não modelados |
 
-As imagens documentam a descoberta do domínio. Antes da implementação completa, os pontos de decisão devem ser refinados e transformados em regras explícitas, estados válidos e casos de uso testáveis.
+As imagens documentam a descoberta do domínio. Os pontos ainda pendentes devem ser refinados e transformados em regras explícitas, estados válidos e casos de uso testáveis.

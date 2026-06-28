@@ -33,6 +33,8 @@ Atualmente, a entidade relaciona:
 - uma coleção de serviços;
 - uma coleção de produtos;
 - uma descrição ou relato inicial;
+- o estado atual e as transições permitidas;
+- valor, desconto e acréscimo;
 - data de criação;
 - data de atualização;
 - data de finalização.
@@ -47,24 +49,18 @@ Antes da abertura da Ordem de Serviço, o diagrama apresenta a solicitação ini
 2. A solicitação é encaminhada ao **administrador**.
 3. A partir das informações do cliente e do veículo, o administrador inicia o atendimento e cria a Ordem de Serviço.
 
-O orçamento aparece no desenho como a entrada do processo, mas ainda não existe como entidade ou funcionalidade implementada no código.
+No código atual, o orçamento é representado pela composição de serviços e produtos da própria OS. Os preços são copiados para os itens da OS e o valor total é calculado no envio para aprovação. Ainda não existe uma entidade `Orcamento` independente.
 
 ## Fluxo de execução da Ordem de Serviço
 
 ### 1. Criação da OS
 
-O administrador cria uma OS informando o cliente responsável, o veículo e o relato inicial. De acordo com os requisitos funcionais, um vendedor também pode executar essa operação.
+O administrador ou vendedor cria uma OS informando o cliente responsável, o veículo, o funcionário responsável e o relato inicial. A OS é persistida diretamente no estado **Recebida**.
 
 **Comando de domínio:** `CriarOrdemServico`  
-**Evento esperado:** `OrdemServicoCriada`
+**Estado resultante:** `Recebida`
 
-### 2. Recebimento da OS
-
-Após a criação, o sistema encaminha a OS para a fila da oficina e altera seu estado para **Recebida**. Nesse estado, ela está disponível para ser assumida por um mecânico.
-
-**Evento esperado:** `OrdemServicoRecebida`
-
-### 3. Diagnóstico e inclusão de itens
+### 2. Diagnóstico e inclusão de itens
 
 O mecânico assume a OS e registra o diagnóstico, adicionando os serviços e produtos necessários. Pelos requisitos, o mecânico somente pode assumir uma OS que esteja com estado **Recebida** e não pode possuir outra OS em andamento.
 
@@ -83,11 +79,11 @@ Ao ser atribuída ao mecânico, a OS deve passar pelo estado **Em diagnóstico**
 - `DiagnosticoRegistrado`;
 - `ItemAdicionadoAoOrcamento`.
 
-Antes de enviar o orçamento ao cliente, o sistema também deve verificar se os produtos solicitados estão disponíveis no estoque. Quando não houver estoque, administrador e mecânico devem ser avisados.
+Os preços atuais de serviços e produtos são copiados para os itens associados à OS. A verificação de disponibilidade em estoque e as notificações ainda não foram implementadas.
 
-### 4. Envio para aprovação
+### 3. Envio para aprovação
 
-Depois do diagnóstico, o sistema envia ao cliente uma notificação contendo os serviços e produtos propostos. A OS passa para o estado **Aguardando aprovação**.
+Depois do diagnóstico, o sistema soma serviços e produtos, considerando descontos e acréscimos dos itens e da OS. Havendo ao menos um item, a OS passa para **Aguardando aprovação**. O envio de notificação ao cliente ainda está no roadmap.
 
 **Comando de domínio:** `EnviarOrcamentoParaAprovacao`  
 **Eventos esperados:**
@@ -96,76 +92,60 @@ Depois do diagnóstico, o sistema envia ao cliente uma notificação contendo os
 - `OrdemServicoAguardandoAprovacao`;
 - `ClienteNotificado`.
 
-### 5. Aprovação do cliente
+### 4. Decisão do orçamento
 
-O cliente analisa os itens e aprova a execução. Após a confirmação, o sistema altera o estado da OS para **Aprovada**.
+O orçamento pode ser aprovado ou reprovado. A aprovação move a OS diretamente de **Aguardando aprovação** para **Em execução**; não há um estado intermediário `Aprovada`. A reprovação move a OS para **Reprovada**, de onde ela pode retornar para **Em diagnóstico** para revisão.
 
-**Comando de domínio:** `AprovarOrcamento`  
-**Eventos esperados:**
+**Comandos de aplicação:**
 
-- `OrcamentoAprovado`;
-- `OrdemServicoAprovada`.
+- `AprovarOrcamento`;
+- `ReprovarOrcamento`;
+- `RetornarParaDiagnostico`.
 
-O fluxo de recusa ou aprovação parcial não está representado no diagrama e ainda precisa ser definido.
+O fluxo de aprovação parcial e negociação ainda precisa ser definido.
 
-### 6. Início da execução
+### 5. Execução
 
-Com a OS aprovada, o mecânico inicia o trabalho. O sistema registra a mudança para **Em execução**.
+Com a aprovação, a OS já entra em **Em execução**. O mecânico executa o trabalho e, ao concluí-lo, utiliza a operação de finalização.
 
-Uma OS não deve ser iniciada antes da aprovação do cliente.
+### 6. Finalização técnica
 
-**Comando de domínio:** `IniciarExecucao`  
-**Evento esperado:** `ExecucaoIniciada`
+Ao terminar os serviços, o mecânico finaliza a OS. A transição de **Em execução** para **Finalizada** também registra a data de finalização.
 
-### 7. Conclusão técnica
+**Comando de aplicação:** `FinalizarOS`
 
-Ao terminar os serviços, o mecânico conclui a execução da OS. O sistema registra a conclusão técnica e envia uma notificação ao cliente e ao administrador.
+### 7. Entrega e cancelamento
 
-**Comando de domínio:** `ConcluirExecucao`  
-**Eventos esperados:**
+Depois da finalização técnica, o administrador ou vendedor registra a entrega do veículo, movendo a OS para **Entregue**. Um administrador também pode cancelar uma OS nos estados `Recebida`, `EmDiagnostico`, `AguardandoAprovacao`, `Reprovada` ou `EmExecucao`.
 
-- `ExecucaoConcluida`;
-- `ClienteNotificado`;
-- `AdministradorNotificado`.
-
-O diagrama utiliza a palavra “finaliza” tanto para a ação do mecânico quanto para a ação posterior do administrador. Para evitar ambiguidade, a ação do mecânico é tratada nesta documentação como **conclusão técnica**.
-
-### 8. Finalização administrativa
-
-Depois da conclusão técnica, o administrador encerra definitivamente a OS. O sistema registra a data de finalização e altera seu estado para **Finalizada**.
-
-**Comando de domínio:** `FinalizarOrdemServico`  
-**Evento esperado:** `OrdemServicoFinalizada`
+**Comandos de aplicação:** `EntregarOS` e `CancelarOS`
 
 ## Ciclo de estados
 
 O fluxo descrito pelo diagrama pode ser representado pela seguinte sequência:
 
 ```text
-Criada
-  ↓
 Recebida
   ↓
 Em diagnóstico
   ↓
 Aguardando aprovação
   ↓
-Aprovada
-  ↓
 Em execução
   ↓
-Execução concluída
-  ↓
 Finalizada
+  ↓
+Entregue
 ```
 
-As transições devem ser controladas pela própria Ordem de Serviço. Por exemplo:
+O caminho alternativo de revisão do orçamento é `Aguardando aprovação → Reprovada → Em diagnóstico`. O cancelamento é terminal e pode ocorrer antes da finalização. As transições são controladas pela própria Ordem de Serviço. Por exemplo:
 
 - somente uma OS `Recebida` pode ser atribuída a um mecânico;
 - somente uma OS `Em diagnóstico` pode receber o diagnóstico;
-- somente uma OS com diagnóstico e estoque validado pode aguardar aprovação;
-- somente uma OS `Aprovada` pode entrar em execução;
-- somente uma OS com execução concluída pode ser finalizada pelo administrador.
+- somente uma OS `Em diagnóstico` e com ao menos um item pode aguardar aprovação;
+- somente uma OS `Aguardando aprovação` pode entrar em execução ou ser reprovada;
+- somente uma OS `Em execução` pode ser finalizada;
+- somente uma OS `Finalizada` pode ser entregue.
 
 ## Contextos do domínio
 
@@ -185,15 +165,15 @@ Essa separação é uma proposta inicial. Os limites devem ser refinados conform
 | --- | --- |
 | Entidades `Cliente`, `Veiculo`, `Funcionario`, `Servico`, `Produto` e `OrdemServico` | Modeladas no projeto de domínio |
 | Relacionamentos da OS | Configurados com Entity Framework |
-| Criação, consulta, atualização e exclusão da OS | Rotas existentes, mas ainda retornam respostas simuladas |
-| Atribuição da OS ao mecânico | Rota, comando e serviço iniciados, sem regra implementada |
-| Registro do diagnóstico | Rota, comando e serviço iniciados, sem regra implementada |
-| Listagem de OS para a oficina | Estrutura iniciada, sem implementação |
-| Persistência da OS | Interface e repositório ainda sem operações |
-| Estados da OS | Ainda não modelados na entidade nem no banco |
-| Orçamento e aprovação do cliente | Ainda não modelados |
+| Criação, consulta, listagem e exclusão da OS | Integradas aos casos de uso e à persistência |
+| Atribuição da OS ao mecânico | Implementada, incluindo limite de uma OS ativa por mecânico |
+| Registro do diagnóstico | Implementado com associação de serviços e produtos |
+| Listagem de OS para a oficina | Implementada para OS em diagnóstico |
+| Persistência da OS | Implementada com Entity Framework e PostgreSQL |
+| Estados da OS | Máquina de estados implementada na entidade |
+| Orçamento e decisão do cliente | Cálculo, envio, aprovação, reprovação e revisão implementados |
 | Verificação de estoque | Prevista nos requisitos, ainda não implementada |
 | Notificações | Representadas no diagrama, ainda não implementadas |
-| Início, conclusão técnica e finalização da OS | Ainda não implementados |
+| Finalização, entrega e cancelamento da OS | Implementados |
 
-Portanto, o diagrama documenta o **fluxo de negócio desejado**, enquanto o código atual representa uma estrutura inicial da API e do domínio. Para implementar o fluxo completo, será necessário adicionar os estados da OS, suas regras de transição, os casos de uso pendentes, persistência e notificações.
+Portanto, o diagrama documenta o **fluxo de negócio desejado**, enquanto o código atual já cobre o ciclo principal da OS. Permanecem pendentes os fluxos de estoque, notificações, pagamento, recibo, aprovação parcial e retrabalho.

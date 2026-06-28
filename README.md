@@ -4,7 +4,7 @@ Projeto desenvolvido para a **Pós-Tech da FIAP**, como parte do Tech Challenge 
 
 O objetivo é construir o MVP do back-end de um sistema integrado para uma oficina mecânica, centralizando o cadastro de clientes e veículos, o controle das Ordens de Serviço, a elaboração de orçamentos, a gestão do inventário e o acompanhamento da execução dos serviços.
 
-> **Status do projeto:** em desenvolvimento. A API já possui persistência com PostgreSQL, migrations, seeding opcional do administrador inicial, autenticação JWT, refresh tokens e autorização por perfil. O CRUD principal e parte do fluxo de OS já estão integrados aos casos de uso e repositórios. Transições completas da OS, orçamento/aprovação, notificações, pagamento e controle efetivo de estoque seguem no roadmap.
+> **Status do projeto:** em desenvolvimento. A API já possui persistência com PostgreSQL, migrations, seeding opcional do administrador inicial, autenticação JWT, refresh tokens, autorização por perfil e CRUD dos principais cadastros. O fluxo de OS implementa criação, atribuição, diagnóstico, cálculo e decisão do orçamento, retorno para diagnóstico, conclusão, entrega e cancelamento. Notificações, pagamento, aprovação parcial e controle efetivo de estoque seguem no roadmap.
 
 ## Sumário
 
@@ -114,8 +114,6 @@ O fluxo de negócio levantado durante o Event Storming é:
 ```text
 Cliente e veículo identificados
   ↓
-Ordem de Serviço criada
-  ↓
 Recebida
   ↓
 Em diagnóstico
@@ -124,17 +122,11 @@ Orçamento calculado
   ↓
 Aguardando aprovação
   ↓
-Aprovada
-  ↓
 Em execução
   ↓
-Execução concluída
-  ↓
-Inspeção e pagamento
-  ↓
-Veículo liberado e entregue
-  ↓
 Finalizada
+  ↓
+Entregue
 ```
 
 Além do fluxo principal, o domínio considera cenários alternativos como:
@@ -242,6 +234,7 @@ flowchart TD
 - **Swagger / OpenAPI**
 - **xUnit**
 - **Coverlet**
+- **Qodana / SonarQube**
 - **Docker**
 - **Docker Compose**
 - **GitHub Actions**
@@ -288,17 +281,20 @@ Esta seção diferencia os requisitos do produto do que já está efetivamente d
 | CRUD de funcionários | Implementado |
 | CRUD de serviços | Implementado |
 | CRUD de produtos/inventário | Implementado |
-| Fluxos iniciais de Ordens de Serviço | Implementados parcialmente |
+| Fluxo principal de Ordens de Serviço | Implementado |
 | Autenticação JWT | Implementada |
 | Refresh token | Implementado |
 | Hash de senha PBKDF2 | Implementado |
 | RBAC por perfil de usuário | Implementado |
 | Seeding opcional do administrador inicial | Implementado |
-| Estados e transições da OS | Em desenvolvimento |
-| Geração e aprovação do orçamento | Planejada |
-| Controle efetivo de estoque | Em desenvolvimento |
+| Estados e transições da OS | Implementados com máquina de estados |
+| Cálculo, envio, aprovação e reprovação do orçamento | Implementados |
+| Retorno da OS reprovada para diagnóstico | Implementado |
+| Finalização, entrega e cancelamento da OS | Implementados |
+| Controle efetivo de estoque | Planejado |
 | Notificações ao cliente | Planejadas |
-| Validação completa de CPF, CNPJ e placa | Implementada parcialmente |
+| Validação de CPF e placas antiga/Mercosul | Implementada |
+| Validação de CNPJ | Planejada |
 | Monitoramento do tempo médio | Planejado |
 | Testes dos fluxos críticos | Implementados parcialmente |
 | Cobertura mínima de 80% | Ainda não atingida |
@@ -308,6 +304,8 @@ Esta seção diferencia os requisitos do produto do que já está efetivamente d
 ## Endpoints
 
 Todos os endpoints utilizam o prefixo `/api/v1`.
+
+Erros são retornados no formato `ProblemDetails`, com `status`, `title`, `detail` e `traceId`. Falhas de validação utilizam `ValidationProblemDetails` e agrupam as mensagens por campo. Detalhes internos não são expostos em respostas de erro 500.
 
 ### Autenticação
 
@@ -376,12 +374,19 @@ Todos os endpoints utilizam o prefixo `/api/v1`.
 
 | Método | Rota | Descrição | Acesso |
 | --- | --- | --- | --- |
-| `POST` | `/api/v1/ordens-servico` | Cria uma OS | Autenticado |
+| `POST` | `/api/v1/ordens-servico` | Cria uma OS no estado `Recebida` | Administrador ou Vendedor |
 | `GET` | `/api/v1/ordens-servico` | Lista as Ordens de Serviço | Autenticado |
 | `GET` | `/api/v1/ordens-servico/{id}` | Consulta uma OS | Autenticado |
 | `GET` | `/api/v1/ordens-servico/oficina` | Lista as OS destinadas à visualização da oficina | Autenticado |
-| `PATCH` | `/api/v1/ordens-servico/{id}/atribuir` | Atribui a OS a um mecânico | Autenticado |
-| `PATCH` | `/api/v1/ordens-servico/{id}/diagnostico` | Registra serviços e produtos do diagnóstico | Autenticado |
+| `PATCH` | `/api/v1/ordens-servico/{id}/atribuir` | Atribui a OS e inicia o diagnóstico | Mecânico |
+| `PATCH` | `/api/v1/ordens-servico/{id}/diagnostico` | Registra serviços e produtos do diagnóstico | Mecânico |
+| `PATCH` | `/api/v1/ordens-servico/{id}/orcamento/enviar` | Calcula o orçamento e o envia para aprovação | Administrador, Mecânico ou Vendedor |
+| `PATCH` | `/api/v1/ordens-servico/{id}/aprovar` | Aprova o orçamento e inicia a execução | Autenticado |
+| `PATCH` | `/api/v1/ordens-servico/{id}/reprovar` | Reprova o orçamento | Autenticado |
+| `PATCH` | `/api/v1/ordens-servico/{id}/retornar-para-diagnostico` | Retorna uma OS reprovada para diagnóstico | Administrador, Mecânico ou Vendedor |
+| `PATCH` | `/api/v1/ordens-servico/{id}/finalizar` | Finaliza a execução | Mecânico |
+| `PATCH` | `/api/v1/ordens-servico/{id}/entregar` | Registra a entrega do veículo | Administrador ou Vendedor |
+| `PATCH` | `/api/v1/ordens-servico/{id}/cancelar` | Cancela uma OS não encerrada | Administrador |
 | `DELETE` | `/api/v1/ordens-servico/{id}` | Exclui uma OS | Autenticado |
 
 ### Usuários
@@ -695,6 +700,7 @@ Políticas disponíveis:
 | `AdminOnly` | `Administrador` |
 | `AdminOuVendedor` | `Administrador`, `Vendedor` |
 | `Mecanico` | `Mecanico` |
+| `MecanicoOuVendedor` | `Administrador`, `Mecanico`, `Vendedor` |
 
 Para verificar dependências vulneráveis:
 
@@ -735,14 +741,17 @@ Os resultados relevantes devem ser registrados no relatório de vulnerabilidades
 - [x] Adicionar PostgreSQL ao Docker Compose.
 - [x] Criar testes unitários e de integração iniciais.
 - [x] Documentar DDD e Event Storming.
-- [ ] Refinar políticas de acesso por endpoint de OS, diferenciando vendedor, mecânico e administrador.
-- [ ] Completar estados e regras de transição da OS.
-- [ ] Implementar orçamento e aprovação do cliente.
-- [ ] Implementar aprovação parcial, reprovação e negociação.
+- [x] Refinar políticas de acesso por endpoint de OS, diferenciando vendedor, mecânico e administrador.
+- [x] Completar os estados e as regras de transição do fluxo principal da OS.
+- [x] Implementar cálculo, envio, aprovação e reprovação do orçamento.
+- [x] Implementar retorno de orçamento reprovado para diagnóstico.
+- [x] Implementar finalização técnica, entrega e cancelamento da OS.
+- [ ] Implementar aprovação parcial e negociação.
 - [ ] Implementar controle, reserva e baixa de estoque.
-- [ ] Completar validações de CPF, CNPJ e placa nos fluxos restantes.
+- [x] Implementar validação e normalização de CPF e placa.
+- [ ] Implementar suporte e validação de CNPJ.
 - [ ] Implementar notificações.
-- [ ] Implementar pagamento, recibo e entrega.
+- [ ] Implementar pagamento e recibo.
 - [ ] Ampliar testes unitários e de integração dos fluxos críticos.
 - [ ] Atingir cobertura mínima de 80% nos fluxos críticos.
 - [ ] Executar e documentar a análise de vulnerabilidades.
@@ -755,7 +764,7 @@ Os resultados relevantes devem ser registrados no relatório de vulnerabilidades
 | Brunno de Oliveira | A informar | [@DevDoubleN](https://github.com/DevDoubleN) |
 | Luís Henrique | A informar | [@Ace0777](https://github.com/Ace0777) |
 | Caio Montilha | RM375494 | [@cmontilha](https://github.com/cmontilha) |
-| Gustavo Keiji | A informar | A informar |
+| Gustavo Keiji | A informar | [@GuKeiji](https://github.com/GuKeiji) |
 
 ## Repositório
 
