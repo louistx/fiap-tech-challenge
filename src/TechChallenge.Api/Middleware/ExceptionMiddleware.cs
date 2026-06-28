@@ -1,5 +1,4 @@
-﻿using System.Text.Json;
-using FluentValidation;
+﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using TechChallenge.Infrastructure.IoC.Exceptions;
 
@@ -11,17 +10,15 @@ namespace TechChallenge.Api.Middleware
 
         private readonly RequestDelegate _req;
         private readonly ILogger<ExceptionMiddleware> _logger;
-        private readonly IHostEnvironment _env;
 
         #endregion
 
         #region Constructor
 
-        public ExceptionMiddleware(RequestDelegate req, ILogger<ExceptionMiddleware> logger, IHostEnvironment env)
+        public ExceptionMiddleware(RequestDelegate req, ILogger<ExceptionMiddleware> logger)
         {
             _req = req;
             _logger = logger;
-            _env = env;
         }
 
         #endregion
@@ -66,21 +63,44 @@ namespace TechChallenge.Api.Middleware
                         Status = statusCode,
                         Title = "Ocorreram erros de validação."
                     };
+                    problemDetails.Extensions["traceId"] = httpContext.TraceIdentifier;
 
                     await httpContext.Response.WriteAsJsonAsync(problemDetails);
                     return;
                 }
 
-                var response = _env.IsDevelopment()
-                    ? new ExceptionConfiguration(statusCode.ToString(), ex.Message, ex.StackTrace ?? string.Empty)
-                    : new ExceptionConfiguration(statusCode.ToString(), "Ocorreu um erro ao processar a sua requisição. Por favor, entre em contato conosco e comunique o ocorrido.", ex.Message, ex.StackTrace ?? string.Empty);
+                var problem = new ProblemDetails
+                {
+                    Status = statusCode,
+                    Title = GetTitle(statusCode),
+                    Detail = ShouldExposeMessage(ex)
+                        ? ex.Message
+                        : "Ocorreu um erro ao processar a sua requisição. Por favor, entre em contato conosco e comunique o ocorrido."
+                };
+                problem.Extensions["traceId"] = httpContext.TraceIdentifier;
 
-                var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-                var json = JsonSerializer.Serialize(response, options);
-
-                await httpContext.Response.WriteAsync(json);
+                await httpContext.Response.WriteAsJsonAsync(problem);
             }
         }
+
+        private static string GetTitle(int statusCode) => statusCode switch
+        {
+            StatusCodes.Status400BadRequest => "Requisição inválida.",
+            StatusCodes.Status401Unauthorized => "Não autorizado.",
+            StatusCodes.Status404NotFound => "Recurso não encontrado.",
+            _ => "Erro interno."
+        };
+
+        private static bool ShouldExposeMessage(Exception ex) => ex switch
+        {
+            NotFoundException => true,
+            BadRequestException => true,
+            UnauthorizedException => true,
+            UnauthorizedAccessException => true,
+            KeyNotFoundException => true,
+            InvalidOperationException => true,
+            _ => false
+        };
 
         #endregion
     }
