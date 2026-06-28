@@ -724,6 +724,7 @@ Os resultados relevantes devem ser registrados no relatório de vulnerabilidades
 | [DDD](docs/ddd.md) | Domínio, agregado, estados, comandos e relação com o código |
 | [Event Storming](docs/event-storming.md) | Fluxos, eventos, políticas e pontos de decisão |
 | [Requisitos funcionais](docs/requisitos.md) | Levantamento inicial dos requisitos |
+| [Testes automatizados](docs/testes.md) | Estratégia, cenários cobertos, execução, cobertura e limitações |
 | [Quadro no Figma](https://www.figma.com/board/RDxPpsRgOD8J3wvPTh2659/Untitled?node-id=0-1&p=f) | Event Storming colaborativo |
 
 ## Roadmap
