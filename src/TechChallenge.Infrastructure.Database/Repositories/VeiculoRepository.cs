@@ -26,7 +26,9 @@ namespace TechChallenge.Infrastructure.Database.Repositories
 
         public async Task<Veiculo?> GetByPlacaAsync(string placa)
         {
-            return await _context.Veiculo.FirstOrDefaultAsync(v => v.Placa == placa);
+            var placaNormalizada = placa.Replace("-", "").Replace(" ", "").ToUpper();
+            return await _context.Veiculo
+                .FirstOrDefaultAsync(v => v.Placa.Replace("-", "").Replace(" ", "").ToUpper() == placaNormalizada);
         }
 
         #endregion

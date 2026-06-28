@@ -19,6 +19,40 @@ public class CriarVeiculoCommandValidatorTests
         resultado.IsValid.Should().BeTrue();
     }
 
+    [Theory]
+    [InlineData("ABC1234")]
+    [InlineData("ABC-1234")]
+    [InlineData("abc1234")]
+    [InlineData("ABC1D23")]
+    [InlineData("abc1d23")]
+    public void DeveValidarPlacaAntigaEMercosul(string placa)
+    {
+        var command = CriarCommandValido();
+        command.Placa = placa;
+
+        var resultado = _validator.Validate(command);
+
+        resultado.IsValid.Should().BeTrue();
+    }
+
+    [Theory]
+    [InlineData("AB12345")]
+    [InlineData("ABCD123")]
+    [InlineData("ABC12D3")]
+    [InlineData("ABC123")]
+    public void DeveRetornarErroQuandoPlacaForInvalida(string placa)
+    {
+        var command = CriarCommandValido();
+        command.Placa = placa;
+
+        var resultado = _validator.Validate(command);
+
+        resultado.IsValid.Should().BeFalse();
+        resultado.Errors.Should().Contain(error =>
+            error.PropertyName == nameof(CriarVeiculoCommand.Placa) &&
+            error.ErrorMessage == "Placa inválida.");
+    }
+
     [Fact]
     public void DeveRetornarErroQuandoClienteIdEstiverVazio()
     {
@@ -54,7 +88,7 @@ public class CriarVeiculoCommandValidatorTests
         return new CriarVeiculoCommand
         {
             Tipo = TipoVeiculo.Carro,
-            Placa = "ABC1234",
+            Placa = "ABC-1234",
             Modelo = "Civic",
             Marca = "Honda",
             Cor = "Prata",

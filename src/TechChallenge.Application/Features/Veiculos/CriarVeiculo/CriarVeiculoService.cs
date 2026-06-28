@@ -2,6 +2,7 @@ using System;
 using FluentValidation;
 using TechChallenge.Domain.Entities;
 using TechChallenge.Application.Abstractions.Repositories;
+using TechChallenge.Application.Validation;
 
 namespace TechChallenge.Application.Features.Veiculos.CriarVeiculo;
 
@@ -24,10 +25,11 @@ public class CriarVeiculoService
     public Guid CriarVeiculo(CriarVeiculoCommand command)
     {
         _validator.ValidateAndThrow(command);
+        var placa = PlacaValidator.Formatar(command.Placa);
 
-        var placaExiste = _veiculoRepository.GetByPlacaAsync(command.Placa).GetAwaiter().GetResult();
+        var placaExiste = _veiculoRepository.GetByPlacaAsync(placa).GetAwaiter().GetResult();
         if (placaExiste is not null)
-            throw new InvalidOperationException($"Já existe um veículo cadastrado com a placa {command.Placa}.");
+            throw new InvalidOperationException($"Já existe um veículo cadastrado com a placa {placa}.");
 
         var cliente = _clienteRepository.GetByIdAsync(command.ClienteId).GetAwaiter().GetResult();
         if (cliente is null)
@@ -37,7 +39,7 @@ public class CriarVeiculoService
         {
             Id = Guid.NewGuid(),
             Tipo = command.Tipo,
-            Placa = command.Placa,
+            Placa = placa,
             Modelo = command.Modelo,
             Marca = command.Marca,
             Cor = command.Cor,

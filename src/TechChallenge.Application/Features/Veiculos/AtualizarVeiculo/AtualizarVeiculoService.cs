@@ -1,5 +1,6 @@
 using FluentValidation;
 using TechChallenge.Application.Abstractions.Repositories;
+using TechChallenge.Application.Validation;
 
 namespace TechChallenge.Application.Features.Veiculos.AtualizarVeiculo;
 
@@ -22,21 +23,22 @@ public class AtualizarVeiculoService
     public bool AtualizarVeiculo(AtualizarVeiculoCommand command)
     {
         _validator.ValidateAndThrow(command);
+        var placa = PlacaValidator.Formatar(command.Placa);
 
         var veiculo = _veiculoRepository.GetByIdAsync(command.Id).GetAwaiter().GetResult();
         if (veiculo is null)
             throw new KeyNotFoundException($"Veículo com Id {command.Id} não encontrado.");
 
-        var placaExiste = _veiculoRepository.GetByPlacaAsync(command.Placa).GetAwaiter().GetResult();
+        var placaExiste = _veiculoRepository.GetByPlacaAsync(placa).GetAwaiter().GetResult();
         if (placaExiste is not null && placaExiste.Id != command.Id)
-            throw new InvalidOperationException($"Já existe outro veículo cadastrado com a placa {command.Placa}.");
+            throw new InvalidOperationException($"Já existe outro veículo cadastrado com a placa {placa}.");
 
         var cliente = _clienteRepository.GetByIdAsync(command.ClienteId).GetAwaiter().GetResult();
         if (cliente is null)
             throw new KeyNotFoundException($"Cliente com Id {command.ClienteId} não encontrado.");
 
         veiculo.Tipo = command.Tipo;
-        veiculo.Placa = command.Placa;
+        veiculo.Placa = placa;
         veiculo.Modelo = command.Modelo;
         veiculo.Marca = command.Marca;
         veiculo.Cor = command.Cor;

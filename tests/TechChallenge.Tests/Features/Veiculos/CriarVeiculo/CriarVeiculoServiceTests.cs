@@ -14,10 +14,11 @@ public class CriarVeiculoServiceTests
     public void DeveCriarVeiculoQuandoPlacaNaoExistirEClienteForEncontrado()
     {
         var command = CriarCommandValido();
+        const string placaFormatada = "ABC-1234";
         Veiculo? veiculoCriado = null;
         var veiculoRepository = new Mock<IVeiculoRepository>();
         var clienteRepository = new Mock<IClienteRepository>();
-        veiculoRepository.Setup(repo => repo.GetByPlacaAsync(command.Placa))
+        veiculoRepository.Setup(repo => repo.GetByPlacaAsync(placaFormatada))
             .ReturnsAsync((Veiculo?)null);
         clienteRepository.Setup(repo => repo.GetByIdAsync(command.ClienteId))
             .ReturnsAsync(new Cliente { Id = command.ClienteId, Nome = "Maria Cliente" });
@@ -34,19 +35,48 @@ public class CriarVeiculoServiceTests
         veiculoId.Should().NotBeEmpty();
         veiculoCriado.Should().NotBeNull();
         veiculoCriado!.Id.Should().Be(veiculoId);
-        veiculoCriado.Placa.Should().Be(command.Placa);
+        veiculoCriado.Placa.Should().Be(placaFormatada);
         veiculoCriado.ClienteId.Should().Be(command.ClienteId);
+        veiculoRepository.Verify(repo => repo.GetByPlacaAsync(placaFormatada), Times.Once);
         veiculoRepository.Verify(repo => repo.AddAsync(It.IsAny<Veiculo>()), Times.Once);
+    }
+
+    [Fact]
+    public void DeveCriarVeiculoMercosulComPlacaNormalizada()
+    {
+        var command = CriarCommandValido();
+        command.Placa = "abc1d23";
+        Veiculo? veiculoCriado = null;
+        var veiculoRepository = new Mock<IVeiculoRepository>();
+        var clienteRepository = new Mock<IClienteRepository>();
+        veiculoRepository.Setup(repo => repo.GetByPlacaAsync("ABC1D23"))
+            .ReturnsAsync((Veiculo?)null);
+        clienteRepository.Setup(repo => repo.GetByIdAsync(command.ClienteId))
+            .ReturnsAsync(new Cliente { Id = command.ClienteId, Nome = "Maria Cliente" });
+        veiculoRepository.Setup(repo => repo.AddAsync(It.IsAny<Veiculo>()))
+            .Callback<Veiculo>(veiculo => veiculoCriado = veiculo)
+            .Returns<Veiculo>(veiculo => Task.FromResult(veiculo));
+        var service = new CriarVeiculoService(
+            veiculoRepository.Object,
+            clienteRepository.Object,
+            new CriarVeiculoCommandValidator());
+
+        service.CriarVeiculo(command);
+
+        veiculoCriado.Should().NotBeNull();
+        veiculoCriado!.Placa.Should().Be("ABC1D23");
     }
 
     [Fact]
     public void DeveImpedirCriacaoQuandoPlacaJaEstiverCadastrada()
     {
         var command = CriarCommandValido();
+        command.Placa = "abc1234";
+        const string placaFormatada = "ABC-1234";
         var veiculoRepository = new Mock<IVeiculoRepository>();
         var clienteRepository = new Mock<IClienteRepository>();
-        veiculoRepository.Setup(repo => repo.GetByPlacaAsync(command.Placa))
-            .ReturnsAsync(new Veiculo { Id = Guid.NewGuid(), Placa = command.Placa });
+        veiculoRepository.Setup(repo => repo.GetByPlacaAsync(placaFormatada))
+            .ReturnsAsync(new Veiculo { Id = Guid.NewGuid(), Placa = placaFormatada });
         var service = new CriarVeiculoService(
             veiculoRepository.Object,
             clienteRepository.Object,
@@ -55,7 +85,7 @@ public class CriarVeiculoServiceTests
         var act = () => service.CriarVeiculo(command);
 
         act.Should().Throw<InvalidOperationException>()
-            .WithMessage($"Já existe um veículo cadastrado com a placa {command.Placa}.");
+            .WithMessage($"Já existe um veículo cadastrado com a placa {placaFormatada}.");
         clienteRepository.Verify(repo => repo.GetByIdAsync(It.IsAny<Guid>()), Times.Never);
         veiculoRepository.Verify(repo => repo.AddAsync(It.IsAny<Veiculo>()), Times.Never);
     }
@@ -66,7 +96,7 @@ public class CriarVeiculoServiceTests
         var command = CriarCommandValido();
         var veiculoRepository = new Mock<IVeiculoRepository>();
         var clienteRepository = new Mock<IClienteRepository>();
-        veiculoRepository.Setup(repo => repo.GetByPlacaAsync(command.Placa))
+        veiculoRepository.Setup(repo => repo.GetByPlacaAsync("ABC-1234"))
             .ReturnsAsync((Veiculo?)null);
         clienteRepository.Setup(repo => repo.GetByIdAsync(command.ClienteId))
             .ReturnsAsync((Cliente?)null);

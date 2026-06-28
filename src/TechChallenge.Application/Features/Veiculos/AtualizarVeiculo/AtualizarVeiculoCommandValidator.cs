@@ -1,5 +1,6 @@
 using System;
 using FluentValidation;
+using TechChallenge.Application.Validation;
 
 namespace TechChallenge.Application.Features.Veiculos.AtualizarVeiculo;
 
@@ -15,7 +16,9 @@ public class AtualizarVeiculoCommandValidator : AbstractValidator<AtualizarVeicu
 
         RuleFor(command => command.Placa)
             .NotEmpty()
-            .MaximumLength(10);
+            .MaximumLength(10)
+            .Must(PlacaValidator.PlacaValida)
+            .WithMessage("Placa inválida.");
 
         RuleFor(command => command.Modelo)
             .NotEmpty()
