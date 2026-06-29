@@ -4,7 +4,7 @@ Projeto desenvolvido para a **Pós-Tech da FIAP**, como parte do Tech Challenge 
 
 O objetivo é construir o MVP do back-end de um sistema integrado para uma oficina mecânica, centralizando o cadastro de clientes e veículos, o controle das Ordens de Serviço, a elaboração de orçamentos, a gestão do inventário e o acompanhamento da execução dos serviços.
 
-> **Status do projeto:** em desenvolvimento. A API já possui persistência com PostgreSQL, migrations, seeding opcional do administrador inicial, autenticação JWT, refresh tokens, autorização por perfil e CRUD dos principais cadastros. O fluxo de OS implementa criação, atribuição, diagnóstico, cálculo e decisão do orçamento, retorno para diagnóstico, conclusão, entrega e cancelamento. Notificações, pagamento, aprovação parcial e controle efetivo de estoque seguem no roadmap.
+> **Status do projeto:** em desenvolvimento. A API já possui persistência com PostgreSQL, migrations, seeding opcional do administrador inicial, autenticação JWT, refresh tokens, autorização por perfil e CRUD dos principais cadastros. O fluxo de OS implementa criação, atribuição, diagnóstico, cálculo e decisão do orçamento, retorno para diagnóstico, conclusão, entrega e cancelamento. Notificações internas são simuladas via logger. Pagamento, aprovação parcial e reserva efetiva de estoque seguem no roadmap.
 
 ## Sumário
 
@@ -292,6 +292,7 @@ Esta seção diferencia os requisitos do produto do que já está efetivamente d
 | Retorno da OS reprovada para diagnóstico | Implementado |
 | Finalização, entrega e cancelamento da OS | Implementados |
 | Controle efetivo de estoque | Implementado parcialmente: quantidade disponível, validação e baixa ao finalizar OS |
+| Notificações internas | Simuladas via logger para mecânicos e administradores |
 | Notificações ao cliente | Planejadas |
 | Validação de CPF e placas antiga/Mercosul | Implementada |
 | Validação de CNPJ | Implementada |
@@ -373,7 +374,7 @@ O cadastro de cliente recebe `tipoDocumento` (`Cpf`, `Cnpj` ou `Rg`) e `document
 | `PUT` | `/api/v1/produtos/{id}` | Atualiza um produto | Administrador ou Vendedor |
 | `DELETE` | `/api/v1/produtos/{id}` | Exclui um produto | Administrador ou Vendedor |
 
-Produtos possuem quantidade disponível. O diagnóstico valida disponibilidade e a baixa de estoque ocorre na finalização da OS.
+Produtos possuem quantidade disponível. O diagnóstico e o envio do orçamento validam disponibilidade; quando falta estoque, administradores e o mecânico responsável são notificados via logger. A baixa de estoque ocorre na finalização da OS, com nova validação antes do consumo.
 
 ### Ordens de Serviço
 
@@ -756,9 +757,9 @@ Os resultados relevantes devem ser registrados no relatório de vulnerabilidades
 - [x] Implementar retorno de orçamento reprovado para diagnóstico.
 - [x] Implementar finalização técnica, entrega e cancelamento da OS.
 - [ ] Implementar aprovação parcial e negociação.
-- [ ] Implementar controle, reserva e baixa de estoque.
+- [ ] Implementar reserva efetiva de estoque.
 - [x] Implementar validação e normalização de CPF, CNPJ e placa.
-- [ ] Implementar notificações.
+- [x] Implementar notificações internas simuladas via logger.
 - [ ] Implementar pagamento e recibo.
 - [ ] Ampliar testes unitários e de integração dos fluxos críticos.
 - [ ] Atingir cobertura mínima de 80% nos fluxos críticos.

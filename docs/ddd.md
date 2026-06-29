@@ -79,7 +79,7 @@ Ao ser atribuída ao mecânico, a OS deve passar pelo estado **Em diagnóstico**
 - `DiagnosticoRegistrado`;
 - `ItemAdicionadoAoOrcamento`.
 
-Os preços atuais de serviços e produtos são copiados para os itens associados à OS. A verificação de disponibilidade em estoque e as notificações ainda não foram implementadas.
+Os preços atuais de serviços e produtos são copiados para os itens associados à OS. A disponibilidade em estoque é validada no diagnóstico e antes do envio do orçamento; quando falta estoque, o sistema simula notificações por logger para administradores e para o mecânico responsável.
 
 ### 3. Envio para aprovação
 
@@ -172,8 +172,8 @@ Essa separação é uma proposta inicial. Os limites devem ser refinados conform
 | Persistência da OS | Implementada com Entity Framework e PostgreSQL |
 | Estados da OS | Máquina de estados implementada na entidade |
 | Orçamento e decisão do cliente | Cálculo, envio, aprovação, reprovação e revisão implementados |
-| Verificação de estoque | Prevista nos requisitos, ainda não implementada |
-| Notificações | Representadas no diagrama, ainda não implementadas |
+| Verificação de estoque | Implementada parcialmente: validação no diagnóstico/envio e baixa na finalização |
+| Notificações | Simuladas via logger para fluxos internos |
 | Finalização, entrega e cancelamento da OS | Implementados |
 
-Portanto, o diagrama documenta o **fluxo de negócio desejado**, enquanto o código atual já cobre o ciclo principal da OS. Permanecem pendentes os fluxos de estoque, notificações, pagamento, recibo, aprovação parcial e retrabalho.
+Portanto, o diagrama documenta o **fluxo de negócio desejado**, enquanto o código atual já cobre o ciclo principal da OS. Permanecem pendentes reserva de estoque, notificações externas, pagamento, recibo, aprovação parcial e retrabalho.

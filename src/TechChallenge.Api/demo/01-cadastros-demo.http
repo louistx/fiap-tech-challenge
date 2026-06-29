@@ -1,0 +1,33 @@
+@baseUrl = http://localhost:8080
+
+@clienteId = aaaaaaaa-0000-0000-0000-000000000001
+@mecanicoId = aaaaaaaa-0000-0000-0000-000000000005
+@veiculoId = aaaaaaaa-0000-0000-0000-000000000008
+@servicoRevisaoId = aaaaaaaa-0000-0000-0000-000000000009
+@produtoFiltroId = aaaaaaaa-0000-0000-0000-000000000011
+@produtoPoucoEstoqueId = aaaaaaaa-0000-0000-0000-000000000012
+
+### Cliente demo
+GET {{baseUrl}}/api/v1/clientes/{{clienteId}}
+Authorization: Bearer {{vendedorToken}}
+Accept: application/json
+
+### Funcionarios
+GET {{baseUrl}}/api/v1/funcionarios
+Authorization: Bearer {{adminToken}}
+Accept: application/json
+
+### Veiculo demo
+GET {{baseUrl}}/api/v1/veiculos/{{veiculoId}}
+Authorization: Bearer {{vendedorToken}}
+Accept: application/json
+
+### Servicos
+GET {{baseUrl}}/api/v1/servicos
+Authorization: Bearer {{vendedorToken}}
+Accept: application/json
+
+### Inventario
+GET {{baseUrl}}/api/v1/produtos
+Authorization: Bearer {{vendedorToken}}
+Accept: application/json

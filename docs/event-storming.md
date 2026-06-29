@@ -363,8 +363,8 @@ O quadro representa o processo de negócio desejado. No código atual, os cadast
 | Orçamento e preços históricos dos itens | Cálculo e cópia dos preços implementados; quantidade ainda não modelada |
 | Aprovação integral e reprovação | Implementadas; a OS reprovada pode retornar ao diagnóstico |
 | Aprovação parcial e negociação | Ainda não implementadas |
-| Reserva e baixa de estoque | Ainda não implementadas |
-| Notificações | Ainda não implementadas |
+| Reserva e baixa de estoque | Baixa implementada na finalização; reserva ainda não implementada |
+| Notificações | Simuladas via logger para fluxos internos de OS e estoque |
 | Execução, finalização e entrega | Implementadas no ciclo de estados |
 | Inspeção e retrabalho | Ainda não implementados |
 | Pagamento e recibo | Ainda não modelados |

@@ -160,4 +160,4 @@ A estrutura de testes unitários e de integração está implementada e as duas 
 - estados alternativos da OS pela API, incluindo reprovação, retorno para diagnóstico e cancelamento;
 - autorização dos demais endpoints e perfis;
 - execução com PostgreSQL real;
-- fluxos futuros de estoque, notificações, pagamento e recibo.
+- fluxos futuros de reserva de estoque, notificações externas, pagamento e recibo.

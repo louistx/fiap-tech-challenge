@@ -44,6 +44,8 @@ using TechChallenge.Application.Features.Veiculos.ExcluirVeiculo;
 using TechChallenge.Application.Features.Veiculos.ListarVeiculos;
 using TechChallenge.Application.Features.Veiculos.ObterVeiculo;
 using TechChallenge.Application.Abstractions.Repositories;
+using TechChallenge.Application.Abstractions.Notifications;
+using TechChallenge.Application.Notifications;
 using TechChallenge.Infrastructure.Database.Context;
 using TechChallenge.Infrastructure.Database.Repositories;
 
@@ -68,6 +70,7 @@ namespace TechChallenge.Infrastructure.IoC.Injection
             services.AddScoped<IProdutoRepository, ProdutoRepository>();
             services.AddScoped<IServicoRepository, ServicoRepository>();
             services.AddScoped<IVeiculoRepository, VeiculoRepository>();
+            services.AddScoped<INotificationService, LoggerNotificationService>();
 
             services.AddValidatorsFromAssemblyContaining<CriarClienteCommandValidator>();
 

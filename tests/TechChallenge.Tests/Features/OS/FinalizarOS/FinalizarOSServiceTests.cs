@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Moq;
+using TechChallenge.Application.Abstractions.Notifications;
 using TechChallenge.Application.Abstractions.Repositories;
 using TechChallenge.Application.Features.OS.FinalizarOS;
 using TechChallenge.Domain.Entities;
@@ -36,10 +37,12 @@ public class FinalizarOSServiceTests
     [Fact]
     public void DeveBloquearFinalizacaoQuandoEstoqueForInsuficiente()
     {
+        var mecanicoId = Guid.NewGuid();
         var os = new OrdemServico
         {
             Id = Guid.NewGuid(),
             Status = StatusOS.EmExecucao,
+            FuncionarioResponsavelId = mecanicoId,
             Produtos =
             [
                 new OrdemServicoProdutos
@@ -50,13 +53,25 @@ public class FinalizarOSServiceTests
             ]
         };
         var repository = new Mock<IOrdemServicoRepository>();
+        var notificationService = new Mock<INotificationService>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
-        var service = new FinalizarOSService(repository.Object, new FinalizarOSCommandValidator());
+        var service = new FinalizarOSService(
+            repository.Object,
+            new FinalizarOSCommandValidator(),
+            notificationService.Object);
 
         var act = () => service.FinalizarOS(new FinalizarOSCommand { OrdemServicoId = os.Id });
 
         act.Should().Throw<InvalidOperationException>()
             .WithMessage("Estoque insuficiente para o produto Filtro.");
+        notificationService.Verify(service => service.NotificarFuncionariosPorFuncao(
+            TipoFuncionario.Administrador,
+            "Estoque insuficiente",
+            It.Is<string>(mensagem => mensagem.Contains(os.Id.ToString()) && mensagem.Contains("Filtro"))), Times.Once);
+        notificationService.Verify(service => service.NotificarFuncionario(
+            mecanicoId,
+            "Estoque insuficiente",
+            It.Is<string>(mensagem => mensagem.Contains(os.Id.ToString()) && mensagem.Contains("Filtro"))), Times.Once);
         repository.Verify(repo => repo.UpdateAsync(It.IsAny<OrdemServico>()), Times.Never);
     }
 

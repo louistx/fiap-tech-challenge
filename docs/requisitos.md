@@ -72,7 +72,7 @@
 ## RF16 - Verificação de estoque
 - Antes do envio para aprovação, o sistema deve verificar se os produtos necessários estão disponíveis.
 - Quando não houver estoque, o sistema deve notificar o administrador e o mecânico.
-- Este requisito ainda não está implementado.
+- Implementado parcialmente: o diagnóstico e o envio do orçamento bloqueiam falta de estoque, a finalização valida novamente antes da baixa, e as notificações internas são simuladas via logger.
 
 ## RF17 - Autenticação e autorização
 - O sistema deve autenticar usuários com JWT e permitir renovação por refresh token rotativo.

@@ -16,6 +16,9 @@ namespace TechChallenge.Infrastructure.Database.Seeding
 
             if (bool.TryParse(configuration["Seed:FakeData"], out var seedFakeData) && seedFakeData)
                 await FakeDataSeeder.SeedAsync(scope.ServiceProvider, context);
+
+            if (bool.TryParse(configuration["Seed:DemoData"], out var seedDemoData) && seedDemoData)
+                await DemoSeeder.SeedAsync(scope.ServiceProvider, context);
         }
     }
 }

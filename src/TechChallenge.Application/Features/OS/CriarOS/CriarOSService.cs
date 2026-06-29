@@ -2,7 +2,9 @@ using System;
 using FluentValidation;
 using TechChallenge.Domain.Entities;
 using TechChallenge.Domain.Enums;
+using TechChallenge.Application.Abstractions.Notifications;
 using TechChallenge.Application.Abstractions.Repositories;
+using TechChallenge.Application.Notifications;
 
 namespace TechChallenge.Application.Features.OS.CriarOS;
 
@@ -13,19 +15,22 @@ public class CriarOSService
     private readonly IFuncionarioRepository _funcionarioRepository;
     private readonly IVeiculoRepository _veiculoRepository;
     private readonly IValidator<CriarOSCommand> _validator;
+    private readonly INotificationService _notificationService;
 
     public CriarOSService(
         IOrdemServicoRepository ordemServicoRepository,
         IClienteRepository clienteRepository,
         IFuncionarioRepository funcionarioRepository,
         IVeiculoRepository veiculoRepository,
-        IValidator<CriarOSCommand> validator)
+        IValidator<CriarOSCommand> validator,
+        INotificationService? notificationService = null)
     {
         _ordemServicoRepository = ordemServicoRepository;
         _clienteRepository = clienteRepository;
         _funcionarioRepository = funcionarioRepository;
         _veiculoRepository = veiculoRepository;
         _validator = validator;
+        _notificationService = notificationService ?? NullNotificationService.Instance;
     }
 
     public Guid CriarOS(CriarOSCommand command)
@@ -57,6 +62,11 @@ public class CriarOSService
         };
 
         _ordemServicoRepository.AddAsync(os).GetAwaiter().GetResult();
+        _notificationService.NotificarFuncionariosPorFuncao(
+            TipoFuncionario.Mecanico,
+            "Nova OS na fila",
+            $"OS {os.Id} recebida para diagnóstico.");
+
         return os.Id;
     }
 }
