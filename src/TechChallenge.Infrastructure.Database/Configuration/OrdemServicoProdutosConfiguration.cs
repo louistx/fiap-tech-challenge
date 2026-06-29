@@ -19,6 +19,9 @@ namespace TechChallenge.Infrastructure.Database.Configuration
                 .WithMany()
                 .HasForeignKey(osp => osp.ProdutoId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Property(osp => osp.Quantidade)
+                .IsRequired();
         }
     }
 }

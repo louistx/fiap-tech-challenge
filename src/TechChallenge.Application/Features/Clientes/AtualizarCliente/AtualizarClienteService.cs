@@ -1,6 +1,7 @@
 using FluentValidation;
 using TechChallenge.Application.Abstractions.Repositories;
 using TechChallenge.Application.Validation;
+using TechChallenge.Domain.Enums;
 
 namespace TechChallenge.Application.Features.Clientes.AtualizarCliente;
 
@@ -18,15 +19,15 @@ public class AtualizarClienteService
     public bool AtualizarCliente(AtualizarClienteCommand command)
     {
         _validator.ValidateAndThrow(command);
-        var cpf = CpfValidator.Formatar(command.Cpf);
+        var documento = FormatarDocumento(command.TipoDocumento, command.Documento);
 
         var cliente = _clienteRepository.GetByIdAsync(command.Id).GetAwaiter().GetResult();
         if (cliente is null)
             throw new KeyNotFoundException($"Cliente com Id {command.Id} não encontrado.");
 
         cliente.Nome = command.Nome;
-        cliente.Cpf = cpf;
-        cliente.Rg = command.Rg;
+        cliente.TipoDocumento = command.TipoDocumento;
+        cliente.Documento = documento;
         cliente.Endereco.Logradouro = command.Logradouro;
         cliente.Endereco.Complemento = command.Complemento;
         cliente.Endereco.Numero = command.Numero;
@@ -38,4 +39,11 @@ public class AtualizarClienteService
         _clienteRepository.UpdateAsync(cliente).GetAwaiter().GetResult();
         return true;
     }
+
+    private static string FormatarDocumento(TipoDocumento tipoDocumento, string documento) => tipoDocumento switch
+    {
+        TipoDocumento.Cpf => CpfValidator.Formatar(documento),
+        TipoDocumento.Cnpj => CnpjValidator.Formatar(documento),
+        _ => documento.Trim()
+    };
 }

@@ -15,5 +15,8 @@ public class AtualizarItemInventarioCommandValidator : AbstractValidator<Atualiz
 
         RuleFor(command => command.Valor)
             .GreaterThanOrEqualTo(0);
+
+        RuleFor(command => command.Quantidade)
+            .GreaterThanOrEqualTo(0);
     }
 }

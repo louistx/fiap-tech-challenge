@@ -9,14 +9,6 @@ public class CriarOrdemServicoRequest
     public Guid VeiculoId { get; set; }
 }
 
-public class AtualizarOrdemServicoRequest
-{
-    public string Descricao { get; set; } = string.Empty;
-    public Guid ClienteResponsavelId { get; set; }
-    public Guid FuncionarioResponsavelId { get; set; }
-    public Guid VeiculoId { get; set; }
-}
-
 public class AtribuirOrdemServicoRequest
 {
     public Guid MecanicoId { get; set; }
@@ -24,6 +16,12 @@ public class AtribuirOrdemServicoRequest
 
 public class RegistrarDiagnosticoRequest
 {
-    public List<Guid> ServicosIds { get; set; } = [];
-    public List<Guid> ProdutosIds { get; set; } = [];
+    public List<ItemDiagnosticoRequest> Servicos { get; set; } = [];
+    public List<ItemDiagnosticoRequest> Produtos { get; set; } = [];
+}
+
+public class ItemDiagnosticoRequest
+{
+    public Guid Id { get; set; }
+    public int Quantidade { get; set; } = 1;
 }

@@ -14,7 +14,7 @@ public class RegistrarDiagnosticoCommandValidatorTests
         var command = new RegistrarDiagnosticoCommand
         {
             OrdemServicoId = Guid.NewGuid(),
-            ServicosIds = [Guid.NewGuid()]
+            Servicos = [new ItemDiagnosticoCommand { Id = Guid.NewGuid(), Quantidade = 1 }]
         };
 
         var resultado = _validator.Validate(command);
@@ -43,8 +43,8 @@ public class RegistrarDiagnosticoCommandValidatorTests
         var command = new RegistrarDiagnosticoCommand
         {
             OrdemServicoId = Guid.Empty,
-            ServicosIds = [Guid.Empty],
-            ProdutosIds = [Guid.Empty]
+            Servicos = [new ItemDiagnosticoCommand { Quantidade = 0 }],
+            Produtos = [new ItemDiagnosticoCommand { Quantidade = 0 }]
         };
 
         var resultado = _validator.Validate(command);
@@ -52,8 +52,10 @@ public class RegistrarDiagnosticoCommandValidatorTests
         resultado.IsValid.Should().BeFalse();
         resultado.Errors.Select(error => error.PropertyName).Should().Contain([
             nameof(RegistrarDiagnosticoCommand.OrdemServicoId),
-            $"{nameof(RegistrarDiagnosticoCommand.ServicosIds)}[0]",
-            $"{nameof(RegistrarDiagnosticoCommand.ProdutosIds)}[0]"
+            $"{nameof(RegistrarDiagnosticoCommand.Servicos)}[0].{nameof(ItemDiagnosticoCommand.Id)}",
+            $"{nameof(RegistrarDiagnosticoCommand.Servicos)}[0].{nameof(ItemDiagnosticoCommand.Quantidade)}",
+            $"{nameof(RegistrarDiagnosticoCommand.Produtos)}[0].{nameof(ItemDiagnosticoCommand.Id)}",
+            $"{nameof(RegistrarDiagnosticoCommand.Produtos)}[0].{nameof(ItemDiagnosticoCommand.Quantidade)}"
         ]);
     }
 }

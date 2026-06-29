@@ -11,6 +11,7 @@ public class OrdemServicoResponse
     public Guid ClienteResponsavelId { get; set; }
     public Guid FuncionarioResponsavelId { get; set; }
     public Guid VeiculoId { get; set; }
+    public string CodigoAcompanhamento { get; set; } = string.Empty;
     public DateTime DataCriacao { get; set; }
     public DateTime? DataAtualizacao { get; set; }
     public DateTime? DataFinalizacao { get; set; }

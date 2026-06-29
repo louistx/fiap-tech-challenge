@@ -24,7 +24,8 @@ public class CriarItemInventarioService
         {
             Id = Guid.NewGuid(),
             Descricao = command.Descricao,
-            Valor = command.Valor
+            Valor = command.Valor,
+            Quantidade = command.Quantidade
         };
 
         _produtoRepository.AddAsync(produto).GetAwaiter().GetResult();

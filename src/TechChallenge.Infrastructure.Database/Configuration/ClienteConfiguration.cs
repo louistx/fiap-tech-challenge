@@ -14,16 +14,15 @@ namespace TechChallenge.Infrastructure.Database.Configuration
                 .HasMaxLength(100)
                 .IsRequired();
 
-            builder.Property(c => c.Cpf)
-                .IsRequired()
-                .HasMaxLength(14);
-
-            builder.HasIndex(c => c.Cpf)
-                .IsUnique();
-
-            builder.Property(c => c.Rg)
-                .HasMaxLength(9)
+            builder.Property(c => c.TipoDocumento)
                 .IsRequired();
+
+            builder.Property(c => c.Documento)
+                .IsRequired()
+                .HasMaxLength(18);
+
+            builder.HasIndex(c => c.Documento)
+                .IsUnique();
 
             builder.HasOne(f => f.Endereco)
                 .WithMany()

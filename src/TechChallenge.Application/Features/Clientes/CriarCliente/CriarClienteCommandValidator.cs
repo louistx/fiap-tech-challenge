@@ -1,5 +1,6 @@
 using FluentValidation;
 using TechChallenge.Application.Validation;
+using TechChallenge.Domain.Enums;
 
 namespace TechChallenge.Application.Features.Clientes.CriarCliente;
 
@@ -11,15 +12,26 @@ public class CriarClienteCommandValidator : AbstractValidator<CriarClienteComman
             .NotEmpty()
             .MaximumLength(100);
 
-        RuleFor(command => command.Cpf)
-            .NotEmpty()
-            .MaximumLength(14)
-            .Must(CpfValidator.CpfValido)
-            .WithMessage("CPF inválido.");
+        RuleFor(command => command.TipoDocumento)
+            .IsInEnum();
 
-        RuleFor(command => command.Rg)
+        RuleFor(command => command.Documento)
             .NotEmpty()
-            .MaximumLength(9);
+            .MaximumLength(18);
+
+        RuleFor(command => command.Documento)
+            .Must(CpfValidator.CpfValido)
+            .WithMessage("CPF inválido.")
+            .When(command => command.TipoDocumento == TipoDocumento.Cpf);
+
+        RuleFor(command => command.Documento)
+            .Must(CnpjValidator.CnpjValido)
+            .WithMessage("CNPJ inválido.")
+            .When(command => command.TipoDocumento == TipoDocumento.Cnpj);
+
+        RuleFor(command => command.Documento)
+            .MaximumLength(12)
+            .When(command => command.TipoDocumento == TipoDocumento.Rg);
 
         RuleFor(command => command.Logradouro)
             .NotEmpty()

@@ -28,7 +28,13 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
             new AtribuirOrdemServicoRequest { MecanicoId = dados.FuncionarioId });
 
         await PatchAsync($"/api/v1/ordens-servico/{osId}/diagnostico", "Mecanico",
-            new RegistrarDiagnosticoRequest { ServicosIds = [dados.ServicoId] });
+            new RegistrarDiagnosticoRequest
+            {
+                Servicos =
+                [
+                    new ItemDiagnosticoRequest { Id = dados.ServicoId, Quantidade = 1 }
+                ]
+            });
 
         await PatchAsync($"/api/v1/ordens-servico/{osId}/orcamento/enviar", "Mecanico");
         await PatchAsync($"/api/v1/ordens-servico/{osId}/aprovar", "Administrador");
@@ -37,11 +43,25 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
 
         var response = await _client.GetAsync($"/api/v1/ordens-servico/{osId}");
         response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var os = await response.Content.ReadFromJsonAsync<OrdemServicoResponse>();
+        var os = await response.Content.ReadFromJsonAsync<OrdemServicoResponse>(JsonTestOptions.Web);
         os.Should().NotBeNull();
         os.Status.Should().Be(StatusOS.Entregue);
         os.Valor.Should().Be(120);
         os.DataFinalizacao.Should().NotBeNull();
+        os.CodigoAcompanhamento.Should().NotBeNullOrWhiteSpace();
+
+        var acompanhamentoResponse = await _client.GetAsync($"/api/v1/ordens-servico/acompanhamento/{os.CodigoAcompanhamento}");
+        acompanhamentoResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var osAcompanhamento =
+            await acompanhamentoResponse.Content.ReadFromJsonAsync<OrdemServicoResponse>(JsonTestOptions.Web);
+        osAcompanhamento.Should().NotBeNull();
+        osAcompanhamento.Id.Should().Be(osId);
+
+        var metricaResponse = await _client.GetAsync("/api/v1/ordens-servico/tempo-medio-execucao");
+        metricaResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var metrica = await metricaResponse.Content.ReadFromJsonAsync<TempoMedioExecucaoResponse>();
+        metrica.Should().NotBeNull();
+        metrica.QuantidadeOrdensFinalizadas.Should().BeGreaterThan(0);
     }
 
     [Fact]
@@ -65,8 +85,8 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
         var clienteId = await CriarAsync("/api/v1/clientes", new CriarClienteRequest
         {
             Nome = "Maria Cliente OS",
-            Cpf = GerarCpf(sequencia * 2),
-            Rg = "123456789",
+            TipoDocumento = TipoDocumento.Cpf,
+            Documento = GerarCpf(sequencia * 2),
             Endereco = CriarEnderecoRequest()
         });
 
@@ -176,4 +196,11 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
     }
 
     private sealed record DadosBase(Guid ClienteId, Guid FuncionarioId, Guid VeiculoId, Guid ServicoId);
+
+    private sealed class TempoMedioExecucaoResponse
+    {
+        public int QuantidadeOrdensFinalizadas { get; set; }
+        public double TempoMedioMinutos { get; set; }
+        public double TempoMedioHoras { get; set; }
+    }
 }

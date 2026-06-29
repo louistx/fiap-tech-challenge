@@ -25,6 +25,15 @@ public class FinalizarOSService
         if (os is null)
             throw new KeyNotFoundException($"OS com Id {command.OrdemServicoId} não encontrada.");
 
+        foreach (var item in os.Produtos)
+        {
+            if (item.Produto.Quantidade < item.Quantidade)
+                throw new InvalidOperationException($"Estoque insuficiente para o produto {item.Produto.Descricao}.");
+        }
+
+        foreach (var item in os.Produtos)
+            item.Produto.Quantidade -= item.Quantidade;
+
         os.TransicionarPara(StatusOS.Finalizada);
         _ordemServicoRepository.UpdateAsync(os).GetAwaiter().GetResult();
         return true;

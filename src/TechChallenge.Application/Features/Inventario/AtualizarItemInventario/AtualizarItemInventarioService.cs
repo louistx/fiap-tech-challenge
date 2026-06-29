@@ -26,6 +26,7 @@ public class AtualizarItemInventarioService
 
         produto.Descricao = command.Descricao;
         produto.Valor = command.Valor;
+        produto.Quantidade = command.Quantidade;
 
         _produtoRepository.UpdateAsync(produto).GetAwaiter().GetResult();
         return true;

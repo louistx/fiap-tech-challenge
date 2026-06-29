@@ -13,6 +13,13 @@ namespace TechChallenge.Infrastructure.Database.Configuration
             builder.Property(o => o.Descricao)
                 .HasMaxLength(500);
 
+            builder.Property(os => os.CodigoAcompanhamento)
+                .HasMaxLength(32)
+                .IsRequired();
+
+            builder.HasIndex(os => os.CodigoAcompanhamento)
+                .IsUnique();
+
             builder.HasOne(os => os.ClienteResponsavel)
                 .WithMany()
                 .HasForeignKey(os => os.ClienteResponsavelId)

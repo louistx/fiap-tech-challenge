@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
+using System.Text.Json.Serialization;
 using TechChallenge.Api.Endpoints;
 using TechChallenge.Api.Middleware;
 using TechChallenge.Infrastructure.Auth;
@@ -36,6 +37,10 @@ builder.Services.AddOpenApi(options =>
     });
 });
 builder.Services.AddSwaggerGen();
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddAuth(builder.Configuration);
 

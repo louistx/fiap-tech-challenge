@@ -29,8 +29,8 @@ public class EnviarOrcamentoService
             throw new InvalidOperationException("Informe ao menos um serviço ou produto antes de enviar o orçamento.");
 
         os.Valor =
-            os.Servicos.Sum(item => item.Valor + item.Acrescimo - item.Desconto) +
-            os.Produtos.Sum(item => item.Valor + item.Acrescimo - item.Desconto) +
+            os.Servicos.Sum(item => (item.Valor * item.Quantidade) + item.Acrescimo - item.Desconto) +
+            os.Produtos.Sum(item => (item.Valor * item.Quantidade) + item.Acrescimo - item.Desconto) +
             os.Acrescimo -
             os.Desconto;
 

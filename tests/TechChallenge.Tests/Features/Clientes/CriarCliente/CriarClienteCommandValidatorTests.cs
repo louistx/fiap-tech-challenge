@@ -1,5 +1,6 @@
 using FluentAssertions;
 using TechChallenge.Application.Features.Clientes.CriarCliente;
+using TechChallenge.Domain.Enums;
 
 namespace TechChallenge.Tests.Features.Clientes.CriarCliente;
 
@@ -21,14 +22,38 @@ public class CriarClienteCommandValidatorTests
     public void DeveRetornarErroQuandoCpfForInvalido()
     {
         var command = CriarCommandValido();
-        command.Cpf = "12345678901";
+        command.Documento = "12345678901";
 
         var resultado = _validator.Validate(command);
 
         resultado.IsValid.Should().BeFalse();
         resultado.Errors.Should().Contain(error =>
-            error.PropertyName == nameof(CriarClienteCommand.Cpf) &&
+            error.PropertyName == nameof(CriarClienteCommand.Documento) &&
             error.ErrorMessage == "CPF inválido.");
+    }
+
+    [Fact]
+    public void DeveValidarCommandQuandoCnpjForInformado()
+    {
+        var command = CriarCommandValido();
+        command.TipoDocumento = TipoDocumento.Cnpj;
+        command.Documento = "11222333000181";
+
+        var resultado = _validator.Validate(command);
+
+        resultado.IsValid.Should().BeTrue();
+    }
+
+    [Fact]
+    public void DeveRetornarErroQuandoDocumentoNaoForInformado()
+    {
+        var command = CriarCommandValido();
+        command.Documento = string.Empty;
+
+        var resultado = _validator.Validate(command);
+
+        resultado.IsValid.Should().BeFalse();
+        resultado.Errors.Should().Contain(error => error.PropertyName == nameof(CriarClienteCommand.Documento));
     }
 
     [Fact]
@@ -36,7 +61,6 @@ public class CriarClienteCommandValidatorTests
     {
         var command = CriarCommandValido();
         command.Nome = string.Empty;
-        command.Rg = string.Empty;
         command.Logradouro = string.Empty;
         command.Numero = string.Empty;
         command.Bairro = string.Empty;
@@ -49,7 +73,6 @@ public class CriarClienteCommandValidatorTests
         resultado.IsValid.Should().BeFalse();
         resultado.Errors.Select(error => error.PropertyName).Should().Contain([
             nameof(CriarClienteCommand.Nome),
-            nameof(CriarClienteCommand.Rg),
             nameof(CriarClienteCommand.Logradouro),
             nameof(CriarClienteCommand.Numero),
             nameof(CriarClienteCommand.Bairro),
@@ -64,8 +87,8 @@ public class CriarClienteCommandValidatorTests
         return new CriarClienteCommand
         {
             Nome = "Maria Cliente",
-            Cpf = "52998224725",
-            Rg = "123456789",
+            TipoDocumento = TipoDocumento.Cpf,
+            Documento = "52998224725",
             Logradouro = "Rua Teste",
             Complemento = "Apto 10",
             Numero = "100",

@@ -2,7 +2,7 @@ namespace TechChallenge.Application.Validation;
 
 public static class CpfValidator
 {
-    public static bool CpfValido(string cpf)
+    public static bool CpfValido(string? cpf)
     {
         var digits = ApenasDigitos(cpf);
         if (digits.Length != 11)
@@ -23,9 +23,9 @@ public static class CpfValidator
         return $"{digits[..3]}.{digits[3..6]}.{digits[6..9]}-{digits[9..]}";
     }
 
-    private static string ApenasDigitos(string value)
+    private static string ApenasDigitos(string? value)
     {
-        return new string(value.Where(char.IsDigit).ToArray());
+        return new string((value ?? string.Empty).Where(char.IsDigit).ToArray());
     }
 
     private static char CalcularDigito(string digits, int pesoInicial)

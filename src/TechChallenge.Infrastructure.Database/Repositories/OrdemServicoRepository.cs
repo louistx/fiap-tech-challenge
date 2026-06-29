@@ -86,6 +86,24 @@ namespace TechChallenge.Infrastructure.Database.Repositories
                 .AnyAsync(os => os.VeiculoId == veiculoId);
         }
 
+        public async Task<OrdemServico?> GetByCodigoAcompanhamentoAsync(string codigoAcompanhamento)
+        {
+            return await _context.OrdemServico
+                .Include(os => os.Servicos)
+                .ThenInclude(oss => oss.Servico)
+                .Include(os => os.Produtos)
+                .ThenInclude(osp => osp.Produto)
+                .FirstOrDefaultAsync(os => os.CodigoAcompanhamento == codigoAcompanhamento);
+        }
+
+        public async Task<List<OrdemServico>> GetFinalizadasComDataFinalizacaoAsync()
+        {
+            return await _context.OrdemServico
+                .Where(os => os.DataFinalizacao != null &&
+                    (os.Status == StatusOS.Finalizada || os.Status == StatusOS.Entregue))
+                .ToListAsync();
+        }
+
         #endregion
     }
 }

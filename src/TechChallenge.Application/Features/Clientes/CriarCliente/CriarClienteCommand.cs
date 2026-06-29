@@ -1,10 +1,12 @@
 namespace TechChallenge.Application.Features.Clientes.CriarCliente;
 
+using TechChallenge.Domain.Enums;
+
 public class CriarClienteCommand
 {
     public string Nome { get; set; } = string.Empty;
-    public string Cpf { get; set; } = string.Empty;
-    public string Rg { get; set; } = string.Empty;
+    public TipoDocumento TipoDocumento { get; set; }
+    public string Documento { get; set; } = string.Empty;
     public string Logradouro { get; set; } = string.Empty;
     public string Complemento { get; set; } = string.Empty;
     public string Numero { get; set; } = string.Empty;

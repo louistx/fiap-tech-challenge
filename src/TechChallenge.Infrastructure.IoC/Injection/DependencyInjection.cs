@@ -12,7 +12,9 @@ using TechChallenge.Application.Features.OS.EnviarOrcamento;
 using TechChallenge.Application.Features.OS.FinalizarOS;
 using TechChallenge.Application.Features.OS.ListarOS;
 using TechChallenge.Application.Features.OS.ListarOSOficina;
+using TechChallenge.Application.Features.OS.ObterOSAcompanhamento;
 using TechChallenge.Application.Features.OS.ObterOS;
+using TechChallenge.Application.Features.OS.ObterTempoMedioExecucao;
 using TechChallenge.Application.Features.OS.RegistrarDiagnostico;
 using TechChallenge.Application.Features.OS.RetornarParaDiagnostico;
 using TechChallenge.Application.Features.OS.ReprovarOrcamento;
@@ -71,6 +73,8 @@ namespace TechChallenge.Infrastructure.IoC.Injection
 
             services.AddScoped<CriarOSService>();
             services.AddScoped<ObterOSService>();
+            services.AddScoped<ObterOSAcompanhamentoService>();
+            services.AddScoped<ObterTempoMedioExecucaoService>();
             services.AddScoped<ListarOSService>();
             services.AddScoped<AtribuirOSService>();
             services.AddScoped<RegistrarDiagnosticoService>();

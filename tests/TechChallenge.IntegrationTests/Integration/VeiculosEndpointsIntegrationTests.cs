@@ -47,14 +47,14 @@ public class VeiculosEndpointsIntegrationTests : IClassFixture<WebAplicationFact
 
         var obterResponse = await _client.GetAsync($"/api/v1/veiculos/{veiculoId}");
         obterResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        var veiculo = await obterResponse.Content.ReadFromJsonAsync<VeiculoResponse>();
+        var veiculo = await obterResponse.Content.ReadFromJsonAsync<VeiculoResponse>(JsonTestOptions.Web);
         veiculo.Should().NotBeNull();
         veiculo.Placa.Should().Be(placa);
         veiculo.ClienteId.Should().Be(clienteId);
 
         var listarResponse = await _client.GetAsync("/api/v1/veiculos");
         listarResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        var veiculos = await listarResponse.Content.ReadFromJsonAsync<List<VeiculoResponse>>();
+        var veiculos = await listarResponse.Content.ReadFromJsonAsync<List<VeiculoResponse>>(JsonTestOptions.Web);
         veiculos.Should().Contain(v => v.Id == veiculoId);
 
         var atualizarRequest = new AtualizarVeiculoRequest
@@ -72,7 +72,9 @@ public class VeiculosEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         var atualizarResponse = await _client.PutAsJsonAsync($"/api/v1/veiculos/{veiculoId}", atualizarRequest);
         atualizarResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var atualizado = await _client.GetFromJsonAsync<VeiculoResponse>($"/api/v1/veiculos/{veiculoId}");
+        var atualizado = await _client.GetFromJsonAsync<VeiculoResponse>(
+            $"/api/v1/veiculos/{veiculoId}",
+            JsonTestOptions.Web);
         atualizado.Should().NotBeNull();
         atualizado.Placa.Should().Be(atualizarRequest.Placa);
         atualizado.Tipo.Should().Be(TipoVeiculo.Moto);
@@ -108,8 +110,8 @@ public class VeiculosEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         var request = new CriarClienteRequest
         {
             Nome = "Cliente Veiculo",
-            Cpf = GerarCpf(sequencia),
-            Rg = "123456789",
+            TipoDocumento = TipoDocumento.Cpf,
+            Documento = GerarCpf(sequencia),
             Endereco = new EnderecoRequest
             {
                 Logradouro = "Rua Teste",

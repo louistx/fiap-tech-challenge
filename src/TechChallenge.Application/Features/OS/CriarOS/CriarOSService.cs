@@ -48,6 +48,7 @@ public class CriarOSService
         {
             Id = Guid.NewGuid(),
             Descricao = command.Descricao,
+            CodigoAcompanhamento = Guid.NewGuid().ToString("N"),
             Status = StatusOS.Recebida,
             ClienteResponsavelId = command.ClienteResponsavelId,
             FuncionarioResponsavelId = command.FuncionarioResponsavelId,

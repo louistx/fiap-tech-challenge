@@ -18,11 +18,11 @@ public class EnviarOrcamentoServiceTests
             Status = StatusOS.EmDiagnostico,
             Servicos =
             [
-                new OrdemServicoServicos { Valor = 100, Acrescimo = 10, Desconto = 5 }
+                new OrdemServicoServicos { Valor = 100, Quantidade = 2, Acrescimo = 10, Desconto = 5 }
             ],
             Produtos =
             [
-                new OrdemServicoProdutos { Valor = 50 }
+                new OrdemServicoProdutos { Valor = 50, Quantidade = 3 }
             ]
         };
         var repository = new Mock<IOrdemServicoRepository>();
@@ -33,7 +33,7 @@ public class EnviarOrcamentoServiceTests
         var resultado = service.EnviarOrcamento(new EnviarOrcamentoCommand { OrdemServicoId = os.Id });
 
         resultado.Should().BeTrue();
-        os.Valor.Should().Be(155);
+        os.Valor.Should().Be(355);
         os.Status.Should().Be(StatusOS.AguardandoAprovacao);
         repository.Verify(repo => repo.UpdateAsync(os), Times.Once);
     }

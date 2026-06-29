@@ -11,7 +11,9 @@ using TechChallenge.Application.Features.OS.EnviarOrcamento;
 using TechChallenge.Application.Features.OS.FinalizarOS;
 using TechChallenge.Application.Features.OS.ListarOS;
 using TechChallenge.Application.Features.OS.ListarOSOficina;
+using TechChallenge.Application.Features.OS.ObterOSAcompanhamento;
 using TechChallenge.Application.Features.OS.ObterOS;
+using TechChallenge.Application.Features.OS.ObterTempoMedioExecucao;
 using TechChallenge.Application.Features.OS.RegistrarDiagnostico;
 using TechChallenge.Application.Features.OS.RetornarParaDiagnostico;
 using TechChallenge.Application.Features.OS.ReprovarOrcamento;
@@ -21,6 +23,11 @@ namespace TechChallenge.Api.Endpoints;
 
 public static class OrdensServicoEndpoints
 {
+    private const string AdminOnlyPolicy = "AdminOnly";
+    private const string AdminOuVendedorPolicy = "AdminOuVendedor";
+    private const string MecanicoPolicy = "Mecanico";
+    private const string MecanicoOuVendedorPolicy = "MecanicoOuVendedor";
+
     public static IEndpointRouteBuilder MapOrdensServicoEndpoints(this IEndpointRouteBuilder app)
     {
         var group = app.MapGroup("/api/v1/ordens-servico");
@@ -29,7 +36,7 @@ public static class OrdensServicoEndpoints
             .WithName("CriarOrdemServico")
             .WithSummary("Cria uma nova ordem de serviço")
             .WithDescription("Adiciona uma nova ordem de serviço ao banco de dados")
-            .RequireAuthorization("AdminOuVendedor")
+            .RequireAuthorization(AdminOuVendedorPolicy)
             .Produces<Guid>(StatusCodes.Status201Created)
             .ProducesValidationProblem();
 
@@ -37,18 +44,34 @@ public static class OrdensServicoEndpoints
             .WithName("ListarOrdensServico")
             .WithSummary("Lista todas as ordens de serviço")
             .WithDescription("Filtra opcionalmente por status")
+            .RequireAuthorization(AdminOuVendedorPolicy)
             .Produces<List<OrdemServicoResponse>>();
 
         group.MapGet("/oficina", ListarOrdensServicoOficinaAsync)
             .WithName("ListarOrdensServicoOficina")
             .WithSummary("Lista ordens de serviço da oficina")
             .WithDescription("Retorna OS Em Diagnóstico com informações básicas para exibição na oficina")
+            .RequireAuthorization(MecanicoOuVendedorPolicy)
             .Produces<List<ListarOSOficinaResponseDto>>();
+
+        group.MapGet("/tempo-medio-execucao", ObterTempoMedioExecucaoAsync)
+            .WithName("ObterTempoMedioExecucaoOrdensServico")
+            .WithSummary("Obtém a métrica de tempo médio de execução das ordens de serviço")
+            .RequireAuthorization(AdminOuVendedorPolicy)
+            .Produces<TempoMedioExecucaoResponseDto>();
+
+        group.MapGet("/acompanhamento/{codigo}", ObterOrdemServicoPorCodigoAcompanhamentoAsync)
+            .WithName("ObterOrdemServicoPorCodigoAcompanhamento")
+            .WithSummary("Obtém o andamento da OS pelo código de acompanhamento")
+            .AllowAnonymous()
+            .Produces<OrdemServicoResponse>()
+            .Produces(StatusCodes.Status404NotFound);
 
         group.MapGet("/{id}", ObterOrdemServicoAsync)
             .WithName("ObterOrdemServico")
             .WithSummary("Obtém uma ordem de serviço existente")
             .WithDescription("Obtém as informações de uma ordem de serviço existente do banco de dados")
+            .RequireAuthorization(MecanicoOuVendedorPolicy)
             .Produces<OrdemServicoResponse>()
             .Produces(StatusCodes.Status404NotFound);
 
@@ -56,7 +79,7 @@ public static class OrdensServicoEndpoints
             .WithName("AtribuirOrdemServico")
             .WithSummary("Atribui uma ordem de serviço a um mecânico")
             .WithDescription("RF10: mecânico assume a OS, status muda para Em Diagnóstico")
-            .RequireAuthorization("Mecanico")
+            .RequireAuthorization(MecanicoPolicy)
             .Produces(StatusCodes.Status200OK)
             .ProducesValidationProblem();
 
@@ -64,7 +87,7 @@ public static class OrdensServicoEndpoints
             .WithName("RegistrarDiagnosticoOrdemServico")
             .WithSummary("Registra diagnóstico de uma ordem de serviço")
             .WithDescription("RF11: associa serviços e produtos a uma OS Em Diagnóstico")
-            .RequireAuthorization("Mecanico")
+            .RequireAuthorization(MecanicoPolicy)
             .Produces(StatusCodes.Status200OK)
             .ProducesValidationProblem();
 
@@ -72,7 +95,7 @@ public static class OrdensServicoEndpoints
             .WithName("EnviarOrcamentoOrdemServico")
             .WithSummary("Envia orçamento de uma ordem de serviço")
             .WithDescription("Calcula o orçamento e move a OS para Aguardando Aprovação")
-            .RequireAuthorization("MecanicoOuVendedor")
+            .RequireAuthorization(MecanicoOuVendedorPolicy)
             .Produces(StatusCodes.Status200OK)
             .ProducesValidationProblem();
 
@@ -80,7 +103,7 @@ public static class OrdensServicoEndpoints
             .WithName("AprovarOrcamentoOrdemServico")
             .WithSummary("Aprova o orçamento de uma ordem de serviço")
             .WithDescription("Move a OS de Aguardando Aprovação para Em Execução")
-            .RequireAuthorization()
+            .RequireAuthorization(AdminOuVendedorPolicy)
             .Produces(StatusCodes.Status200OK)
             .ProducesValidationProblem();
 
@@ -88,35 +111,35 @@ public static class OrdensServicoEndpoints
             .WithName("ReprovarOrcamentoOrdemServico")
             .WithSummary("Reprova o orçamento de uma ordem de serviço")
             .WithDescription("Move a OS de Aguardando Aprovação para Reprovada")
-            .RequireAuthorization()
+            .RequireAuthorization(AdminOuVendedorPolicy)
             .Produces(StatusCodes.Status200OK)
             .ProducesValidationProblem();
 
         group.MapPatch("/{id}/retornar-para-diagnostico", RetornarParaDiagnosticoAsync)
             .WithName("RetornarParaDiagnosticoOrdemServico")
             .WithSummary("Retorna uma OS reprovada para diagnóstico")
-            .RequireAuthorization("MecanicoOuVendedor")
+            .RequireAuthorization(MecanicoOuVendedorPolicy)
             .Produces(StatusCodes.Status200OK)
             .ProducesValidationProblem();
 
         group.MapPatch("/{id}/finalizar", FinalizarOrdemServicoAsync)
             .WithName("FinalizarOrdemServico")
             .WithSummary("Finaliza a execução de uma ordem de serviço")
-            .RequireAuthorization("Mecanico")
+            .RequireAuthorization(MecanicoPolicy)
             .Produces(StatusCodes.Status200OK)
             .ProducesValidationProblem();
 
         group.MapPatch("/{id}/entregar", EntregarOrdemServicoAsync)
             .WithName("EntregarOrdemServico")
             .WithSummary("Registra a entrega do veículo")
-            .RequireAuthorization("AdminOuVendedor")
+            .RequireAuthorization(AdminOuVendedorPolicy)
             .Produces(StatusCodes.Status200OK)
             .ProducesValidationProblem();
 
         group.MapPatch("/{id}/cancelar", CancelarOrdemServicoAsync)
             .WithName("CancelarOrdemServico")
             .WithSummary("Cancela uma ordem de serviço")
-            .RequireAuthorization("AdminOnly")
+            .RequireAuthorization(AdminOnlyPolicy)
             .Produces(StatusCodes.Status200OK)
             .ProducesValidationProblem();
 
@@ -124,6 +147,7 @@ public static class OrdensServicoEndpoints
             .WithName("ExcluirOrdemServico")
             .WithSummary("Exclui uma ordem de serviço existente")
             .WithDescription("Exclui uma ordem de serviço existente do banco de dados")
+            .RequireAuthorization(AdminOnlyPolicy)
             .Produces(StatusCodes.Status204NoContent)
             .Produces(StatusCodes.Status404NotFound);
 
@@ -148,6 +172,17 @@ public static class OrdensServicoEndpoints
     {
         var os = service.ObterOS(new ObterOSQuery { Id = id });
         return Results.Ok(MapToResponse(os));
+    }
+
+    private static IResult ObterOrdemServicoPorCodigoAcompanhamentoAsync(string codigo, ObterOSAcompanhamentoService service)
+    {
+        var os = service.ObterOSAcompanhamento(new ObterOSAcompanhamentoQuery { CodigoAcompanhamento = codigo });
+        return Results.Ok(MapToResponse(os));
+    }
+
+    private static IResult ObterTempoMedioExecucaoAsync(ObterTempoMedioExecucaoService service)
+    {
+        return Results.Ok(service.ObterTempoMedioExecucao());
     }
 
     private static IResult ListarOrdensServicoAsync(ListarOSService service, StatusOS? status = null)
@@ -179,8 +214,16 @@ public static class OrdensServicoEndpoints
         var command = new RegistrarDiagnosticoCommand
         {
             OrdemServicoId = id,
-            ServicosIds = request.ServicosIds,
-            ProdutosIds = request.ProdutosIds
+            Servicos = request.Servicos.Select(item => new ItemDiagnosticoCommand
+            {
+                Id = item.Id,
+                Quantidade = item.Quantidade
+            }).ToList(),
+            Produtos = request.Produtos.Select(item => new ItemDiagnosticoCommand
+            {
+                Id = item.Id,
+                Quantidade = item.Quantidade
+            }).ToList()
         };
 
         service.RegistrarDiagnostico(command);
@@ -247,7 +290,14 @@ public static class OrdensServicoEndpoints
         DataAtualizacao = os.DataAtualizacao,
         DataFinalizacao = os.DataFinalizacao,
         Valor = os.Valor,
+        CodigoAcompanhamento = os.CodigoAcompanhamento,
         Servicos = os.Servicos.Select(s => new ServicoResponse { Id = s.Servico.Id, Descricao = s.Servico.Descricao, Valor = (decimal)s.Valor }).ToList(),
-        Produtos = os.Produtos.Select(p => new ProdutoResponse { Id = p.Produto.Id, Descricao = p.Produto.Descricao, Valor = (decimal)p.Valor }).ToList()
+        Produtos = os.Produtos.Select(p => new ProdutoResponse
+        {
+            Id = p.Produto.Id,
+            Descricao = p.Produto.Descricao,
+            Valor = (decimal)p.Valor,
+            Quantidade = p.Quantidade
+        }).ToList()
     };
 }

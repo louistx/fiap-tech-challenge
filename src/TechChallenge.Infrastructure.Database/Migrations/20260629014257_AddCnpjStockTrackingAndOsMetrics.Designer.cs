@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TechChallenge.Infrastructure.Database.Context;
@@ -11,9 +12,11 @@ using TechChallenge.Infrastructure.Database.Context;
 namespace TechChallenge.Infrastructure.Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260629014257_AddCnpjStockTrackingAndOsMetrics")]
+    partial class AddCnpjStockTrackingAndOsMetrics
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,10 +31,13 @@ namespace TechChallenge.Infrastructure.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Documento")
-                        .IsRequired()
+                    b.Property<string>("Cnpj")
                         .HasMaxLength(18)
                         .HasColumnType("character varying(18)");
+
+                    b.Property<string>("Cpf")
+                        .HasMaxLength(14)
+                        .HasColumnType("character varying(14)");
 
                     b.Property<Guid>("EnderecoId")
                         .HasColumnType("uuid");
@@ -41,13 +47,20 @@ namespace TechChallenge.Infrastructure.Database.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
-                    b.Property<int>("TipoDocumento")
-                        .HasColumnType("integer");
+                    b.Property<string>("Rg")
+                        .IsRequired()
+                        .HasMaxLength(9)
+                        .HasColumnType("character varying(9)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Documento")
-                        .IsUnique();
+                    b.HasIndex("Cnpj")
+                        .IsUnique()
+                        .HasFilter("\"Cnpj\" IS NOT NULL");
+
+                    b.HasIndex("Cpf")
+                        .IsUnique()
+                        .HasFilter("\"Cpf\" IS NOT NULL");
 
                     b.HasIndex("EnderecoId");
 

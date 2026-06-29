@@ -61,8 +61,8 @@ public static class ClientesEndpoints
         var command = new CriarClienteCommand
         {
             Nome = request.Nome ?? string.Empty,
-            Cpf = request.Cpf ?? string.Empty,
-            Rg = request.Rg ?? string.Empty,
+            TipoDocumento = request.TipoDocumento,
+            Documento = request.Documento ?? string.Empty,
             Logradouro = endereco.Logradouro ?? string.Empty,
             Complemento = endereco.Complemento ?? string.Empty,
             Numero = endereco.Numero ?? string.Empty,
@@ -84,8 +84,8 @@ public static class ClientesEndpoints
         {
             Id = id,
             Nome = request.Nome ?? string.Empty,
-            Cpf = request.Cpf ?? string.Empty,
-            Rg = request.Rg ?? string.Empty,
+            TipoDocumento = request.TipoDocumento,
+            Documento = request.Documento ?? string.Empty,
             Logradouro = endereco.Logradouro ?? string.Empty,
             Complemento = endereco.Complemento ?? string.Empty,
             Numero = endereco.Numero ?? string.Empty,
@@ -123,8 +123,8 @@ public static class ClientesEndpoints
         {
             Id = cliente.Id,
             Nome = cliente.Nome,
-            Cpf = cliente.Cpf,
-            Rg = cliente.Rg,
+            TipoDocumento = cliente.TipoDocumento,
+            Documento = cliente.Documento,
             Endereco = new EnderecoResponse
             {
                 Id = cliente.Endereco.Id,

@@ -5,6 +5,7 @@ using System.Text.Json;
 using FluentAssertions;
 using TechChallenge.Api.Models.Request;
 using TechChallenge.Api.Models.Response;
+using TechChallenge.Domain.Enums;
 using TechChallenge.IntegrationTests.Integration.Factories;
 
 namespace TechChallenge.IntegrationTests.Integration;
@@ -32,26 +33,30 @@ public class ClientesEndpointsIntegrationTests : IClassFixture<WebAplicationFact
 
         var obterResponse = await _client.GetAsync($"/api/v1/clientes/{clienteId}");
         obterResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        var cliente = await obterResponse.Content.ReadFromJsonAsync<ClienteResponse>();
+        var cliente = await obterResponse.Content.ReadFromJsonAsync<ClienteResponse>(JsonTestOptions.Web);
         cliente.Should().NotBeNull();
         cliente.Nome.Should().Be(criarRequest.Nome);
-        cliente.Cpf.Should().Be("529.982.247-25");
+        cliente.TipoDocumento.Should().Be(TipoDocumento.Cpf);
+        cliente.Documento.Should().Be("529.982.247-25");
         cliente.Endereco.Should().NotBeNull();
         cliente.Endereco.Cidade.Should().Be(criarRequest.Endereco!.Cidade);
 
         var listarResponse = await _client.GetAsync("/api/v1/clientes");
         listarResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        var clientes = await listarResponse.Content.ReadFromJsonAsync<List<ClienteResponse>>();
+        var clientes = await listarResponse.Content.ReadFromJsonAsync<List<ClienteResponse>>(JsonTestOptions.Web);
         clientes.Should().Contain(c => c.Id == clienteId);
 
         var atualizarRequest = AtualizarClienteRequest("39053344705");
         var atualizarResponse = await _client.PutAsJsonAsync($"/api/v1/clientes/{clienteId}", atualizarRequest);
         atualizarResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        var clienteAtualizado = await _client.GetFromJsonAsync<ClienteResponse>($"/api/v1/clientes/{clienteId}");
+        var clienteAtualizado = await _client.GetFromJsonAsync<ClienteResponse>(
+            $"/api/v1/clientes/{clienteId}",
+            JsonTestOptions.Web);
         clienteAtualizado.Should().NotBeNull();
         clienteAtualizado.Nome.Should().Be(atualizarRequest.Nome);
-        clienteAtualizado.Cpf.Should().Be("390.533.447-05");
+        clienteAtualizado.TipoDocumento.Should().Be(TipoDocumento.Cpf);
+        clienteAtualizado.Documento.Should().Be("390.533.447-05");
         clienteAtualizado.Endereco!.Cidade.Should().Be(atualizarRequest.Endereco!.Cidade);
 
         var excluirResponse = await _client.DeleteAsync($"/api/v1/clientes/{clienteId}");
@@ -78,13 +83,40 @@ public class ClientesEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         var request = new CriarClienteRequest
         {
             Nome = "Maria Cliente",
-            Cpf = "52998224725"
+            TipoDocumento = TipoDocumento.Cpf,
+            Documento = "52998224725"
         };
 
         var response = await _client.PostAsJsonAsync("/api/v1/clientes", request);
         var body = await response.Content.ReadAsStringAsync();
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest, body);
+    }
+
+    [Fact]
+    public async Task DeveAceitarTipoDocumentoComoTexto()
+    {
+        var request = new
+        {
+            Nome = "Oficina Cliente LTDA",
+            TipoDocumento = "Cnpj",
+            Documento = "11222333000181",
+            Endereco = CriarEnderecoRequest("Sao Paulo")
+        };
+
+        var criarResponse = await _client.PostAsJsonAsync("/api/v1/clientes", request);
+        var criarBody = await criarResponse.Content.ReadAsStringAsync();
+
+        criarResponse.StatusCode.Should().Be(HttpStatusCode.Created, criarBody);
+        var clienteId = await criarResponse.Content.ReadFromJsonAsync<Guid>();
+
+        var cliente = await _client.GetFromJsonAsync<ClienteResponse>(
+            $"/api/v1/clientes/{clienteId}",
+            JsonTestOptions.Web);
+
+        cliente.Should().NotBeNull();
+        cliente.TipoDocumento.Should().Be(TipoDocumento.Cnpj);
+        cliente.Documento.Should().Be("11.222.333/0001-81");
     }
 
     [Fact]
@@ -95,7 +127,7 @@ public class ClientesEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         var criarResponse = await _client.PostAsJsonAsync("/api/v1/clientes", request);
         criarResponse.StatusCode.Should().Be(HttpStatusCode.Created);
 
-        request.Cpf = "121344187-02";
+        request.Documento = "121344187-02";
         var response = await _client.PostAsJsonAsync("/api/v1/clientes", request);
         var body = await response.Content.ReadAsStringAsync();
 
@@ -117,8 +149,8 @@ public class ClientesEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         return new CriarClienteRequest
         {
             Nome = "Maria Cliente",
-            Cpf = cpf,
-            Rg = "123456789",
+            TipoDocumento = TipoDocumento.Cpf,
+            Documento = cpf,
             Endereco = CriarEnderecoRequest("Sao Paulo")
         };
     }
@@ -128,8 +160,8 @@ public class ClientesEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         return new AtualizarClienteRequest
         {
             Nome = "Maria Cliente Atualizada",
-            Cpf = cpf,
-            Rg = "987654321",
+            TipoDocumento = TipoDocumento.Cpf,
+            Documento = cpf,
             Endereco = CriarEnderecoRequest("Curitiba")
         };
     }

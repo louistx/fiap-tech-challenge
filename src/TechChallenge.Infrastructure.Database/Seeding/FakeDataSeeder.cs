@@ -64,8 +64,8 @@ namespace TechChallenge.Infrastructure.Database.Seeding
             {
                 Id = ClienteExemploId,
                 Nome = "Cliente Fake",
-                Cpf = "00000000000",
-                Rg = "000000000",
+                TipoDocumento = TipoDocumento.Rg,
+                Documento = "000000000",
                 EnderecoId = EnderecoClienteExemploId
             }
         ];
@@ -119,7 +119,7 @@ namespace TechChallenge.Infrastructure.Database.Seeding
         {
             foreach (var cliente in Clientes())
             {
-                var exists = await context.Cliente.AnyAsync(c => c.Id == cliente.Id || c.Cpf == cliente.Cpf);
+                var exists = await context.Cliente.AnyAsync(c => c.Id == cliente.Id || c.Documento == cliente.Documento);
 
                 if (!exists)
                     context.Cliente.Add(cliente);

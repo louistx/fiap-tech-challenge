@@ -59,7 +59,8 @@ public static class InventarioEndpoints
         var command = new CriarItemInventarioCommand
         {
             Descricao = request.Descricao,
-            Valor = request.Valor
+            Valor = request.Valor,
+            Quantidade = request.Quantidade
         };
 
         var id = service.CriarItemInventario(command);
@@ -84,7 +85,8 @@ public static class InventarioEndpoints
         {
             Id = id,
             Descricao = request.Descricao,
-            Valor = request.Valor
+            Valor = request.Valor,
+            Quantidade = request.Quantidade
         };
 
         service.AtualizarItemInventario(command);
@@ -103,7 +105,8 @@ public static class InventarioEndpoints
         {
             Id = produto.Id,
             Descricao = produto.Descricao,
-            Valor = produto.Valor
+            Valor = produto.Valor,
+            Quantidade = produto.Quantidade
         };
     }
 }

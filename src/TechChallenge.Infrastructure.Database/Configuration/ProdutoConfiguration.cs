@@ -17,6 +17,9 @@ namespace TechChallenge.Infrastructure.Database.Configuration
             builder.Property(p => p.Valor)
                 .HasPrecision(18, 2)
                 .IsRequired();
+
+            builder.Property(p => p.Quantidade)
+                .IsRequired();
         }
     }
 }

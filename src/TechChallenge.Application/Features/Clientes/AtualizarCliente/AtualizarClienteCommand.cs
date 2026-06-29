@@ -1,11 +1,14 @@
 using System;
+using TechChallenge.Domain.Enums;
+
 namespace TechChallenge.Application.Features.Clientes.AtualizarCliente;
 
 public class AtualizarClienteCommand
 {
     public Guid Id { get; set; }
     public string Nome { get; set; } = string.Empty;
-    public string Cpf { get; set; } = string.Empty;
+    public TipoDocumento TipoDocumento { get; set; }
+    public string Documento { get; set; } = string.Empty;
     public string Rg { get; set; } = string.Empty;
     public string Logradouro { get; set; } = string.Empty;
     public string Complemento { get; set; } = string.Empty;

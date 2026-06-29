@@ -9,6 +9,7 @@ namespace TechChallenge.Domain.Entities
         public Guid ServicoId { get; set; }
         public Servico Servico { get; set; } = null!;
         public double Valor { get; set; }
+        public int Quantidade { get; set; } = 1;
         public double Desconto { get; set; }
         public double Acrescimo { get; set; }
     }

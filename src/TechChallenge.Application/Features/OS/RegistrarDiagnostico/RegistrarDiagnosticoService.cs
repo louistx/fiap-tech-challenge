@@ -37,31 +37,36 @@ public class RegistrarDiagnosticoService
         if (os.Status != StatusOS.EmDiagnostico)
             throw new InvalidOperationException($"Apenas OS com status Em Diagnóstico aceitam registro. Status atual: {os.Status}.");
 
-        foreach (var servicoId in command.ServicosIds)
+        foreach (var item in command.Servicos)
         {
-            var servico = _servicoRepository.GetByIdAsync(servicoId).GetAwaiter().GetResult();
+            var servico = _servicoRepository.GetByIdAsync(item.Id).GetAwaiter().GetResult();
             if (servico is null)
-                throw new KeyNotFoundException($"Serviço com Id {servicoId} não encontrado.");
+                throw new KeyNotFoundException($"Serviço com Id {item.Id} não encontrado.");
 
             os.Servicos.Add(new OrdemServicoServicos
             {
                 ServicoId = servico.Id,
                 Servico = servico,
-                Valor = (double)servico.Valor
+                Valor = (double)servico.Valor,
+                Quantidade = item.Quantidade
             });
         }
 
-        foreach (var produtoId in command.ProdutosIds)
+        foreach (var item in command.Produtos)
         {
-            var produto = _produtoRepository.GetByIdAsync(produtoId).GetAwaiter().GetResult();
+            var produto = _produtoRepository.GetByIdAsync(item.Id).GetAwaiter().GetResult();
             if (produto is null)
-                throw new KeyNotFoundException($"Produto com Id {produtoId} não encontrado.");
+                throw new KeyNotFoundException($"Produto com Id {item.Id} não encontrado.");
+
+            if (produto.Quantidade < item.Quantidade)
+                throw new InvalidOperationException($"Estoque insuficiente para o produto {produto.Descricao}.");
 
             os.Produtos.Add(new OrdemServicoProdutos
             {
                 ProdutoId = produto.Id,
                 Produto = produto,
-                Valor = (double)produto.Valor
+                Valor = (double)produto.Valor,
+                Quantidade = item.Quantidade
             });
         }
 
@@ -70,4 +75,5 @@ public class RegistrarDiagnosticoService
         _ordemServicoRepository.UpdateAsync(os).GetAwaiter().GetResult();
         return true;
     }
+
 }

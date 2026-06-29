@@ -10,13 +10,21 @@ public class RegistrarDiagnosticoCommandValidator : AbstractValidator<RegistrarD
             .NotEmpty();
 
         RuleFor(command => command)
-            .Must(command => command.ServicosIds.Count != 0 || command.ProdutosIds.Count != 0)
+            .Must(command =>
+                command.Servicos.Count != 0 ||
+                command.Produtos.Count != 0)
             .WithMessage("Informe ao menos um serviço ou produto para registrar o diagnóstico.");
 
-        RuleForEach(command => command.ServicosIds)
-            .NotEmpty();
+        RuleForEach(command => command.Servicos).ChildRules(item =>
+        {
+            item.RuleFor(i => i.Id).NotEmpty();
+            item.RuleFor(i => i.Quantidade).GreaterThan(0);
+        });
 
-        RuleForEach(command => command.ProdutosIds)
-            .NotEmpty();
+        RuleForEach(command => command.Produtos).ChildRules(item =>
+        {
+            item.RuleFor(i => i.Id).NotEmpty();
+            item.RuleFor(i => i.Quantidade).GreaterThan(0);
+        });
     }
 }

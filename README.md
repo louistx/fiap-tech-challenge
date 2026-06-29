@@ -62,7 +62,7 @@ O sistema deverá:
 
 ### Clientes
 
-- identificação por CPF ou CNPJ;
+- identificação por documento único (`tipoDocumento` + `documento`), com suporte a CPF, CNPJ ou RG;
 - cadastro, consulta, atualização e exclusão;
 - armazenamento de dados pessoais e endereço;
 - consulta do histórico de Ordens de Serviço.
@@ -291,13 +291,14 @@ Esta seção diferencia os requisitos do produto do que já está efetivamente d
 | Cálculo, envio, aprovação e reprovação do orçamento | Implementados |
 | Retorno da OS reprovada para diagnóstico | Implementado |
 | Finalização, entrega e cancelamento da OS | Implementados |
-| Controle efetivo de estoque | Planejado |
+| Controle efetivo de estoque | Implementado parcialmente: quantidade disponível, validação e baixa ao finalizar OS |
 | Notificações ao cliente | Planejadas |
 | Validação de CPF e placas antiga/Mercosul | Implementada |
-| Validação de CNPJ | Planejada |
-| Monitoramento do tempo médio | Planejado |
+| Validação de CNPJ | Implementada |
+| Acompanhamento público da OS por código | Implementado |
+| Monitoramento do tempo médio | Implementado |
 | Testes dos fluxos críticos | Implementados parcialmente |
-| Cobertura mínima de 80% | Ainda não atingida |
+| Cobertura mínima de 80% | Atingida na última análise SonarQube local |
 
 > A autorização possui política de fallback: por padrão, todo endpoint exige usuário autenticado. As exceções explícitas são login, refresh token, Swagger/OpenAPI e demais rotas marcadas com `AllowAnonymous`.
 
@@ -329,6 +330,8 @@ Erros são retornados no formato `ProblemDetails`, com `status`, `title`, `detai
 | `GET` | `/api/v1/clientes/{id}` | Consulta um cliente | Autenticado |
 | `PUT` | `/api/v1/clientes/{id}` | Atualiza um cliente | Administrador ou Vendedor |
 | `DELETE` | `/api/v1/clientes/{id}` | Exclui um cliente | Administrador ou Vendedor |
+
+O cadastro de cliente recebe `tipoDocumento` (`Cpf`, `Cnpj` ou `Rg`) e `documento`. A API valida e normaliza o documento conforme o tipo informado, mantendo unicidade em uma única coluna.
 
 ### Veículos
 
@@ -370,24 +373,28 @@ Erros são retornados no formato `ProblemDetails`, com `status`, `title`, `detai
 | `PUT` | `/api/v1/produtos/{id}` | Atualiza um produto | Administrador ou Vendedor |
 | `DELETE` | `/api/v1/produtos/{id}` | Exclui um produto | Administrador ou Vendedor |
 
+Produtos possuem quantidade disponível. O diagnóstico valida disponibilidade e a baixa de estoque ocorre na finalização da OS.
+
 ### Ordens de Serviço
 
 | Método | Rota | Descrição | Acesso |
 | --- | --- | --- | --- |
 | `POST` | `/api/v1/ordens-servico` | Cria uma OS no estado `Recebida` | Administrador ou Vendedor |
-| `GET` | `/api/v1/ordens-servico` | Lista as Ordens de Serviço | Autenticado |
-| `GET` | `/api/v1/ordens-servico/{id}` | Consulta uma OS | Autenticado |
-| `GET` | `/api/v1/ordens-servico/oficina` | Lista as OS destinadas à visualização da oficina | Autenticado |
+| `GET` | `/api/v1/ordens-servico` | Lista as Ordens de Serviço | Administrador ou Vendedor |
+| `GET` | `/api/v1/ordens-servico/{id}` | Consulta uma OS | Administrador, Mecânico ou Vendedor |
+| `GET` | `/api/v1/ordens-servico/oficina` | Lista as OS destinadas à visualização da oficina | Administrador, Mecânico ou Vendedor |
+| `GET` | `/api/v1/ordens-servico/acompanhamento/{codigo}` | Consulta pública de acompanhamento da OS por código | Anônimo |
+| `GET` | `/api/v1/ordens-servico/tempo-medio-execucao` | Retorna a quantidade de OS finalizadas e o tempo médio de execução | Administrador ou Vendedor |
 | `PATCH` | `/api/v1/ordens-servico/{id}/atribuir` | Atribui a OS e inicia o diagnóstico | Mecânico |
 | `PATCH` | `/api/v1/ordens-servico/{id}/diagnostico` | Registra serviços e produtos do diagnóstico | Mecânico |
 | `PATCH` | `/api/v1/ordens-servico/{id}/orcamento/enviar` | Calcula o orçamento e o envia para aprovação | Administrador, Mecânico ou Vendedor |
-| `PATCH` | `/api/v1/ordens-servico/{id}/aprovar` | Aprova o orçamento e inicia a execução | Autenticado |
-| `PATCH` | `/api/v1/ordens-servico/{id}/reprovar` | Reprova o orçamento | Autenticado |
+| `PATCH` | `/api/v1/ordens-servico/{id}/aprovar` | Aprova o orçamento e inicia a execução | Administrador ou Vendedor |
+| `PATCH` | `/api/v1/ordens-servico/{id}/reprovar` | Reprova o orçamento | Administrador ou Vendedor |
 | `PATCH` | `/api/v1/ordens-servico/{id}/retornar-para-diagnostico` | Retorna uma OS reprovada para diagnóstico | Administrador, Mecânico ou Vendedor |
 | `PATCH` | `/api/v1/ordens-servico/{id}/finalizar` | Finaliza a execução | Mecânico |
 | `PATCH` | `/api/v1/ordens-servico/{id}/entregar` | Registra a entrega do veículo | Administrador ou Vendedor |
 | `PATCH` | `/api/v1/ordens-servico/{id}/cancelar` | Cancela uma OS não encerrada | Administrador |
-| `DELETE` | `/api/v1/ordens-servico/{id}` | Exclui uma OS | Autenticado |
+| `DELETE` | `/api/v1/ordens-servico/{id}` | Exclui uma OS | Administrador |
 
 ### Usuários
 
@@ -750,8 +757,7 @@ Os resultados relevantes devem ser registrados no relatório de vulnerabilidades
 - [x] Implementar finalização técnica, entrega e cancelamento da OS.
 - [ ] Implementar aprovação parcial e negociação.
 - [ ] Implementar controle, reserva e baixa de estoque.
-- [x] Implementar validação e normalização de CPF e placa.
-- [ ] Implementar suporte e validação de CNPJ.
+- [x] Implementar validação e normalização de CPF, CNPJ e placa.
 - [ ] Implementar notificações.
 - [ ] Implementar pagamento e recibo.
 - [ ] Ampliar testes unitários e de integração dos fluxos críticos.

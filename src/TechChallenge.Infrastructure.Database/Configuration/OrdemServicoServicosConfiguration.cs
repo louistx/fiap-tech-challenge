@@ -19,6 +19,9 @@ namespace TechChallenge.Infrastructure.Database.Configuration
                 .WithMany()
                 .HasForeignKey(oss => oss.ServicoId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Property(oss => oss.Quantidade)
+                .IsRequired();
         }
     }
 }

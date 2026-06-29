@@ -20,6 +20,7 @@ public class OrdemServico
 
     public Guid Id { get; set; }
     public string Descricao { get; set; } = string.Empty;
+    public string CodigoAcompanhamento { get; set; } = string.Empty;
     public StatusOS Status { get; set; }
     public Guid ClienteResponsavelId { get; set; }
     public Cliente ClienteResponsavel { get; set; } = null!;
