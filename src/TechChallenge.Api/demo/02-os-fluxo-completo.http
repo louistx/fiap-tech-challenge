@@ -15,7 +15,7 @@ Authorization: Bearer {{vendedorToken}}
 Content-Type: application/json
 
 {
-  "descricao": "Cliente relata barulho no motor e solicita revisao demo",
+  "descricao": "Cliente relata barulho no motor e solicita revisão demo",
   "clienteResponsavelId": "{{clienteId}}",
   "funcionarioResponsavelId": "{{vendedorId}}",
   "veiculoId": "{{veiculoId}}"

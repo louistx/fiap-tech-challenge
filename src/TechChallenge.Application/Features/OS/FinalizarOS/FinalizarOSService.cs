@@ -48,7 +48,10 @@ public class FinalizarOSService
         foreach (var item in os.Produtos)
             item.Produto.Quantidade -= item.Quantidade;
 
+        var statusAnterior = os.Status;
+
         os.TransicionarPara(StatusOS.Finalizada);
+        _notificationService.NotificarTransicaoOS(os, statusAnterior);
         _ordemServicoRepository.UpdateAsync(os).GetAwaiter().GetResult();
         return true;
     }

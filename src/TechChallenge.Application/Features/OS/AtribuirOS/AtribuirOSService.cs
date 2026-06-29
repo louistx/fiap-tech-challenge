@@ -1,6 +1,8 @@
 using System;
+using TechChallenge.Application.Abstractions.Notifications;
 using FluentValidation;
 using TechChallenge.Domain.Enums;
+using TechChallenge.Application.Notifications;
 using TechChallenge.Application.Abstractions.Repositories;
 
 namespace TechChallenge.Application.Features.OS.AtribuirOS;
@@ -10,15 +12,18 @@ public class AtribuirOSService
     private readonly IOrdemServicoRepository _ordemServicoRepository;
     private readonly IFuncionarioRepository _funcionarioRepository;
     private readonly IValidator<AtribuirOSCommand> _validator;
+    private readonly INotificationService _notificationService;
 
     public AtribuirOSService(
         IOrdemServicoRepository ordemServicoRepository,
         IFuncionarioRepository funcionarioRepository,
-        IValidator<AtribuirOSCommand> validator)
+        IValidator<AtribuirOSCommand> validator,
+        INotificationService? notificationService = null)
     {
         _ordemServicoRepository = ordemServicoRepository;
         _funcionarioRepository = funcionarioRepository;
         _validator = validator;
+        _notificationService = notificationService ?? NullNotificationService.Instance;
     }
 
     public bool AtribuirOS(AtribuirOSCommand command)
@@ -38,8 +43,11 @@ public class AtribuirOSService
         if (os is null)
             throw new KeyNotFoundException($"OS com Id {command.OrdemServicoId} não encontrada.");
 
+        var statusAnterior = os.Status;
+
         os.FuncionarioResponsavelId = command.MecanicoId;
         os.TransicionarPara(StatusOS.EmDiagnostico);
+        _notificationService.NotificarTransicaoOS(os, statusAnterior);
 
         _ordemServicoRepository.UpdateAsync(os).GetAwaiter().GetResult();
         return true;
