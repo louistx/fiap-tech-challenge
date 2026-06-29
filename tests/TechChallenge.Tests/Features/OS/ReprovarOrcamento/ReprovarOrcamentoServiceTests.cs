@@ -12,7 +12,7 @@ public class ReprovarOrcamentoServiceTests
     [Fact]
     public void DeveReprovarOrcamentoQuandoOSAguardarAprovacao()
     {
-        var os = new OrdemServico { Id = Guid.NewGuid(), Status = eStatusOS.AguardandoAprovacao };
+        var os = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.AguardandoAprovacao };
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         repository.Setup(repo => repo.UpdateAsync(os)).ReturnsAsync(os);
@@ -21,7 +21,7 @@ public class ReprovarOrcamentoServiceTests
         var resultado = service.ReprovarOrcamento(new ReprovarOrcamentoCommand { OrdemServicoId = os.Id });
 
         resultado.Should().BeTrue();
-        os.Status.Should().Be(eStatusOS.Reprovada);
+        os.Status.Should().Be(StatusOS.Reprovada);
         os.DataAtualizacao.Should().NotBeNull();
         repository.Verify(repo => repo.UpdateAsync(os), Times.Once);
     }
@@ -29,7 +29,7 @@ public class ReprovarOrcamentoServiceTests
     [Fact]
     public void DeveBloquearReprovacaoForaDeAguardandoAprovacao()
     {
-        var os = new OrdemServico { Id = Guid.NewGuid(), Status = eStatusOS.EmDiagnostico };
+        var os = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.EmDiagnostico };
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         var service = new ReprovarOrcamentoService(repository.Object, new ReprovarOrcamentoCommandValidator());
@@ -37,7 +37,7 @@ public class ReprovarOrcamentoServiceTests
         var act = () => service.ReprovarOrcamento(new ReprovarOrcamentoCommand { OrdemServicoId = os.Id });
 
         act.Should().Throw<InvalidOperationException>()
-            .WithMessage($"Transição inválida: {eStatusOS.EmDiagnostico} -> {eStatusOS.Reprovada}.");
+            .WithMessage($"Transição inválida: {StatusOS.EmDiagnostico} -> {StatusOS.Reprovada}.");
         repository.Verify(repo => repo.UpdateAsync(It.IsAny<OrdemServico>()), Times.Never);
     }
 }

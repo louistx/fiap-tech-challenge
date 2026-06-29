@@ -46,9 +46,9 @@ if (!app.Environment.IsEnvironment("Testing"))
     using (var scope = app.Services.CreateScope())
     {
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        context.Database.Migrate();
+        await context.Database.MigrateAsync();
     }
-    await DataSeeder.SeedAdminAsync(app.Services);
+    await DataSeeder.SeedAsync(app.Services);
 }
 
 app.UseMiddleware<ExceptionMiddleware>();
@@ -74,6 +74,11 @@ app.MapServicosEndpoints();
 app.MapInventarioEndpoints();
 app.MapOrdensServicoEndpoints();
 
-app.Run();
+await app.RunAsync();
 
-public partial class Program;
+public partial class Program
+{
+    protected Program()
+    {
+    }
+}

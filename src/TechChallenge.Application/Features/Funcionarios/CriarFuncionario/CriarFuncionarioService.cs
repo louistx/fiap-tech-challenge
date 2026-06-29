@@ -27,7 +27,7 @@ public class CriarFuncionarioService
         if (funcionarioExiste is not null)
             throw new InvalidOperationException($"Já existe um funcionário cadastrado com o CPF {cpf}.");
 
-        if (!Enum.TryParse<eTipoFuncionario>(command.Cargo, true, out var tipoFuncionario))
+        if (!Enum.TryParse<TipoFuncionario>(command.Cargo, true, out var tipoFuncionario))
             throw new InvalidOperationException($"Cargo {command.Cargo} inválido.");
 
         var funcionario = new Funcionario

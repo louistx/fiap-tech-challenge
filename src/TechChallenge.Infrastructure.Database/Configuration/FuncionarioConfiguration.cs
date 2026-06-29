@@ -18,6 +18,9 @@ namespace TechChallenge.Infrastructure.Database.Configuration
                 .HasMaxLength(14)
                 .IsRequired();
 
+            builder.HasIndex(f => f.Cpf)
+                .IsUnique();
+
             builder.Property(f => f.Rg)
                 .HasMaxLength(9)
                 .IsRequired();
@@ -29,7 +32,8 @@ namespace TechChallenge.Infrastructure.Database.Configuration
             builder.HasOne(f => f.Endereco)
                 .WithMany()
                 .HasForeignKey(f => f.EnderecoId)
-                .IsRequired();
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

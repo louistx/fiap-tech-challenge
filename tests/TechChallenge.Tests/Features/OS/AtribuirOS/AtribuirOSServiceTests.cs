@@ -14,11 +14,11 @@ public class AtribuirOSServiceTests
     public void DeveAtribuirOSRecebidaParaMecanicoSemOSAtiva()
     {
         var mecanicoId = Guid.NewGuid();
-        var ordemServico = new OrdemServico { Id = Guid.NewGuid(), Status = eStatusOS.Recebida };
+        var ordemServico = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.Recebida };
         var funcionarioRepository = new Mock<IFuncionarioRepository>();
         var ordemServicoRepository = new Mock<IOrdemServicoRepository>();
         funcionarioRepository.Setup(repo => repo.GetByIdAsync(mecanicoId))
-            .ReturnsAsync(new Funcionario { Id = mecanicoId, TipoFuncionario = eTipoFuncionario.Mecanico });
+            .ReturnsAsync(new Funcionario { Id = mecanicoId, TipoFuncionario = TipoFuncionario.Mecanico });
         ordemServicoRepository.Setup(repo => repo.GetOSAtivaMecanicoAsync(mecanicoId))
             .ReturnsAsync((OrdemServico?)null);
         ordemServicoRepository.Setup(repo => repo.GetByIdAsync(ordemServico.Id))
@@ -38,7 +38,7 @@ public class AtribuirOSServiceTests
 
         resultado.Should().BeTrue();
         ordemServico.FuncionarioResponsavelId.Should().Be(mecanicoId);
-        ordemServico.Status.Should().Be(eStatusOS.EmDiagnostico);
+        ordemServico.Status.Should().Be(StatusOS.EmDiagnostico);
         ordemServico.DataAtualizacao.Should().NotBeNull();
         ordemServicoRepository.Verify(repo => repo.UpdateAsync(ordemServico), Times.Once);
     }
@@ -50,13 +50,13 @@ public class AtribuirOSServiceTests
         var osAtiva = new OrdemServico
         {
             Id = Guid.NewGuid(),
-            Status = eStatusOS.EmDiagnostico,
+            Status = StatusOS.EmDiagnostico,
             FuncionarioResponsavelId = mecanicoId
         };
         var funcionarioRepository = new Mock<IFuncionarioRepository>();
         var ordemServicoRepository = new Mock<IOrdemServicoRepository>();
         funcionarioRepository.Setup(repo => repo.GetByIdAsync(mecanicoId))
-            .ReturnsAsync(new Funcionario { Id = mecanicoId, TipoFuncionario = eTipoFuncionario.Mecanico });
+            .ReturnsAsync(new Funcionario { Id = mecanicoId, TipoFuncionario = TipoFuncionario.Mecanico });
         ordemServicoRepository.Setup(repo => repo.GetOSAtivaMecanicoAsync(mecanicoId))
             .ReturnsAsync(osAtiva);
         var service = new AtribuirOSService(
@@ -79,11 +79,11 @@ public class AtribuirOSServiceTests
     public void DeveImpedirAtribuicaoQuandoOSNaoEstiverRecebida()
     {
         var mecanicoId = Guid.NewGuid();
-        var ordemServico = new OrdemServico { Id = Guid.NewGuid(), Status = eStatusOS.Finalizada };
+        var ordemServico = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.Finalizada };
         var funcionarioRepository = new Mock<IFuncionarioRepository>();
         var ordemServicoRepository = new Mock<IOrdemServicoRepository>();
         funcionarioRepository.Setup(repo => repo.GetByIdAsync(mecanicoId))
-            .ReturnsAsync(new Funcionario { Id = mecanicoId, TipoFuncionario = eTipoFuncionario.Mecanico });
+            .ReturnsAsync(new Funcionario { Id = mecanicoId, TipoFuncionario = TipoFuncionario.Mecanico });
         ordemServicoRepository.Setup(repo => repo.GetOSAtivaMecanicoAsync(mecanicoId))
             .ReturnsAsync((OrdemServico?)null);
         ordemServicoRepository.Setup(repo => repo.GetByIdAsync(ordemServico.Id))
@@ -100,7 +100,7 @@ public class AtribuirOSServiceTests
         });
 
         act.Should().Throw<InvalidOperationException>()
-            .WithMessage($"Transição inválida: {ordemServico.Status} -> {eStatusOS.EmDiagnostico}.");
+            .WithMessage($"Transição inválida: {ordemServico.Status} -> {StatusOS.EmDiagnostico}.");
         ordemServicoRepository.Verify(repo => repo.UpdateAsync(It.IsAny<OrdemServico>()), Times.Never);
     }
 }

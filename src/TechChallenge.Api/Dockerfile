@@ -19,7 +19,13 @@ COPY ["src/TechChallenge.Domain/TechChallenge.Domain.csproj", "src/TechChallenge
 COPY ["src/TechChallenge.Infrastructure.Database/TechChallenge.Infrastructure.Database.csproj", "src/TechChallenge.Infrastructure.Database/"]
 COPY ["src/TechChallenge.Infrastructure.IoC/TechChallenge.Infrastructure.IoC.csproj", "src/TechChallenge.Infrastructure.IoC/"]
 RUN dotnet restore "./src/TechChallenge.Api/TechChallenge.Api.csproj"
-COPY . .
+COPY ["src/TechChallenge.Api/", "src/TechChallenge.Api/"]
+COPY ["src/TechChallenge.Application/", "src/TechChallenge.Application/"]
+COPY ["src/TechChallenge.Application.Abstractions/", "src/TechChallenge.Application.Abstractions/"]
+COPY ["src/TechChallenge.Domain/", "src/TechChallenge.Domain/"]
+COPY ["src/TechChallenge.Infrastructure.Auth/", "src/TechChallenge.Infrastructure.Auth/"]
+COPY ["src/TechChallenge.Infrastructure.Database/", "src/TechChallenge.Infrastructure.Database/"]
+COPY ["src/TechChallenge.Infrastructure.IoC/", "src/TechChallenge.Infrastructure.IoC/"]
 WORKDIR "/src/src/TechChallenge.Api"
 RUN dotnet build "./TechChallenge.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
@@ -32,4 +38,5 @@ RUN dotnet publish "./TechChallenge.Api.csproj" -c $BUILD_CONFIGURATION -o /app/
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+USER app
 ENTRYPOINT ["dotnet", "TechChallenge.Api.dll"]

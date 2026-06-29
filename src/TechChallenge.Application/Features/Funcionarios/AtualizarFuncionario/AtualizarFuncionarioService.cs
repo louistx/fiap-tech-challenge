@@ -25,7 +25,7 @@ public class AtualizarFuncionarioService
         if (funcionario is null)
             throw new KeyNotFoundException($"Funcionário com Id {command.Id} não encontrado.");
 
-        if (!Enum.TryParse<eTipoFuncionario>(command.Cargo, true, out var tipoFuncionario))
+        if (!Enum.TryParse<TipoFuncionario>(command.Cargo, true, out var tipoFuncionario))
             throw new InvalidOperationException($"Cargo {command.Cargo} inválido.");
 
         funcionario.Nome = command.Nome;

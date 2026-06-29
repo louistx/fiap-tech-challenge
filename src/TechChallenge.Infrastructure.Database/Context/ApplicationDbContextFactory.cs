@@ -6,6 +6,8 @@ namespace TechChallenge.Infrastructure.Database.Context
 {
     public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
     {
+        private const string ApiProjectName = "TechChallenge.Api";
+
         public ApplicationDbContext CreateDbContext(string[] args)
         {
             var currentDir = Directory.GetCurrentDirectory();
@@ -13,10 +15,10 @@ namespace TechChallenge.Infrastructure.Database.Context
             // Try several candidate locations to find the API project folder where appsettings.json is expected
             var candidates = new[]
             {
-                Path.Combine(currentDir, "..", "..", "TechChallenge.Api"),
-                Path.Combine(currentDir, "..", "..", "..", "TechChallenge.Api"),
-                Path.Combine(currentDir, "..", "TechChallenge.Api"),
-                Path.Combine(currentDir, "TechChallenge.Api"),
+                Path.Combine(currentDir, "..", "..", ApiProjectName),
+                Path.Combine(currentDir, "..", "..", "..", ApiProjectName),
+                Path.Combine(currentDir, "..", ApiProjectName),
+                Path.Combine(currentDir, ApiProjectName),
                 currentDir
             };
 

@@ -34,7 +34,7 @@ public class RegistrarDiagnosticoService
         if (os is null)
             throw new KeyNotFoundException($"OS com Id {command.OrdemServicoId} não encontrada.");
 
-        if (os.Status != eStatusOS.EmDiagnostico)
+        if (os.Status != StatusOS.EmDiagnostico)
             throw new InvalidOperationException($"Apenas OS com status Em Diagnóstico aceitam registro. Status atual: {os.Status}.");
 
         foreach (var servicoId in command.ServicosIds)

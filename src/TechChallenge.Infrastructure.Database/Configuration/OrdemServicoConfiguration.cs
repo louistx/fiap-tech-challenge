@@ -16,17 +16,20 @@ namespace TechChallenge.Infrastructure.Database.Configuration
             builder.HasOne(os => os.ClienteResponsavel)
                 .WithMany()
                 .HasForeignKey(os => os.ClienteResponsavelId)
-                .IsRequired();
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(os => os.FuncionarioResponsavel)
                 .WithMany()
                 .HasForeignKey(os => os.FuncionarioResponsavelId)
-                .IsRequired();
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(os => os.Veiculo)
                 .WithMany()
                 .HasForeignKey(os => os.VeiculoId)
-                .IsRequired();
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(os => os.Status)
                 .IsRequired();

@@ -12,7 +12,7 @@ public class RetornarParaDiagnosticoServiceTests
     [Fact]
     public void DeveRetornarOSReprovadaParaDiagnostico()
     {
-        var os = new OrdemServico { Id = Guid.NewGuid(), Status = eStatusOS.Reprovada };
+        var os = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.Reprovada };
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         repository.Setup(repo => repo.UpdateAsync(os)).ReturnsAsync(os);
@@ -21,7 +21,7 @@ public class RetornarParaDiagnosticoServiceTests
         var resultado = service.RetornarParaDiagnostico(new RetornarParaDiagnosticoCommand { OrdemServicoId = os.Id });
 
         resultado.Should().BeTrue();
-        os.Status.Should().Be(eStatusOS.EmDiagnostico);
+        os.Status.Should().Be(StatusOS.EmDiagnostico);
         os.DataAtualizacao.Should().NotBeNull();
         repository.Verify(repo => repo.UpdateAsync(os), Times.Once);
     }
@@ -29,7 +29,7 @@ public class RetornarParaDiagnosticoServiceTests
     [Fact]
     public void DeveBloquearRetornoQuandoOSNaoEstiverReprovada()
     {
-        var os = new OrdemServico { Id = Guid.NewGuid(), Status = eStatusOS.AguardandoAprovacao };
+        var os = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.AguardandoAprovacao };
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         var service = new RetornarParaDiagnosticoService(repository.Object, new RetornarParaDiagnosticoCommandValidator());
@@ -37,7 +37,7 @@ public class RetornarParaDiagnosticoServiceTests
         var act = () => service.RetornarParaDiagnostico(new RetornarParaDiagnosticoCommand { OrdemServicoId = os.Id });
 
         act.Should().Throw<InvalidOperationException>()
-            .WithMessage($"Transição inválida: {eStatusOS.AguardandoAprovacao} -> {eStatusOS.EmDiagnostico}.");
+            .WithMessage($"Transição inválida: {StatusOS.AguardandoAprovacao} -> {StatusOS.EmDiagnostico}.");
         repository.Verify(repo => repo.UpdateAsync(It.IsAny<OrdemServico>()), Times.Never);
     }
 }

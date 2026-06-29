@@ -73,7 +73,7 @@ public class ClientesEndpointsIntegrationTests : IClassFixture<WebAplicationFact
     }
 
     [Fact]
-    public async Task DeveCriarClienteQuandoRgEEnderecoNaoForemInformados()
+    public async Task DeveRetornarBadRequestQuandoRgEEnderecoNaoForemInformados()
     {
         var request = new CriarClienteRequest
         {
@@ -84,7 +84,7 @@ public class ClientesEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         var response = await _client.PostAsJsonAsync("/api/v1/clientes", request);
         var body = await response.Content.ReadAsStringAsync();
 
-        response.StatusCode.Should().Be(HttpStatusCode.Created, body);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest, body);
     }
 
     [Fact]

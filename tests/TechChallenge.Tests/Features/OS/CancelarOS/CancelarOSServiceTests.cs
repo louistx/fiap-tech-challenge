@@ -12,7 +12,7 @@ public class CancelarOSServiceTests
     [Fact]
     public void DeveCancelarOSQuandoTransicaoForValida()
     {
-        var os = new OrdemServico { Id = Guid.NewGuid(), Status = eStatusOS.EmDiagnostico };
+        var os = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.EmDiagnostico };
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         repository.Setup(repo => repo.UpdateAsync(os)).ReturnsAsync(os);
@@ -21,7 +21,7 @@ public class CancelarOSServiceTests
         var resultado = service.CancelarOS(new CancelarOSCommand { OrdemServicoId = os.Id });
 
         resultado.Should().BeTrue();
-        os.Status.Should().Be(eStatusOS.Cancelada);
+        os.Status.Should().Be(StatusOS.Cancelada);
         os.DataAtualizacao.Should().NotBeNull();
         repository.Verify(repo => repo.UpdateAsync(os), Times.Once);
     }
@@ -44,7 +44,7 @@ public class CancelarOSServiceTests
     [Fact]
     public void DeveBloquearCancelamentoDeOSEntregue()
     {
-        var os = new OrdemServico { Id = Guid.NewGuid(), Status = eStatusOS.Entregue };
+        var os = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.Entregue };
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         var service = new CancelarOSService(repository.Object, new CancelarOSCommandValidator());
@@ -52,7 +52,7 @@ public class CancelarOSServiceTests
         var act = () => service.CancelarOS(new CancelarOSCommand { OrdemServicoId = os.Id });
 
         act.Should().Throw<InvalidOperationException>()
-            .WithMessage($"Transição inválida: {eStatusOS.Entregue} -> {eStatusOS.Cancelada}.");
+            .WithMessage($"Transição inválida: {StatusOS.Entregue} -> {StatusOS.Cancelada}.");
         repository.Verify(repo => repo.UpdateAsync(It.IsAny<OrdemServico>()), Times.Never);
     }
 }

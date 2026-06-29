@@ -25,7 +25,7 @@ public class AprovarOrcamentoService
         if (os is null)
             throw new KeyNotFoundException($"OS com Id {command.OrdemServicoId} não encontrada.");
 
-        os.TransicionarPara(eStatusOS.EmExecucao);
+        os.TransicionarPara(StatusOS.EmExecucao);
         _ordemServicoRepository.UpdateAsync(os).GetAwaiter().GetResult();
         return true;
     }

@@ -25,7 +25,7 @@ public class TokenServiceTests
         {
             Id = Guid.NewGuid(),
             Login = "admin",
-            TipoUsuario = eTipoUsuario.Administrador
+            TipoUsuario = TipoUsuario.Administrador
         };
 
         var resultado = CriarService().GerarAccessToken(usuario);
@@ -46,7 +46,7 @@ public class TokenServiceTests
         {
             Id = Guid.NewGuid(),
             Login = "mec",
-            TipoUsuario = eTipoUsuario.Mecanico,
+            TipoUsuario = TipoUsuario.Mecanico,
             FuncionarioId = funcionarioId
         };
 

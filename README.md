@@ -563,7 +563,8 @@ dotnet tool run dotnet-sonarscanner -- begin \
   /d:sonar.host.url="http://localhost:9000" \
   /d:sonar.token="$SONAR_TOKEN" \
   /d:sonar.cs.opencover.reportsPaths=".sonar/coverage/**/coverage.opencover.xml" \
-  /d:sonar.coverage.exclusions="**/Migrations/**,**/Program.cs"
+  /d:sonar.coverage.exclusions="**/Migrations/**,**/Program.cs,**/obj/**,**/Seeding/**,**/Context/ApplicationDbContextFactory.cs" \
+  /d:sonar.cpd.exclusions="**/Migrations/**,tests/**/*.cs"
 
 dotnet build TechChallenge.slnx --no-incremental
 

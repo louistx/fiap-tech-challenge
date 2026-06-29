@@ -9,7 +9,7 @@ public class Usuario
     public Guid Id { get; set; }
     public string Login { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
-    public eTipoUsuario TipoUsuario { get; set; }
+    public TipoUsuario TipoUsuario { get; set; }
     public bool Ativo { get; set; } = true;
 
     // Vínculo opcional com Funcionario (regra de dono-do-recurso). Nullable: Usuario pode existir sem Funcionario.

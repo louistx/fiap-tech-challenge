@@ -73,7 +73,7 @@ public static class AuthEndpoints
         return app;
     }
 
-    private static IResult LoginAsync(LoginRequest request, LoginService service, HttpContext http)
+    private static IResult LoginAsync(LoginRequest request, LoginService service)
     {
         var command = new LoginCommand
         {

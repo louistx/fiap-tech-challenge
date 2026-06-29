@@ -12,7 +12,7 @@ public class EntregarOSServiceTests
     [Fact]
     public void DeveEntregarOSQuandoEstiverFinalizada()
     {
-        var os = new OrdemServico { Id = Guid.NewGuid(), Status = eStatusOS.Finalizada };
+        var os = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.Finalizada };
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         repository.Setup(repo => repo.UpdateAsync(os)).ReturnsAsync(os);
@@ -21,7 +21,7 @@ public class EntregarOSServiceTests
         var resultado = service.EntregarOS(new EntregarOSCommand { OrdemServicoId = os.Id });
 
         resultado.Should().BeTrue();
-        os.Status.Should().Be(eStatusOS.Entregue);
+        os.Status.Should().Be(StatusOS.Entregue);
         os.DataAtualizacao.Should().NotBeNull();
         repository.Verify(repo => repo.UpdateAsync(os), Times.Once);
     }
@@ -29,7 +29,7 @@ public class EntregarOSServiceTests
     [Fact]
     public void DeveBloquearEntregaQuandoOSNaoEstiverFinalizada()
     {
-        var os = new OrdemServico { Id = Guid.NewGuid(), Status = eStatusOS.EmExecucao };
+        var os = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.EmExecucao };
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         var service = new EntregarOSService(repository.Object, new EntregarOSCommandValidator());
@@ -37,7 +37,7 @@ public class EntregarOSServiceTests
         var act = () => service.EntregarOS(new EntregarOSCommand { OrdemServicoId = os.Id });
 
         act.Should().Throw<InvalidOperationException>()
-            .WithMessage($"Transição inválida: {eStatusOS.EmExecucao} -> {eStatusOS.Entregue}.");
+            .WithMessage($"Transição inválida: {StatusOS.EmExecucao} -> {StatusOS.Entregue}.");
         repository.Verify(repo => repo.UpdateAsync(It.IsAny<OrdemServico>()), Times.Never);
     }
 }

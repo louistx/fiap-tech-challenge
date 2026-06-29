@@ -25,7 +25,7 @@ public class RetornarParaDiagnosticoService
         if (os is null)
             throw new KeyNotFoundException($"OS com Id {command.OrdemServicoId} não encontrada.");
 
-        os.TransicionarPara(eStatusOS.EmDiagnostico);
+        os.TransicionarPara(StatusOS.EmDiagnostico);
         _ordemServicoRepository.UpdateAsync(os).GetAwaiter().GetResult();
         return true;
     }

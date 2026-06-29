@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using TechChallenge.Application.Abstractions.Repositories;
 using TechChallenge.Domain.Entities;
-using TechChallenge.Domain.Enums;
 using TechChallenge.Infrastructure.Database.Context;
 
 namespace TechChallenge.Infrastructure.Database.Repositories
@@ -34,6 +33,11 @@ namespace TechChallenge.Infrastructure.Database.Repositories
         public override async Task<List<OrdemServicoServicos>> GetAllAsync()
         {
             return await _context.OrdemServicoServicos.ToListAsync();
+        }
+
+        public async Task<bool> ExisteServicoEmOrdemServicoAsync(Guid servicoId)
+        {
+            return await _context.OrdemServicoServicos.AnyAsync(item => item.ServicoId == servicoId);
         }
 
         #endregion

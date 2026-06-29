@@ -60,6 +60,6 @@ public class AtualizarFuncionarioCommandValidator : AbstractValidator<AtualizarF
 
     private static bool CargoValido(string cargo)
     {
-        return Enum.TryParse<eTipoFuncionario>(cargo, true, out _);
+        return Enum.TryParse<TipoFuncionario>(cargo, true, out _);
     }
 }

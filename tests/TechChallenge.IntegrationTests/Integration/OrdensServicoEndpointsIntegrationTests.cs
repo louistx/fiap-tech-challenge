@@ -39,7 +39,7 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
         response.StatusCode.Should().Be(HttpStatusCode.OK);
         var os = await response.Content.ReadFromJsonAsync<OrdemServicoResponse>();
         os.Should().NotBeNull();
-        os.Status.Should().Be(eStatusOS.Entregue);
+        os.Status.Should().Be(StatusOS.Entregue);
         os.Valor.Should().Be(120);
         os.DataFinalizacao.Should().NotBeNull();
     }
@@ -75,7 +75,7 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
             Nome = "Joao Mecanico OS",
             Cpf = GerarCpf(sequencia * 2 + 1),
             Rg = "987654321",
-            Cargo = eTipoFuncionario.Mecanico,
+            Cargo = TipoFuncionario.Mecanico,
             Endereco = CriarEnderecoRequest()
         });
 

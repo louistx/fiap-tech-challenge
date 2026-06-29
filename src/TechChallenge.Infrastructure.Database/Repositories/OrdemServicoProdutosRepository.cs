@@ -35,6 +35,11 @@ namespace TechChallenge.Infrastructure.Database.Repositories
             return await _context.OrdemServicoProdutos.ToListAsync();
         }
 
+        public async Task<bool> ExisteProdutoEmOrdemServicoAsync(Guid produtoId)
+        {
+            return await _context.OrdemServicoProdutos.AnyAsync(item => item.ProdutoId == produtoId);
+        }
+
         #endregion
     }
 }

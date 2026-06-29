@@ -32,7 +32,7 @@ public class CriarClienteCommandValidatorTests
     }
 
     [Fact]
-    public void DeveRetornarErroQuandoNomeObrigatorioEstiverVazio()
+    public void DeveRetornarErroQuandoCamposObrigatoriosEstiveremVazios()
     {
         var command = CriarCommandValido();
         command.Nome = string.Empty;
@@ -47,8 +47,8 @@ public class CriarClienteCommandValidatorTests
         var resultado = _validator.Validate(command);
 
         resultado.IsValid.Should().BeFalse();
-        resultado.Errors.Select(error => error.PropertyName).Should().Contain(nameof(CriarClienteCommand.Nome));
-        resultado.Errors.Select(error => error.PropertyName).Should().NotContain([
+        resultado.Errors.Select(error => error.PropertyName).Should().Contain([
+            nameof(CriarClienteCommand.Nome),
             nameof(CriarClienteCommand.Rg),
             nameof(CriarClienteCommand.Logradouro),
             nameof(CriarClienteCommand.Numero),

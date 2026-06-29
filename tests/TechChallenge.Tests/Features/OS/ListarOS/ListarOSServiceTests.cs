@@ -14,8 +14,8 @@ public class ListarOSServiceTests
     {
         var ordens = new List<OrdemServico>
         {
-            new() { Id = Guid.NewGuid(), Status = eStatusOS.Recebida },
-            new() { Id = Guid.NewGuid(), Status = eStatusOS.Finalizada }
+            new() { Id = Guid.NewGuid(), Status = StatusOS.Recebida },
+            new() { Id = Guid.NewGuid(), Status = StatusOS.Finalizada }
         };
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(ordens);
@@ -25,7 +25,7 @@ public class ListarOSServiceTests
 
         resultado.Should().BeEquivalentTo(ordens);
         repository.Verify(repo => repo.GetAllAsync(), Times.Once);
-        repository.Verify(repo => repo.GetByStatusAsync(It.IsAny<eStatusOS>()), Times.Never);
+        repository.Verify(repo => repo.GetByStatusAsync(It.IsAny<StatusOS>()), Times.Never);
     }
 
     [Fact]
@@ -33,16 +33,16 @@ public class ListarOSServiceTests
     {
         var ordens = new List<OrdemServico>
         {
-            new() { Id = Guid.NewGuid(), Status = eStatusOS.EmDiagnostico }
+            new() { Id = Guid.NewGuid(), Status = StatusOS.EmDiagnostico }
         };
         var repository = new Mock<IOrdemServicoRepository>();
-        repository.Setup(repo => repo.GetByStatusAsync(eStatusOS.EmDiagnostico)).ReturnsAsync(ordens);
+        repository.Setup(repo => repo.GetByStatusAsync(StatusOS.EmDiagnostico)).ReturnsAsync(ordens);
         var service = new ListarOSService(repository.Object);
 
-        var resultado = service.ListarOS(new ListarOSQuery { Status = eStatusOS.EmDiagnostico });
+        var resultado = service.ListarOS(new ListarOSQuery { Status = StatusOS.EmDiagnostico });
 
         resultado.Should().BeEquivalentTo(ordens);
-        repository.Verify(repo => repo.GetByStatusAsync(eStatusOS.EmDiagnostico), Times.Once);
+        repository.Verify(repo => repo.GetByStatusAsync(StatusOS.EmDiagnostico), Times.Once);
         repository.Verify(repo => repo.GetAllAsync(), Times.Never);
     }
 }

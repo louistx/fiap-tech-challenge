@@ -14,7 +14,7 @@ public class ListarOSOficinaService
 
     public List<ListarOSOficinaResponseDto> ListarOSOficina()
     {
-        var ordens = _ordemServicoRepository.GetByStatusAsync(eStatusOS.EmDiagnostico).GetAwaiter().GetResult();
+        var ordens = _ordemServicoRepository.GetByStatusAsync(StatusOS.EmDiagnostico).GetAwaiter().GetResult();
 
         return ordens.Select(os => new ListarOSOficinaResponseDto
         {

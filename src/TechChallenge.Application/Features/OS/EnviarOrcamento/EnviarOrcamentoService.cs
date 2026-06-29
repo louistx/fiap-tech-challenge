@@ -34,7 +34,7 @@ public class EnviarOrcamentoService
             os.Acrescimo -
             os.Desconto;
 
-        os.TransicionarPara(eStatusOS.AguardandoAprovacao);
+        os.TransicionarPara(StatusOS.AguardandoAprovacao);
         _ordemServicoRepository.UpdateAsync(os).GetAwaiter().GetResult();
         return true;
     }

@@ -135,9 +135,9 @@ public static class UsuariosEndpoints
         return Results.NoContent();
     }
 
-    private static eTipoUsuario ParseTipo(string tipo)
+    private static TipoUsuario ParseTipo(string tipo)
     {
-        if (!Enum.TryParse<eTipoUsuario>(tipo, true, out var resultado))
+        if (!Enum.TryParse<TipoUsuario>(tipo, true, out var resultado))
             throw new InvalidOperationException($"Tipo de usuário '{tipo}' inválido.");
         return resultado;
     }

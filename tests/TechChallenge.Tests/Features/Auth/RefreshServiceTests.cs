@@ -35,7 +35,7 @@ public class RefreshServiceTests
     [Fact]
     public void DeveRotacionarQuandoTokenAtivo()
     {
-        var usuario = new Usuario { Id = Guid.NewGuid(), Ativo = true, TipoUsuario = eTipoUsuario.Vendedor };
+        var usuario = new Usuario { Id = Guid.NewGuid(), Ativo = true, TipoUsuario = TipoUsuario.Vendedor };
         var agora = DateTime.UtcNow;
         var token = new RefreshToken
         {

@@ -6,7 +6,10 @@ namespace TechChallenge.Application.Abstractions.Repositories
 {
     public interface IOrdemServicoRepository : IRepository<OrdemServico>
     {
-        Task<List<OrdemServico>> GetByStatusAsync(eStatusOS status);
+        Task<List<OrdemServico>> GetByStatusAsync(StatusOS status);
         Task<OrdemServico?> GetOSAtivaMecanicoAsync(Guid mecanicoId);
+        Task<bool> ExistePorClienteAsync(Guid clienteId);
+        Task<bool> ExistePorFuncionarioAsync(Guid funcionarioId);
+        Task<bool> ExistePorVeiculoAsync(Guid veiculoId);
     }
 }

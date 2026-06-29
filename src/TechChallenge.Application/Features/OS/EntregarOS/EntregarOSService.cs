@@ -25,7 +25,7 @@ public class EntregarOSService
         if (os is null)
             throw new KeyNotFoundException($"OS com Id {command.OrdemServicoId} não encontrada.");
 
-        os.TransicionarPara(eStatusOS.Entregue);
+        os.TransicionarPara(StatusOS.Entregue);
         _ordemServicoRepository.UpdateAsync(os).GetAwaiter().GetResult();
         return true;
     }

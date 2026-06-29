@@ -1,6 +1,6 @@
 ﻿namespace TechChallenge.Domain.Enums
 {
-    public enum eTipoFuncionario
+    public enum TipoFuncionario
     {
         Administrador = 0,
         Vendedor,

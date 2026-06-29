@@ -1,6 +1,6 @@
 namespace TechChallenge.Domain.Enums
 {
-    public enum eStatusOS
+    public enum StatusOS
     {
         Recebida = 1,
         EmDiagnostico = 2,

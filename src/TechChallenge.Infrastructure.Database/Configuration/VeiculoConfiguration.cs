@@ -14,6 +14,9 @@ namespace TechChallenge.Infrastructure.Database.Configuration
                 .HasMaxLength(10)
                 .IsRequired();
 
+            builder.HasIndex(v => v.Placa)
+                .IsUnique();
+
             builder.Property(v => v.Modelo)
                 .HasMaxLength(30);
 

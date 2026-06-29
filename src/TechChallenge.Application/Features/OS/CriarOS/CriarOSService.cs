@@ -48,7 +48,7 @@ public class CriarOSService
         {
             Id = Guid.NewGuid(),
             Descricao = command.Descricao,
-            Status = eStatusOS.Recebida,
+            Status = StatusOS.Recebida,
             ClienteResponsavelId = command.ClienteResponsavelId,
             FuncionarioResponsavelId = command.FuncionarioResponsavelId,
             VeiculoId = command.VeiculoId,

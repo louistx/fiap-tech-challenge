@@ -39,7 +39,7 @@ public class AtribuirOSService
             throw new KeyNotFoundException($"OS com Id {command.OrdemServicoId} não encontrada.");
 
         os.FuncionarioResponsavelId = command.MecanicoId;
-        os.TransicionarPara(eStatusOS.EmDiagnostico);
+        os.TransicionarPara(StatusOS.EmDiagnostico);
 
         _ordemServicoRepository.UpdateAsync(os).GetAwaiter().GetResult();
         return true;

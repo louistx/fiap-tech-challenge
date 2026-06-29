@@ -21,7 +21,7 @@ public class FuncionariosEndpointsIntegrationTests : IClassFixture<WebAplication
     [Fact]
     public async Task DeveExecutarCrudDeFuncionario()
     {
-        var criarRequest = CriarFuncionarioRequest("52998224725", eTipoFuncionario.Mecanico);
+        var criarRequest = CriarFuncionarioRequest("52998224725", TipoFuncionario.Mecanico);
 
         var criarResponse = await _client.PostAsJsonAsync("/api/v1/funcionarios", criarRequest);
 
@@ -80,7 +80,7 @@ public class FuncionariosEndpointsIntegrationTests : IClassFixture<WebAplication
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
-    private static CriarFuncionarioRequest CriarFuncionarioRequest(string cpf, eTipoFuncionario cargo)
+    private static CriarFuncionarioRequest CriarFuncionarioRequest(string cpf, TipoFuncionario cargo)
     {
         return new CriarFuncionarioRequest
         {

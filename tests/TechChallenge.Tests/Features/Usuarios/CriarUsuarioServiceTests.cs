@@ -26,7 +26,7 @@ public class CriarUsuarioServiceTests
     {
         Login = "novo.usuario",
         Senha = "Senha@123",
-        TipoUsuario = eTipoUsuario.Vendedor,
+        TipoUsuario = TipoUsuario.Vendedor,
         FuncionarioId = funcionarioId
     };
 
@@ -44,7 +44,7 @@ public class CriarUsuarioServiceTests
         id.Should().NotBeEmpty();
         salvo.Should().NotBeNull();
         salvo.PasswordHash.Should().Be("hash");
-        salvo.TipoUsuario.Should().Be(eTipoUsuario.Vendedor);
+        salvo.TipoUsuario.Should().Be(TipoUsuario.Vendedor);
     }
 
     [Fact]

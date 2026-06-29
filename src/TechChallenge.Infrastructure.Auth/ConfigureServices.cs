@@ -86,7 +86,7 @@ namespace TechChallenge.Infrastructure.Auth
                 });
 
             services.AddAuthorizationBuilder()
-                // Defesa: todo endpoint exige autenticação por padrão; anônimos usam .AllowAnonymous().
+                // Fallback defensivo: endpoints exigem autenticação por padrão; anônimos usam .AllowAnonymous().
                 .SetFallbackPolicy(new AuthorizationPolicyBuilder().RequireAuthenticatedUser().Build())
                 .AddPolicy("AdminOnly", policy => policy.RequireRole("Administrador"))
                 .AddPolicy("AdminOuVendedor", policy => policy.RequireRole("Administrador", "Vendedor"))

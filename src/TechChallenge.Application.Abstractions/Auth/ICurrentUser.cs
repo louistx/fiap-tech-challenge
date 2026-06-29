@@ -7,7 +7,7 @@ namespace TechChallenge.Application.Abstractions.Auth
     {
         Guid? UsuarioId { get; }
         Guid? FuncionarioId { get; }
-        eTipoUsuario? TipoUsuario { get; }
+        TipoUsuario? TipoUsuario { get; }
         bool EstaAutenticado { get; }
     }
 }

@@ -68,7 +68,7 @@ public class LoginServiceTests
             Login = "admin",
             Ativo = true,
             PasswordHash = "h",
-            TipoUsuario = eTipoUsuario.Administrador
+            TipoUsuario = TipoUsuario.Administrador
         };
         _usuarios.Setup(r => r.GetByLoginAsync("admin")).ReturnsAsync(usuario);
         _hasher.Setup(h => h.Verify("Senha@123", "h")).Returns(true);

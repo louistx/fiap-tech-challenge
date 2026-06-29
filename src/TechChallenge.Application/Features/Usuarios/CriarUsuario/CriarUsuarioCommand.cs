@@ -7,6 +7,6 @@ public class CriarUsuarioCommand
 {
     public string Login { get; set; } = string.Empty;
     public string Senha { get; set; } = string.Empty;
-    public eTipoUsuario TipoUsuario { get; set; }
+    public TipoUsuario TipoUsuario { get; set; }
     public Guid? FuncionarioId { get; set; }
 }

@@ -45,7 +45,7 @@ namespace TechChallenge.Infrastructure.Database.Repositories
                 .ToListAsync();
         }
 
-        public async Task<List<OrdemServico>> GetByStatusAsync(eStatusOS status)
+        public async Task<List<OrdemServico>> GetByStatusAsync(StatusOS status)
         {
             return await _context.OrdemServico
                 .Where(os => os.Status == status)
@@ -64,8 +64,26 @@ namespace TechChallenge.Infrastructure.Database.Repositories
             return await _context.OrdemServico
                 .FirstOrDefaultAsync(os =>
                     os.FuncionarioResponsavelId == mecanicoId &&
-                    (os.Status == eStatusOS.EmDiagnostico ||
-                     os.Status == eStatusOS.EmExecucao));
+                    (os.Status == StatusOS.EmDiagnostico ||
+                     os.Status == StatusOS.EmExecucao));
+        }
+
+        public async Task<bool> ExistePorClienteAsync(Guid clienteId)
+        {
+            return await _context.OrdemServico
+                .AnyAsync(os => os.ClienteResponsavelId == clienteId);
+        }
+
+        public async Task<bool> ExistePorFuncionarioAsync(Guid funcionarioId)
+        {
+            return await _context.OrdemServico
+                .AnyAsync(os => os.FuncionarioResponsavelId == funcionarioId);
+        }
+
+        public async Task<bool> ExistePorVeiculoAsync(Guid veiculoId)
+        {
+            return await _context.OrdemServico
+                .AnyAsync(os => os.VeiculoId == veiculoId);
         }
 
         #endregion

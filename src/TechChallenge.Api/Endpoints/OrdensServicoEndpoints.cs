@@ -150,7 +150,7 @@ public static class OrdensServicoEndpoints
         return Results.Ok(MapToResponse(os));
     }
 
-    private static IResult ListarOrdensServicoAsync(ListarOSService service, eStatusOS? status = null)
+    private static IResult ListarOrdensServicoAsync(ListarOSService service, StatusOS? status = null)
     {
         var query = new ListarOSQuery { Status = status };
         var lista = service.ListarOS(query);

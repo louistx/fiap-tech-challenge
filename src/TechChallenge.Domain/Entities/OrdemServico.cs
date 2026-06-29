@@ -6,21 +6,21 @@ namespace TechChallenge.Domain.Entities;
 
 public class OrdemServico
 {
-    private static readonly Dictionary<eStatusOS, eStatusOS[]> Transicoes = new()
+    private static readonly Dictionary<StatusOS, StatusOS[]> Transicoes = new()
     {
-        [eStatusOS.Recebida] = [eStatusOS.EmDiagnostico, eStatusOS.Cancelada],
-        [eStatusOS.EmDiagnostico] = [eStatusOS.AguardandoAprovacao, eStatusOS.Cancelada],
-        [eStatusOS.AguardandoAprovacao] = [eStatusOS.EmExecucao, eStatusOS.Reprovada, eStatusOS.Cancelada],
-        [eStatusOS.Reprovada] = [eStatusOS.EmDiagnostico, eStatusOS.Cancelada],
-        [eStatusOS.EmExecucao] = [eStatusOS.Finalizada, eStatusOS.Cancelada],
-        [eStatusOS.Finalizada] = [eStatusOS.Entregue],
-        [eStatusOS.Entregue] = [],
-        [eStatusOS.Cancelada] = []
+        [StatusOS.Recebida] = [StatusOS.EmDiagnostico, StatusOS.Cancelada],
+        [StatusOS.EmDiagnostico] = [StatusOS.AguardandoAprovacao, StatusOS.Cancelada],
+        [StatusOS.AguardandoAprovacao] = [StatusOS.EmExecucao, StatusOS.Reprovada, StatusOS.Cancelada],
+        [StatusOS.Reprovada] = [StatusOS.EmDiagnostico, StatusOS.Cancelada],
+        [StatusOS.EmExecucao] = [StatusOS.Finalizada, StatusOS.Cancelada],
+        [StatusOS.Finalizada] = [StatusOS.Entregue],
+        [StatusOS.Entregue] = [],
+        [StatusOS.Cancelada] = []
     };
 
     public Guid Id { get; set; }
     public string Descricao { get; set; } = string.Empty;
-    public eStatusOS Status { get; set; }
+    public StatusOS Status { get; set; }
     public Guid ClienteResponsavelId { get; set; }
     public Cliente ClienteResponsavel { get; set; } = null!;
     public Guid FuncionarioResponsavelId { get; set; }
@@ -36,7 +36,7 @@ public class OrdemServico
     public double Desconto { get; set; }
     public double Acrescimo { get; set; }
 
-    public void TransicionarPara(eStatusOS novoStatus)
+    public void TransicionarPara(StatusOS novoStatus)
     {
         if (!Transicoes.TryGetValue(Status, out var permitidos) || !permitidos.Contains(novoStatus))
             throw new InvalidOperationException($"Transição inválida: {Status} -> {novoStatus}.");
@@ -44,7 +44,7 @@ public class OrdemServico
         Status = novoStatus;
         DataAtualizacao = DateTime.UtcNow;
 
-        if (novoStatus == eStatusOS.Finalizada)
+        if (novoStatus == StatusOS.Finalizada)
             DataFinalizacao = DateTime.UtcNow;
     }
 }

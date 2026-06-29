@@ -15,13 +15,13 @@ public class ListarOSOficinaServiceTests
         var os = new OrdemServico
         {
             Id = Guid.NewGuid(),
-            Status = eStatusOS.EmDiagnostico,
+            Status = StatusOS.EmDiagnostico,
             Descricao = "Motor falhando",
             Veiculo = new Veiculo { Placa = "ABC1D23" },
             FuncionarioResponsavel = new Funcionario { Nome = "Joao Mecanico" }
         };
         var repository = new Mock<IOrdemServicoRepository>();
-        repository.Setup(repo => repo.GetByStatusAsync(eStatusOS.EmDiagnostico)).ReturnsAsync([os]);
+        repository.Setup(repo => repo.GetByStatusAsync(StatusOS.EmDiagnostico)).ReturnsAsync([os]);
         var service = new ListarOSOficinaService(repository.Object);
 
         var resultado = service.ListarOSOficina();
@@ -31,6 +31,6 @@ public class ListarOSOficinaServiceTests
         resultado[0].PlacaVeiculo.Should().Be(os.Veiculo.Placa);
         resultado[0].NomeMecanico.Should().Be(os.FuncionarioResponsavel.Nome);
         resultado[0].RelatoInicial.Should().Be(os.Descricao);
-        repository.Verify(repo => repo.GetByStatusAsync(eStatusOS.EmDiagnostico), Times.Once);
+        repository.Verify(repo => repo.GetByStatusAsync(StatusOS.EmDiagnostico), Times.Once);
     }
 }

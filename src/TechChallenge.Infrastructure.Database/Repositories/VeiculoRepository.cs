@@ -27,8 +27,10 @@ namespace TechChallenge.Infrastructure.Database.Repositories
         public async Task<Veiculo?> GetByPlacaAsync(string placa)
         {
             var placaNormalizada = placa.Replace("-", "").Replace(" ", "").ToUpper();
+#pragma warning disable CA1862
             return await _context.Veiculo
                 .FirstOrDefaultAsync(v => v.Placa.Replace("-", "").Replace(" ", "").ToUpper() == placaNormalizada);
+#pragma warning restore CA1862
         }
 
         #endregion

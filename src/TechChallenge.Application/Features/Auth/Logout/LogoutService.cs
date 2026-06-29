@@ -19,15 +19,15 @@ public class LogoutService
 
     public void Logout()
     {
-        if (_currentUser.UsuarioId is not { } usuarioId)
-            throw new UnauthorizedAccessException("Usuário não autenticado.");
-
-        _refreshTokenRepository
-            .RevogarTodasDoUsuarioAsync(usuarioId, DateTime.UtcNow)
-            .GetAwaiter().GetResult();
+        RevogarTokensDoUsuarioAutenticado();
     }
 
     public void LogoutTodas()
+    {
+        RevogarTokensDoUsuarioAutenticado();
+    }
+
+    private void RevogarTokensDoUsuarioAutenticado()
     {
         if (_currentUser.UsuarioId is not { } usuarioId)
             throw new UnauthorizedAccessException("Usuário não autenticado.");

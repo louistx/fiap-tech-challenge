@@ -6,36 +6,42 @@ namespace TechChallenge.Tests.Domain;
 
 public class OrdemServicoStateMachineTests
 {
-    public static IEnumerable<object[]> TransicoesValidas()
+    public static TheoryData<StatusOS, StatusOS> TransicoesValidas()
     {
-        yield return [eStatusOS.Recebida, eStatusOS.EmDiagnostico];
-        yield return [eStatusOS.Recebida, eStatusOS.Cancelada];
-        yield return [eStatusOS.EmDiagnostico, eStatusOS.AguardandoAprovacao];
-        yield return [eStatusOS.EmDiagnostico, eStatusOS.Cancelada];
-        yield return [eStatusOS.AguardandoAprovacao, eStatusOS.EmExecucao];
-        yield return [eStatusOS.AguardandoAprovacao, eStatusOS.Reprovada];
-        yield return [eStatusOS.AguardandoAprovacao, eStatusOS.Cancelada];
-        yield return [eStatusOS.Reprovada, eStatusOS.EmDiagnostico];
-        yield return [eStatusOS.Reprovada, eStatusOS.Cancelada];
-        yield return [eStatusOS.EmExecucao, eStatusOS.Finalizada];
-        yield return [eStatusOS.EmExecucao, eStatusOS.Cancelada];
-        yield return [eStatusOS.Finalizada, eStatusOS.Entregue];
+        return new TheoryData<StatusOS, StatusOS>
+        {
+            { StatusOS.Recebida, StatusOS.EmDiagnostico },
+            { StatusOS.Recebida, StatusOS.Cancelada },
+            { StatusOS.EmDiagnostico, StatusOS.AguardandoAprovacao },
+            { StatusOS.EmDiagnostico, StatusOS.Cancelada },
+            { StatusOS.AguardandoAprovacao, StatusOS.EmExecucao },
+            { StatusOS.AguardandoAprovacao, StatusOS.Reprovada },
+            { StatusOS.AguardandoAprovacao, StatusOS.Cancelada },
+            { StatusOS.Reprovada, StatusOS.EmDiagnostico },
+            { StatusOS.Reprovada, StatusOS.Cancelada },
+            { StatusOS.EmExecucao, StatusOS.Finalizada },
+            { StatusOS.EmExecucao, StatusOS.Cancelada },
+            { StatusOS.Finalizada, StatusOS.Entregue }
+        };
     }
 
-    public static IEnumerable<object[]> TransicoesInvalidas()
+    public static TheoryData<StatusOS, StatusOS> TransicoesInvalidas()
     {
-        yield return [eStatusOS.Recebida, eStatusOS.Finalizada];
-        yield return [eStatusOS.EmDiagnostico, eStatusOS.EmExecucao];
-        yield return [eStatusOS.AguardandoAprovacao, eStatusOS.Finalizada];
-        yield return [eStatusOS.EmExecucao, eStatusOS.Entregue];
-        yield return [eStatusOS.Finalizada, eStatusOS.Cancelada];
-        yield return [eStatusOS.Entregue, eStatusOS.Cancelada];
-        yield return [eStatusOS.Cancelada, eStatusOS.Recebida];
+        return new TheoryData<StatusOS, StatusOS>
+        {
+            { StatusOS.Recebida, StatusOS.Finalizada },
+            { StatusOS.EmDiagnostico, StatusOS.EmExecucao },
+            { StatusOS.AguardandoAprovacao, StatusOS.Finalizada },
+            { StatusOS.EmExecucao, StatusOS.Entregue },
+            { StatusOS.Finalizada, StatusOS.Cancelada },
+            { StatusOS.Entregue, StatusOS.Cancelada },
+            { StatusOS.Cancelada, StatusOS.Recebida }
+        };
     }
 
     [Theory]
     [MemberData(nameof(TransicoesValidas))]
-    public void DeveTransicionarQuandoMovimentoForValido(eStatusOS origem, eStatusOS destino)
+    public void DeveTransicionarQuandoMovimentoForValido(StatusOS origem, StatusOS destino)
     {
         var os = new OrdemServico { Status = origem };
 
@@ -47,7 +53,7 @@ public class OrdemServicoStateMachineTests
 
     [Theory]
     [MemberData(nameof(TransicoesInvalidas))]
-    public void DeveBloquearTransicaoInvalida(eStatusOS origem, eStatusOS destino)
+    public void DeveBloquearTransicaoInvalida(StatusOS origem, StatusOS destino)
     {
         var os = new OrdemServico { Status = origem };
 
@@ -60,11 +66,11 @@ public class OrdemServicoStateMachineTests
     [Fact]
     public void DeveDefinirDataFinalizacaoQuandoFinalizar()
     {
-        var os = new OrdemServico { Status = eStatusOS.EmExecucao };
+        var os = new OrdemServico { Status = StatusOS.EmExecucao };
 
-        os.TransicionarPara(eStatusOS.Finalizada);
+        os.TransicionarPara(StatusOS.Finalizada);
 
-        os.Status.Should().Be(eStatusOS.Finalizada);
+        os.Status.Should().Be(StatusOS.Finalizada);
         os.DataFinalizacao.Should().NotBeNull();
     }
 }

@@ -12,11 +12,13 @@ namespace TechChallenge.Infrastructure.Database.Configuration
 
             builder.HasOne(osp => osp.OrdemServico)
                 .WithMany(os => os.Produtos)
-                .HasForeignKey(osp => osp.OrdemServicoId);
+                .HasForeignKey(osp => osp.OrdemServicoId)
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasOne(osp => osp.Produto)
                 .WithMany()
-                .HasForeignKey(osp => osp.ProdutoId);
+                .HasForeignKey(osp => osp.ProdutoId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

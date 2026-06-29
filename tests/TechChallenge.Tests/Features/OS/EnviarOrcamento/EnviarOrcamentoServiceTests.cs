@@ -15,7 +15,7 @@ public class EnviarOrcamentoServiceTests
         var os = new OrdemServico
         {
             Id = Guid.NewGuid(),
-            Status = eStatusOS.EmDiagnostico,
+            Status = StatusOS.EmDiagnostico,
             Servicos =
             [
                 new OrdemServicoServicos { Valor = 100, Acrescimo = 10, Desconto = 5 }
@@ -34,7 +34,7 @@ public class EnviarOrcamentoServiceTests
 
         resultado.Should().BeTrue();
         os.Valor.Should().Be(155);
-        os.Status.Should().Be(eStatusOS.AguardandoAprovacao);
+        os.Status.Should().Be(StatusOS.AguardandoAprovacao);
         repository.Verify(repo => repo.UpdateAsync(os), Times.Once);
     }
 
@@ -44,7 +44,7 @@ public class EnviarOrcamentoServiceTests
         var os = new OrdemServico
         {
             Id = Guid.NewGuid(),
-            Status = eStatusOS.EmDiagnostico
+            Status = StatusOS.EmDiagnostico
         };
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
