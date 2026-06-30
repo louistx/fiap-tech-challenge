@@ -360,12 +360,14 @@ O quadro representa o processo de negócio desejado. No código atual, os cadast
 | Atribuição ao mecânico | Implementada com limite de uma OS ativa por mecânico |
 | Registro do diagnóstico | Implementado com serviços e produtos associados |
 | Estados e transições da OS | Máquina de estados implementada no domínio |
-| Orçamento e preços históricos dos itens | Cálculo e cópia dos preços implementados; quantidade ainda não modelada |
+| Orçamento, quantidades e preços históricos dos itens | Modelados e considerados no cálculo do valor e no consumo de estoque |
 | Aprovação integral e reprovação | Implementadas; a OS reprovada pode retornar ao diagnóstico |
 | Aprovação parcial e negociação | Ainda não implementadas |
 | Reserva e baixa de estoque | Baixa implementada na finalização; reserva ainda não implementada |
-| Notificações | Simuladas via logger para fluxos internos de OS e estoque |
+| Notificações | Simuladas via logger na criação, nas transições de estado e na falta de estoque |
 | Execução, finalização e entrega | Implementadas no ciclo de estados |
+| Acompanhamento público da OS | Implementado por código único, sem necessidade de autenticação |
+| Tempo médio de execução | Implementado para acompanhamento administrativo |
 | Inspeção e retrabalho | Ainda não implementados |
 | Pagamento e recibo | Ainda não modelados |
 

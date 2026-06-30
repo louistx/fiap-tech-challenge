@@ -4,7 +4,7 @@ Projeto desenvolvido para a **Pós-Tech da FIAP**, como parte do Tech Challenge 
 
 O objetivo é construir o MVP do back-end de um sistema integrado para uma oficina mecânica, centralizando o cadastro de clientes e veículos, o controle das Ordens de Serviço, a elaboração de orçamentos, a gestão do inventário e o acompanhamento da execução dos serviços.
 
-> **Status do projeto:** em desenvolvimento. A API já possui persistência com PostgreSQL, migrations, seeding opcional do administrador inicial, autenticação JWT, refresh tokens, autorização por perfil e CRUD dos principais cadastros. O fluxo de OS implementa criação, atribuição, diagnóstico, cálculo e decisão do orçamento, retorno para diagnóstico, conclusão, entrega e cancelamento. Notificações internas são simuladas via logger. Pagamento, aprovação parcial e reserva efetiva de estoque seguem no roadmap.
+> **Status do projeto:** em desenvolvimento. A API já possui persistência com PostgreSQL, migrations, autenticação JWT, refresh tokens, autorização por perfil e CRUD dos principais cadastros. O fluxo de OS implementa criação, atribuição, diagnóstico, controle e baixa de estoque, orçamento, decisão, conclusão, entrega e cancelamento, além de acompanhamento público, métricas e notificações internas por log. Pagamento, aprovação parcial, notificações externas e reserva efetiva de estoque seguem no roadmap.
 
 ## Sumário
 
@@ -250,9 +250,10 @@ flowchart TD
 │   ├── assets/                        # Diagramas e imagens
 │   ├── ddd.md                         # Documentação de DDD
 │   ├── event-storming.md              # Documentação do Event Storming
-│   └── requisitos.md                  # Requisitos funcionais
+│   ├── requisitos.md                  # Requisitos funcionais
+│   └── testes.md                      # Estratégia e cobertura de testes
 ├── src/
-│   ├── TechChallenge.Api/             # API REST
+│   ├── TechChallenge.Api/             # API REST e roteiros de demonstração
 │   ├── TechChallenge.Application/     # Casos de uso
 │   ├── TechChallenge.Application.Abstractions/ # Contratos da aplicação e repositórios
 │   ├── TechChallenge.Domain/          # Entidades de domínio
@@ -286,19 +287,19 @@ Esta seção diferencia os requisitos do produto do que já está efetivamente d
 | Refresh token | Implementado |
 | Hash de senha PBKDF2 | Implementado |
 | RBAC por perfil de usuário | Implementado |
-| Seeding opcional do administrador inicial | Implementado |
+| Seeding de administrador, dados fictícios e dados de demonstração | Implementado e configurável |
 | Estados e transições da OS | Implementados com máquina de estados |
 | Cálculo, envio, aprovação e reprovação do orçamento | Implementados |
 | Retorno da OS reprovada para diagnóstico | Implementado |
 | Finalização, entrega e cancelamento da OS | Implementados |
 | Controle efetivo de estoque | Implementado parcialmente: quantidade disponível, validação e baixa ao finalizar OS |
-| Notificações internas | Simuladas via logger para mecânicos e administradores |
+| Notificações internas | Simuladas via logger na criação, transições e falta de estoque |
 | Notificações ao cliente | Planejadas |
 | Validação de CPF e placas antiga/Mercosul | Implementada |
 | Validação de CNPJ | Implementada |
 | Acompanhamento público da OS por código | Implementado |
 | Monitoramento do tempo médio | Implementado |
-| Testes dos fluxos críticos | Implementados parcialmente |
+| Testes unitários e de integração | Implementados e ampliados |
 | Cobertura mínima de 80% | Atingida na última análise SonarQube local |
 
 > A autorização possui política de fallback: por padrão, todo endpoint exige usuário autenticado. As exceções explícitas são login, refresh token, Swagger/OpenAPI e demais rotas marcadas com `AllowAnonymous`.
@@ -462,7 +463,7 @@ export Jwt__SecretKey="troque-por-uma-chave-com-mais-de-32-caracteres"
 export Seed__AdminPassword="SenhaAdmin123"
 ```
 
-Se `Seed:AdminPassword` estiver configurado e a tabela de usuários estiver vazia, a aplicação cria o usuário inicial `admin`. Em desenvolvimento, `appsettings.Development.json` já traz valores locais para bootstrap.
+Se `Seed:AdminPassword` estiver configurado e a tabela de usuários estiver vazia, a aplicação cria o usuário inicial `admin`. As opções `Seed:FakeData` e `Seed:DemoData` habilitam, respectivamente, dados fictícios e o conjunto estável utilizado nos roteiros de demonstração. Em desenvolvimento, `appsettings.Development.json` já traz valores locais para bootstrap e demonstração.
 
 ### 4. Compilar a API
 
@@ -533,6 +534,12 @@ O PostgreSQL fica exposto localmente em:
 ```text
 localhost:5432
 ```
+
+### Demonstração do fluxo da OS
+
+Com a API disponível em `http://localhost:8080` e `Seed:DemoData` habilitado, execute em ordem os arquivos `.http` de `src/TechChallenge.Api/demo`. Eles demonstram autenticação, cadastros, ciclo completo da OS, falta de estoque, acompanhamento público e métricas.
+
+As credenciais, IDs fixos e instruções estão em [Demo do fluxo completo da OS](src/TechChallenge.Api/demo/README.md).
 
 ### SonarQube local
 
@@ -682,7 +689,7 @@ dotnet test TechChallenge.slnx \
 
 O **Coverlet** será utilizado em conjunto com o xUnit para medir a cobertura dos testes.
 
-> **Situação atual:** há testes unitários para autenticação, hash de senha, refresh token, criação de usuários, clientes, veículos e fluxos de OS, além de testes de integração para endpoints principais. A meta do desafio segue sendo atingir pelo menos 80% de cobertura nos domínios críticos.
+> **Situação atual:** há 78 declarações de testes unitários e 20 de integração, cobrindo autenticação, cadastros, inventário, regras de estoque, notificações, métricas e o fluxo principal da OS. A última análise local do SonarQube atingiu a meta mínima de 80% de cobertura nos domínios críticos.
 
 ## Segurança
 
@@ -734,6 +741,7 @@ Os resultados relevantes devem ser registrados no relatório de vulnerabilidades
 | [Event Storming](docs/event-storming.md) | Fluxos, eventos, políticas e pontos de decisão |
 | [Requisitos funcionais](docs/requisitos.md) | Levantamento inicial dos requisitos |
 | [Testes automatizados](docs/testes.md) | Estratégia, cenários cobertos, execução, cobertura e limitações |
+| [Roteiro de demonstração](src/TechChallenge.Api/demo/README.md) | Fluxo completo da OS, estoque, acompanhamento e métricas por arquivos `.http` |
 | [Quadro no Figma](https://www.figma.com/board/RDxPpsRgOD8J3wvPTh2659/Untitled?node-id=0-1&p=f) | Event Storming colaborativo |
 
 ## Roadmap
@@ -761,8 +769,8 @@ Os resultados relevantes devem ser registrados no relatório de vulnerabilidades
 - [x] Implementar validação e normalização de CPF, CNPJ e placa.
 - [x] Implementar notificações internas simuladas via logger.
 - [ ] Implementar pagamento e recibo.
-- [ ] Ampliar testes unitários e de integração dos fluxos críticos.
-- [ ] Atingir cobertura mínima de 80% nos fluxos críticos.
+- [x] Ampliar testes unitários e de integração dos fluxos críticos.
+- [x] Atingir cobertura mínima de 80% nos fluxos críticos.
 - [ ] Executar e documentar a análise de vulnerabilidades.
 
 ## Equipe
@@ -770,10 +778,10 @@ Os resultados relevantes devem ser registrados no relatório de vulnerabilidades
 | Participante | RM | GitHub |
 | --- | --- | --- |
 | Gabriel Teixeira | RM374752 | [@louistx](https://github.com/louistx) |
-| Brunno de Oliveira | A informar | [@DevDoubleN](https://github.com/DevDoubleN) |
+| Brunno de Oliveira | RM374818 | [@DevDoubleN](https://github.com/DevDoubleN) |
 | Luís Henrique | A informar | [@Ace0777](https://github.com/Ace0777) |
 | Caio Montilha | RM375494 | [@cmontilha](https://github.com/cmontilha) |
-| Gustavo Keiji | A informar | [@GuKeiji](https://github.com/GuKeiji) |
+| Gustavo Keiji | RM374965 | [@GuKeiji](https://github.com/GuKeiji) |
 
 ## Repositório
 

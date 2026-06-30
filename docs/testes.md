@@ -4,7 +4,7 @@
 
 O projeto utiliza testes automatizados para validar as regras de domínio, os serviços de aplicação, a segurança e o comportamento HTTP da API. A suíte é dividida entre testes unitários e testes de integração.
 
-No levantamento atual, existem 61 declarações de testes unitários e 16 declarações de testes de integração.
+No levantamento atual, existem 78 declarações de testes unitários e 20 declarações de testes de integração.
 
 ## Organização
 
@@ -36,17 +36,19 @@ Os principais cenários cobertos são:
 - registro da data de finalização;
 - atribuição da OS e limite de uma OS ativa por mecânico;
 - registro e validação do diagnóstico;
-- cálculo e envio do orçamento;
+- quantidades, cálculo, estoque e envio do orçamento;
 - aprovação e reprovação do orçamento;
 - retorno de uma OS reprovada para diagnóstico;
 - finalização, entrega, cancelamento e exclusão;
-- listagem geral, filtro por estado e listagem para a oficina.
+- listagem geral, filtro por estado e listagem para a oficina;
+- geração do código de acompanhamento e cálculo do tempo médio de execução;
+- notificações internas na criação, nas transições e na falta de estoque.
 
 ### Cadastros e validações
 
 Os testes verificam:
 
-- criação de cliente e rejeição de CPF duplicado ou inválido;
+- criação de cliente com CPF ou CNPJ e rejeição de documento duplicado ou inválido;
 - criação de veículo e vínculo com cliente existente;
 - validação e normalização de placas antigas e Mercosul;
 - rejeição de placa duplicada, ano e valores inválidos;
@@ -81,11 +83,13 @@ Os fluxos atualmente cobertos incluem:
 - CRUD e validação de clientes;
 - CRUD e validação de funcionários;
 - CRUD e validação de serviços;
-- validação das requisições de veículos;
+- CRUD e validação de produtos do inventário;
+- CRUD e validação de veículos;
 - criação e listagem de usuários;
 - login e rotação de refresh token;
 - retorno `Unauthorized` para senha incorreta;
 - execução do ciclo principal da OS até a entrega;
+- acompanhamento público da OS e métrica de tempo médio;
 - bloqueio de operações quando o perfil não possui autorização;
 - respostas padronizadas com `ProblemDetails`.
 
@@ -140,7 +144,7 @@ dotnet test tests/TechChallenge.IntegrationTests/TechChallenge.IntegrationTests.
   /p:CoverletOutput=../../.sonar/coverage/integration/
 ```
 
-A meta do projeto é atingir pelo menos 80% de cobertura nos fluxos críticos. A existência de cobertura não substitui a validação da qualidade e da relevância dos cenários testados.
+A meta do projeto é manter pelo menos 80% de cobertura nos fluxos críticos. Esse patamar foi atingido na última análise local do SonarQube. A existência de cobertura não substitui a validação da qualidade e da relevância dos cenários testados.
 
 ## Integração contínua
 
@@ -153,10 +157,8 @@ Atualmente, ambos são iniciados manualmente por `workflow_dispatch`. O build da
 
 ## Situação atual
 
-A estrutura de testes unitários e de integração está implementada e as duas suítes executam com sucesso. A cobertura ainda deve ser ampliada, principalmente para:
+A estrutura de testes unitários e de integração está implementada, as duas suítes executam com sucesso e a última análise local atingiu a meta de cobertura. A cobertura ainda deve evoluir principalmente para:
 
-- CRUD completo de veículos nos testes de integração;
-- endpoints de produtos e inventário;
 - estados alternativos da OS pela API, incluindo reprovação, retorno para diagnóstico e cancelamento;
 - autorização dos demais endpoints e perfis;
 - execução com PostgreSQL real;

@@ -20,6 +20,8 @@ Os principais termos utilizados no projeto são:
 - **Serviço:** atividade executada pelo mecânico, como revisão, troca ou reparo.
 - **Produto:** peça ou item de inventário utilizado na execução do serviço.
 - **Diagnóstico:** identificação dos serviços e produtos necessários para resolver o problema relatado.
+- **Código de acompanhamento:** identificador público usado pelo cliente para consultar o andamento da OS.
+- **Notificação interna:** comunicação simulada por log para funcionários e perfis envolvidos no fluxo.
 
 ## Agregado Ordem de Serviço
 
@@ -33,6 +35,7 @@ Atualmente, a entidade relaciona:
 - uma coleção de serviços;
 - uma coleção de produtos;
 - uma descrição ou relato inicial;
+- um código único de acompanhamento;
 - o estado atual e as transições permitidas;
 - valor, desconto e acréscimo;
 - data de criação;
@@ -49,13 +52,13 @@ Antes da abertura da Ordem de Serviço, o diagrama apresenta a solicitação ini
 2. A solicitação é encaminhada ao **administrador**.
 3. A partir das informações do cliente e do veículo, o administrador inicia o atendimento e cria a Ordem de Serviço.
 
-No código atual, o orçamento é representado pela composição de serviços e produtos da própria OS. Os preços são copiados para os itens da OS e o valor total é calculado no envio para aprovação. Ainda não existe uma entidade `Orcamento` independente.
+No código atual, o orçamento é representado pela composição de serviços e produtos da própria OS. Quantidades e preços são copiados para os itens da OS, e o valor total é calculado no envio para aprovação. Ainda não existe uma entidade `Orcamento` independente.
 
 ## Fluxo de execução da Ordem de Serviço
 
 ### 1. Criação da OS
 
-O administrador ou vendedor cria uma OS informando o cliente responsável, o veículo, o funcionário responsável e o relato inicial. A OS é persistida diretamente no estado **Recebida**.
+O administrador ou vendedor cria uma OS informando o cliente responsável, o veículo, o funcionário responsável e o relato inicial. A OS recebe um código único de acompanhamento, é persistida diretamente no estado **Recebida** e gera uma notificação interna aos mecânicos.
 
 **Comando de domínio:** `CriarOrdemServico`  
 **Estado resultante:** `Recebida`
@@ -79,11 +82,11 @@ Ao ser atribuída ao mecânico, a OS deve passar pelo estado **Em diagnóstico**
 - `DiagnosticoRegistrado`;
 - `ItemAdicionadoAoOrcamento`.
 
-Os preços atuais de serviços e produtos são copiados para os itens associados à OS. A disponibilidade em estoque é validada no diagnóstico e antes do envio do orçamento; quando falta estoque, o sistema simula notificações por logger para administradores e para o mecânico responsável.
+As quantidades e os preços atuais de serviços e produtos são copiados para os itens associados à OS. A disponibilidade em estoque é validada no diagnóstico e antes do envio do orçamento; quando falta estoque, o sistema simula notificações por logger para administradores e para o mecânico responsável.
 
 ### 3. Envio para aprovação
 
-Depois do diagnóstico, o sistema soma serviços e produtos, considerando descontos e acréscimos dos itens e da OS. Havendo ao menos um item, a OS passa para **Aguardando aprovação**. O envio de notificação ao cliente ainda está no roadmap.
+Depois do diagnóstico, o sistema soma serviços e produtos multiplicando valores pelas quantidades e considerando descontos e acréscimos dos itens e da OS. Havendo ao menos um item e estoque suficiente, a OS passa para **Aguardando aprovação**. A mudança de estado gera uma notificação interna; o envio externo ao cliente ainda está no roadmap.
 
 **Comando de domínio:** `EnviarOrcamentoParaAprovacao`  
 **Eventos esperados:**
@@ -110,7 +113,7 @@ Com a aprovação, a OS já entra em **Em execução**. O mecânico executa o tr
 
 ### 6. Finalização técnica
 
-Ao terminar os serviços, o mecânico finaliza a OS. A transição de **Em execução** para **Finalizada** também registra a data de finalização.
+Ao terminar os serviços, o mecânico finaliza a OS. O sistema valida o estoque novamente, baixa as quantidades dos produtos consumidos e realiza a transição de **Em execução** para **Finalizada**, registrando a data de finalização.
 
 **Comando de aplicação:** `FinalizarOS`
 
@@ -147,6 +150,8 @@ O caminho alternativo de revisão do orçamento é `Aguardando aprovação → R
 - somente uma OS `Em execução` pode ser finalizada;
 - somente uma OS `Finalizada` pode ser entregue.
 
+Cada transição executada pelos casos de uso gera uma notificação interna simulada por log. O código de acompanhamento permite consultar publicamente o estado atual e os itens da OS, enquanto a métrica administrativa calcula o tempo médio entre criação e finalização.
+
 ## Contextos do domínio
 
 Com base no desenho e nos requisitos atuais, o domínio pode ser dividido nos seguintes contextos:
@@ -173,7 +178,10 @@ Essa separação é uma proposta inicial. Os limites devem ser refinados conform
 | Estados da OS | Máquina de estados implementada na entidade |
 | Orçamento e decisão do cliente | Cálculo, envio, aprovação, reprovação e revisão implementados |
 | Verificação de estoque | Implementada parcialmente: validação no diagnóstico/envio e baixa na finalização |
-| Notificações | Simuladas via logger para fluxos internos |
+| Quantidades dos itens | Modeladas e consideradas no cálculo, validação e baixa de estoque |
+| Notificações | Simuladas via logger na criação, nas transições de estado e na falta de estoque |
+| Acompanhamento público | Implementado por código único da OS |
+| Tempo médio de execução | Implementado para OS finalizadas ou entregues |
 | Finalização, entrega e cancelamento da OS | Implementados |
 
 Portanto, o diagrama documenta o **fluxo de negócio desejado**, enquanto o código atual já cobre o ciclo principal da OS. Permanecem pendentes reserva de estoque, notificações externas, pagamento, recibo, aprovação parcial e retrabalho.

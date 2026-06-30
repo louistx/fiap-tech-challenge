@@ -2,8 +2,9 @@
 
 ## RF01 - Cadastro do cliente
 - O sistema deve permitir que administradores e vendedores cadastrem, consultem, atualizem e excluam clientes.
-- O cadastro deve conter nome, RG, CPF e endereço.
-- O CPF deve ser válido, normalizado e único.
+- O cadastro deve conter nome, tipo de documento, documento e endereço.
+- O tipo de documento deve aceitar CPF, CNPJ ou RG.
+- O documento deve ser validado, normalizado e único conforme o tipo informado.
 
 ## RF02 - Cadastro do veículo
 - O sistema deve permitir que administradores e vendedores cadastrem, consultem, atualizem e excluam veículos.
@@ -23,6 +24,7 @@
 
 ## RF05 - Cadastro de inventário
 - O sistema deve permitir que administradores e vendedores cadastrem, consultem, atualizem e excluam produtos do inventário.
+- O produto deve conter descrição, valor e quantidade disponível.
 
 ## RF06 - Cadastro de serviços
 - O sistema deve permitir que administradores e vendedores cadastrem, consultem, atualizem e excluam os serviços oferecidos pela oficina.
@@ -31,9 +33,9 @@
 - O sistema deve permitir que usuários autenticados listem e consultem produtos do inventário.
 
 ## RF08 - Listagem de OS
-- O sistema deve permitir que usuários autenticados listem todas as OS.
+- O sistema deve permitir que administradores e vendedores listem todas as OS.
 - A listagem deve aceitar filtro opcional por estado.
-- O sistema deve permitir a consulta de uma OS pelo identificador.
+- O sistema deve permitir que administradores, vendedores e mecânicos consultem uma OS pelo identificador.
 
 ## RF09 - Listagem de OS para a oficina
 - O sistema deve fornecer a listagem das OS em diagnóstico para exibição na oficina.
@@ -46,7 +48,8 @@
 
 ## RF11 - Registro de diagnóstico
 - O mecânico deve poder associar serviços e produtos a uma OS em diagnóstico.
-- O preço vigente de cada serviço e produto deve ser registrado no item da OS.
+- Cada item deve registrar quantidade e o preço vigente do serviço ou produto.
+- O sistema deve impedir a inclusão de produtos sem quantidade suficiente em estoque.
 
 ## RF12 - Envio do orçamento
 - Administradores, vendedores e mecânicos devem poder enviar o orçamento de uma OS em diagnóstico.
@@ -55,7 +58,7 @@
 - Após o envio, a OS deve passar para `AguardandoAprovacao`.
 
 ## RF13 - Decisão do orçamento
-- Um usuário autenticado deve poder aprovar ou reprovar o orçamento.
+- Administradores e vendedores devem poder aprovar ou reprovar o orçamento.
 - A aprovação deve mover a OS de `AguardandoAprovacao` para `EmExecucao`.
 - A reprovação deve mover a OS para `Reprovada`.
 - Uma OS reprovada deve poder retornar para `EmDiagnostico` para revisão.
@@ -72,10 +75,25 @@
 ## RF16 - Verificação de estoque
 - Antes do envio para aprovação, o sistema deve verificar se os produtos necessários estão disponíveis.
 - Quando não houver estoque, o sistema deve notificar o administrador e o mecânico.
-- Implementado parcialmente: o diagnóstico e o envio do orçamento bloqueiam falta de estoque, a finalização valida novamente antes da baixa, e as notificações internas são simuladas via logger.
+- A finalização deve validar novamente a disponibilidade e realizar a baixa das quantidades consumidas.
+- A reserva antecipada de estoque ainda não está implementada.
 
 ## RF17 - Autenticação e autorização
 - O sistema deve autenticar usuários com JWT e permitir renovação por refresh token rotativo.
 - O sistema deve permitir troca de senha, logout e revogação de refresh tokens.
 - O acesso às operações deve respeitar os perfis administrador, vendedor e mecânico.
 - Por padrão, toda rota deve exigir autenticação, exceto as explicitamente públicas.
+
+## RF18 - Acompanhamento público da OS
+- O sistema deve gerar um código de acompanhamento único ao criar a OS.
+- O cliente deve poder consultar o andamento pelo código sem autenticação.
+
+## RF19 - Tempo médio de execução
+- Administradores e vendedores devem poder consultar a quantidade de OS finalizadas e o tempo médio de execução em minutos e horas.
+- O cálculo deve considerar o intervalo entre criação e finalização das OS finalizadas ou entregues.
+
+## RF20 - Notificações internas
+- O sistema deve notificar os mecânicos quando uma nova OS entrar na fila.
+- Mudanças de estado devem gerar notificação para o funcionário responsável ou para administradores quando não houver responsável.
+- A falta de estoque deve notificar administradores e o mecânico responsável.
+- Nesta fase, as notificações são simuladas por logs da aplicação.
