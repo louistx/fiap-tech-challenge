@@ -779,7 +779,7 @@ Os resultados relevantes devem ser registrados no relatório de vulnerabilidades
 | --- | --- | --- |
 | Gabriel Teixeira | RM374752 | [@louistx](https://github.com/louistx) |
 | Brunno de Oliveira | RM374818 | [@DevDoubleN](https://github.com/DevDoubleN) |
-| Luís Henrique | A informar | [@Ace0777](https://github.com/Ace0777) |
+| Luís Henrique | RM374786 | [@Ace0777](https://github.com/Ace0777) |
 | Caio Montilha | RM375494 | [@cmontilha](https://github.com/cmontilha) |
 | Gustavo Keiji | RM374965 | [@GuKeiji](https://github.com/GuKeiji) |
 
