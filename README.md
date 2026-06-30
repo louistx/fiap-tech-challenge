@@ -250,6 +250,7 @@ flowchart TD
 │   ├── assets/                        # Diagramas e imagens
 │   ├── ddd.md                         # Documentação de DDD
 │   ├── event-storming.md              # Documentação do Event Storming
+│   ├── relatorio-vulnerabilidades.md  # Resultado e execução do scan
 │   ├── requisitos.md                  # Requisitos funcionais
 │   └── testes.md                      # Estratégia e cobertura de testes
 ├── src/
@@ -730,7 +731,7 @@ Para auditar as imagens Docker, pode ser utilizada uma ferramenta como Trivy:
 trivy image techchallengeapi
 ```
 
-Os resultados relevantes devem ser registrados no relatório de vulnerabilidades solicitado como entregável da fase.
+Os resultados obtidos, a evidência e as limitações estão registrados no [relatório de análise de vulnerabilidades](docs/relatorio-vulnerabilidades.md).
 
 ## Documentação
 
@@ -741,6 +742,7 @@ Os resultados relevantes devem ser registrados no relatório de vulnerabilidades
 | [Event Storming](docs/event-storming.md) | Fluxos, eventos, políticas e pontos de decisão |
 | [Requisitos funcionais](docs/requisitos.md) | Levantamento inicial dos requisitos |
 | [Testes automatizados](docs/testes.md) | Estratégia, cenários cobertos, execução, cobertura e limitações |
+| [Análise de vulnerabilidades](docs/relatorio-vulnerabilidades.md) | Resultado do SonarQube, evidência, interpretação e reprodução do scan |
 | [Roteiro de demonstração](src/TechChallenge.Api/demo/README.md) | Fluxo completo da OS, estoque, acompanhamento e métricas por arquivos `.http` |
 | [Quadro no Figma](https://www.figma.com/board/RDxPpsRgOD8J3wvPTh2659/Untitled?node-id=0-1&p=f) | Event Storming colaborativo |
 
@@ -771,7 +773,7 @@ Os resultados relevantes devem ser registrados no relatório de vulnerabilidades
 - [ ] Implementar pagamento e recibo.
 - [x] Ampliar testes unitários e de integração dos fluxos críticos.
 - [x] Atingir cobertura mínima de 80% nos fluxos críticos.
-- [ ] Executar e documentar a análise de vulnerabilidades.
+- [x] Executar e documentar a análise de vulnerabilidades.
 
 ## Equipe
 
