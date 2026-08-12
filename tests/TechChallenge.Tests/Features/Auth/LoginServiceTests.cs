@@ -40,7 +40,7 @@ public class LoginServiceTests
     public void DeveLancarQuandoUsuarioInativo()
     {
         _usuarios.Setup(r => r.GetByLoginAsync("admin"))
-            .ReturnsAsync(new Usuario { Login = "admin", Ativo = false, PasswordHash = "h" });
+            .ReturnsAsync(new Usuario(Guid.NewGuid(), "admin", "h", TipoUsuario.Administrador, true));
 
         var acao = () => CriarService().Login(Comando());
 
@@ -51,7 +51,7 @@ public class LoginServiceTests
     public void DeveLancarQuandoSenhaInvalida()
     {
         _usuarios.Setup(r => r.GetByLoginAsync("admin"))
-            .ReturnsAsync(new Usuario { Login = "admin", Ativo = true, PasswordHash = "h" });
+            .ReturnsAsync(new Usuario(Guid.NewGuid(), "admin", "h", TipoUsuario.Administrador, true));
         _hasher.Setup(h => h.Verify("Senha@123", "h")).Returns(false);
 
         var acao = () => CriarService().Login(Comando());
@@ -62,14 +62,8 @@ public class LoginServiceTests
     [Fact]
     public void DeveAutenticarEGerarRefreshTokenQuandoCredenciaisValidas()
     {
-        var usuario = new Usuario
-        {
-            Id = Guid.NewGuid(),
-            Login = "admin",
-            Ativo = true,
-            PasswordHash = "h",
-            TipoUsuario = TipoUsuario.Administrador
-        };
+        var usuario = new Usuario(Guid.NewGuid(), "admin", "h", TipoUsuario.Administrador, true);
+
         _usuarios.Setup(r => r.GetByLoginAsync("admin")).ReturnsAsync(usuario);
         _hasher.Setup(h => h.Verify("Senha@123", "h")).Returns(true);
         _tokens.Setup(t => t.GerarAccessToken(usuario))

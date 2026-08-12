@@ -3,6 +3,7 @@ using Moq;
 using TechChallenge.Application.Abstractions.Repositories;
 using TechChallenge.Application.Features.Funcionarios.ExcluirFuncionario;
 using TechChallenge.Domain.Entities;
+using TechChallenge.Domain.Enums;
 
 namespace TechChallenge.Tests.Features.Funcionarios.ExcluirFuncionario;
 
@@ -11,7 +12,7 @@ public class ExcluirFuncionarioServiceTests
     [Fact]
     public void DeveExcluirFuncionarioQuandoNaoPossuirOrdemServico()
     {
-        var funcionario = new Funcionario { Id = Guid.NewGuid() };
+        var funcionario = new Funcionario(Guid.NewGuid(), string.Empty, string.Empty, string.Empty, TipoFuncionario.Mecanico, Guid.NewGuid());
         var funcionarioRepository = new Mock<IFuncionarioRepository>();
         var ordemServicoRepository = new Mock<IOrdemServicoRepository>();
         funcionarioRepository.Setup(repo => repo.GetByIdAsync(funcionario.Id)).ReturnsAsync(funcionario);
@@ -31,7 +32,7 @@ public class ExcluirFuncionarioServiceTests
     [Fact]
     public void DeveImpedirExclusaoQuandoFuncionarioPossuirOrdemServico()
     {
-        var funcionario = new Funcionario { Id = Guid.NewGuid() };
+        var funcionario = new Funcionario(Guid.NewGuid(), string.Empty, string.Empty, string.Empty, TipoFuncionario.Mecanico, Guid.NewGuid());
         var funcionarioRepository = new Mock<IFuncionarioRepository>();
         var ordemServicoRepository = new Mock<IOrdemServicoRepository>();
         funcionarioRepository.Setup(repo => repo.GetByIdAsync(funcionario.Id)).ReturnsAsync(funcionario);

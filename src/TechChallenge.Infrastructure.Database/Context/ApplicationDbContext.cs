@@ -21,6 +21,10 @@ namespace TechChallenge.Infrastructure.Database.Context
         public DbSet<RefreshToken> RefreshToken { get; set; }
         public DbSet<OrdemServicoProdutos> OrdemServicoProdutos { get; set; }
         public DbSet<OrdemServicoServicos> OrdemServicoServicos { get; set; }
+        public DbSet<CategoriaProduto> CategoriaProduto { get; set; }
+        public DbSet<CategoriaServico> CategoriaServico { get; set; }
+        public DbSet<CategoriaVeiculo> CategoriaVeiculo { get; set; }
+        public DbSet<Estoque> Estoque { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

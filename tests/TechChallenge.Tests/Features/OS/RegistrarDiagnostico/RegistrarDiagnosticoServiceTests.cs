@@ -25,14 +25,16 @@ public class RegistrarDiagnosticoServiceTests
         var ordemServicoRepository = new Mock<IOrdemServicoRepository>();
         var servicoRepository = new Mock<IServicoRepository>();
         var produtoRepository = new Mock<IProdutoRepository>();
+        var estoqueRepository = new Mock<IEstoqueRepository>();
         var notificationService = new Mock<INotificationService>();
         ordemServicoRepository.Setup(repo => repo.GetByIdAsync(osId)).ReturnsAsync(os);
         produtoRepository.Setup(repo => repo.GetByIdAsync(produtoId))
-            .ReturnsAsync(new Produto { Id = produtoId, Descricao = "Filtro", Quantidade = 1 });
+            .ReturnsAsync(new Produto(produtoId, "Filtro", 0, Guid.NewGuid()));
         var service = new RegistrarDiagnosticoService(
             ordemServicoRepository.Object,
             servicoRepository.Object,
             produtoRepository.Object,
+            estoqueRepository.Object,
             new RegistrarDiagnosticoCommandValidator(),
             notificationService.Object);
 

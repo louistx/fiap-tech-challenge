@@ -22,11 +22,11 @@ public class CriarOSServiceTests
         var veiculoRepository = new Mock<IVeiculoRepository>();
         var notificationService = new Mock<INotificationService>();
         clienteRepository.Setup(repo => repo.GetByIdAsync(clienteId))
-            .ReturnsAsync(new Cliente { Id = clienteId });
+            .ReturnsAsync(new Cliente(clienteId, string.Empty, TipoDocumento.Cpf, string.Empty, Guid.NewGuid()));
         funcionarioRepository.Setup(repo => repo.GetByIdAsync(funcionarioId))
-            .ReturnsAsync(new Funcionario { Id = funcionarioId });
+            .ReturnsAsync(new Funcionario(funcionarioId, string.Empty, string.Empty, string.Empty, TipoFuncionario.Mecanico, Guid.NewGuid()));
         veiculoRepository.Setup(repo => repo.GetByIdAsync(veiculoId))
-            .ReturnsAsync(new Veiculo { Id = veiculoId });
+            .ReturnsAsync(new Veiculo(veiculoId, string.Empty, string.Empty, string.Empty, string.Empty, 1999, 0, 0, Guid.NewGuid(), Guid.NewGuid()));
         ordemServicoRepository.Setup(repo => repo.AddAsync(It.IsAny<OrdemServico>()))
             .Returns<OrdemServico>(os => Task.FromResult(os));
         var service = new CriarOSService(

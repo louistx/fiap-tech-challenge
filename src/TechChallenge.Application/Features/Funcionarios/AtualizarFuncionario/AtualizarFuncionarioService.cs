@@ -2,6 +2,7 @@ using FluentValidation;
 using TechChallenge.Domain.Enums;
 using TechChallenge.Application.Abstractions.Repositories;
 using TechChallenge.Application.Validation;
+using TechChallenge.Domain.Entities;
 
 namespace TechChallenge.Application.Features.Funcionarios.AtualizarFuncionario;
 
@@ -28,17 +29,9 @@ public class AtualizarFuncionarioService
         if (!Enum.TryParse<TipoFuncionario>(command.Cargo, true, out var tipoFuncionario))
             throw new InvalidOperationException($"Cargo {command.Cargo} inválido.");
 
-        funcionario.Nome = command.Nome;
-        funcionario.Cpf = cpf;
-        funcionario.Rg = command.Rg;
-        funcionario.TipoFuncionario = tipoFuncionario;
-        funcionario.Endereco.Logradouro = command.Logradouro;
-        funcionario.Endereco.Complemento = command.Complemento;
-        funcionario.Endereco.Numero = command.Numero;
-        funcionario.Endereco.Bairro = command.Bairro;
-        funcionario.Endereco.Cidade = command.Cidade;
-        funcionario.Endereco.Estado = command.Estado;
-        funcionario.Endereco.Cep = command.Cep;
+        Endereco endereco = new Endereco(funcionario.Endereco.Id, command.Logradouro, command.Complemento, command.Numero, command.Bairro, command.Cidade, command.Estado, command.Cep);
+
+        funcionario = new Funcionario(funcionario.Id, command.Nome, cpf, command.Rg, tipoFuncionario, funcionario.Endereco.Id);
 
         _funcionarioRepository.UpdateAsync(funcionario).GetAwaiter().GetResult();
         return true;

@@ -15,4 +15,5 @@ public class VeiculoResponse
     public decimal Quilometragem { get; set; }
     public decimal Valor { get; set; }
     public Guid ClienteId { get; set; }
+    public Guid CategoriaId { get; set; }
 }

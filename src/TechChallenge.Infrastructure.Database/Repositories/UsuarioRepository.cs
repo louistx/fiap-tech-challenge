@@ -18,12 +18,12 @@ namespace TechChallenge.Infrastructure.Database.Repositories
         public async Task<Usuario?> GetByLoginAsync(string login)
         {
             return await _context.Usuario
-                .FirstOrDefaultAsync(u => u.Login == login);
+                .FirstOrDefaultAsync(u => u.Login.ToUpperInvariant() == login.ToUpperInvariant());
         }
 
         public async Task<bool> ExisteLoginAsync(string login)
         {
-            return await _context.Usuario.AnyAsync(u => u.Login == login);
+            return await _context.Usuario.AnyAsync(u => u.Login.ToUpperInvariant() == login.ToUpperInvariant());
         }
 
         public async Task<bool> ExisteVinculoFuncionarioAsync(Guid funcionarioId)

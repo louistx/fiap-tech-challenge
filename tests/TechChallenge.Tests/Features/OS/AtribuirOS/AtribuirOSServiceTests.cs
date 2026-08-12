@@ -18,7 +18,7 @@ public class AtribuirOSServiceTests
         var funcionarioRepository = new Mock<IFuncionarioRepository>();
         var ordemServicoRepository = new Mock<IOrdemServicoRepository>();
         funcionarioRepository.Setup(repo => repo.GetByIdAsync(mecanicoId))
-            .ReturnsAsync(new Funcionario { Id = mecanicoId, TipoFuncionario = TipoFuncionario.Mecanico });
+            .ReturnsAsync(new Funcionario(mecanicoId, string.Empty, string.Empty, string.Empty, TipoFuncionario.Mecanico, Guid.NewGuid()));
         ordemServicoRepository.Setup(repo => repo.GetOSAtivaMecanicoAsync(mecanicoId))
             .ReturnsAsync((OrdemServico?)null);
         ordemServicoRepository.Setup(repo => repo.GetByIdAsync(ordemServico.Id))
@@ -56,7 +56,7 @@ public class AtribuirOSServiceTests
         var funcionarioRepository = new Mock<IFuncionarioRepository>();
         var ordemServicoRepository = new Mock<IOrdemServicoRepository>();
         funcionarioRepository.Setup(repo => repo.GetByIdAsync(mecanicoId))
-            .ReturnsAsync(new Funcionario { Id = mecanicoId, TipoFuncionario = TipoFuncionario.Mecanico });
+            .ReturnsAsync(new Funcionario(mecanicoId, string.Empty, string.Empty, string.Empty, TipoFuncionario.Mecanico, Guid.NewGuid()));
         ordemServicoRepository.Setup(repo => repo.GetOSAtivaMecanicoAsync(mecanicoId))
             .ReturnsAsync(osAtiva);
         var service = new AtribuirOSService(
@@ -83,7 +83,7 @@ public class AtribuirOSServiceTests
         var funcionarioRepository = new Mock<IFuncionarioRepository>();
         var ordemServicoRepository = new Mock<IOrdemServicoRepository>();
         funcionarioRepository.Setup(repo => repo.GetByIdAsync(mecanicoId))
-            .ReturnsAsync(new Funcionario { Id = mecanicoId, TipoFuncionario = TipoFuncionario.Mecanico });
+            .ReturnsAsync(new Funcionario(mecanicoId, string.Empty, string.Empty, string.Empty, TipoFuncionario.Mecanico, Guid.NewGuid()));
         ordemServicoRepository.Setup(repo => repo.GetOSAtivaMecanicoAsync(mecanicoId))
             .ReturnsAsync((OrdemServico?)null);
         ordemServicoRepository.Setup(repo => repo.GetByIdAsync(ordemServico.Id))

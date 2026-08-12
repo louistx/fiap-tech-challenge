@@ -27,24 +27,9 @@ public class CriarClienteService
         if (clienteExiste is not null)
             throw new InvalidOperationException($"Já existe um cliente cadastrado com o {NomeDocumento(command.TipoDocumento)} {documento}.");
 
-        var cliente = new Cliente
-        {
-            Id = Guid.NewGuid(),
-            Nome = command.Nome,
-            TipoDocumento = command.TipoDocumento,
-            Documento = documento,
-            Endereco = new Endereco
-            {
-                Id = Guid.NewGuid(),
-                Logradouro = command.Logradouro,
-                Complemento = command.Complemento,
-                Numero = command.Numero,
-                Bairro = command.Bairro,
-                Cidade = command.Cidade,
-                Estado = command.Estado,
-                Cep = command.Cep
-            }
-        };
+        Endereco endereco = new Endereco(Guid.NewGuid(), command.Logradouro, command.Complemento, command.Numero, command.Bairro, command.Cidade, command.Estado, command.Cep);
+
+        var cliente = new Cliente(Guid.NewGuid(), command.Nome, command.TipoDocumento, documento, endereco.Id);
 
         _clienteRepository.AddAsync(cliente).GetAwaiter().GetResult();
         return cliente.Id;

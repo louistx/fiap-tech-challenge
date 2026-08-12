@@ -29,7 +29,8 @@ public class VincularFuncionarioService
         if (jaVinculado && usuario.FuncionarioId != command.FuncionarioId)
             throw new InvalidOperationException($"O funcionário {command.FuncionarioId} já está vinculado a outro usuário.");
 
-        usuario.FuncionarioId = command.FuncionarioId;
+        usuario = new Domain.Entities.Usuario(usuario.Id, usuario.Login, usuario.PasswordHash, usuario.TipoUsuario, usuario.Ativo, command.FuncionarioId);
+
         _usuarioRepository.UpdateAsync(usuario).GetAwaiter().GetResult();
     }
 }

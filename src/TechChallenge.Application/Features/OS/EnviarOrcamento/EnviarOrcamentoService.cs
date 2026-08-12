@@ -9,15 +9,18 @@ namespace TechChallenge.Application.Features.OS.EnviarOrcamento;
 public class EnviarOrcamentoService
 {
     private readonly IOrdemServicoRepository _ordemServicoRepository;
+    private readonly IEstoqueRepository _estoqueRepository;
     private readonly IValidator<EnviarOrcamentoCommand> _validator;
     private readonly INotificationService _notificationService;
 
     public EnviarOrcamentoService(
         IOrdemServicoRepository ordemServicoRepository,
+        IEstoqueRepository estoqueRepository,
         IValidator<EnviarOrcamentoCommand> validator,
         INotificationService? notificationService = null)
     {
         _ordemServicoRepository = ordemServicoRepository;
+        _estoqueRepository = estoqueRepository;
         _validator = validator;
         _notificationService = notificationService ?? NullNotificationService.Instance;
     }
@@ -35,13 +38,19 @@ public class EnviarOrcamentoService
 
         foreach (var item in os.Produtos)
         {
-            if (item.Produto.Quantidade < item.Quantidade)
+            var estoque = _estoqueRepository.GetByIdProdutoAsync(item.ProdutoId).GetAwaiter().GetResult();
+
+            if (estoque is null)
+            {
+                throw new InvalidOperationException($"Estoque não encontrado para o produto {item.Produto.Descricao}.");
+            }
+            else if (estoque.Quantidade < item.Quantidade)
             {
                 NotificarEstoqueInsuficiente(
                     os.Id,
                     os.FuncionarioResponsavelId,
                     item.Produto.Descricao,
-                    item.Produto.Quantidade,
+                    estoque.Quantidade,
                     item.Quantidade);
 
                 throw new InvalidOperationException($"Estoque insuficiente para o produto {item.Produto.Descricao}.");

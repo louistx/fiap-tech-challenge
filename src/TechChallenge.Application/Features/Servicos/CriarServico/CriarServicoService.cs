@@ -20,12 +20,7 @@ public class CriarServicoService
     {
         _validator.ValidateAndThrow(command);
 
-        var servico = new Servico
-        {
-            Id = Guid.NewGuid(),
-            Descricao = command.Descricao,
-            Valor = command.Valor
-        };
+        var servico = new Servico(Guid.NewGuid(), command.Descricao, command.Valor, command.CategoriaId);
 
         _servicoRepository.AddAsync(servico).GetAwaiter().GetResult();
         return servico.Id;

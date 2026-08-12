@@ -20,13 +20,7 @@ public class CriarItemInventarioService
     {
         _validator.ValidateAndThrow(command);
 
-        var produto = new Produto
-        {
-            Id = Guid.NewGuid(),
-            Descricao = command.Descricao,
-            Valor = command.Valor,
-            Quantidade = command.Quantidade
-        };
+        var produto = new Produto(Guid.NewGuid(), command.Descricao, command.Valor, command.IdCategoria);
 
         _produtoRepository.AddAsync(produto).GetAwaiter().GetResult();
         return produto.Id;

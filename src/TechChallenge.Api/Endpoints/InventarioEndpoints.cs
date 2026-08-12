@@ -105,8 +105,7 @@ public static class InventarioEndpoints
         {
             Id = produto.Id,
             Descricao = produto.Descricao,
-            Valor = produto.Valor,
-            Quantidade = produto.Quantidade
+            Valor = produto.Valor
         };
     }
 }

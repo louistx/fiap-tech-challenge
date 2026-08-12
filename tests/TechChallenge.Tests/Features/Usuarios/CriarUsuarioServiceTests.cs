@@ -75,7 +75,7 @@ public class CriarUsuarioServiceTests
     {
         var funcionarioId = Guid.NewGuid();
         _usuarios.Setup(r => r.ExisteLoginAsync("novo.usuario")).ReturnsAsync(false);
-        _funcionarios.Setup(r => r.GetByIdAsync(funcionarioId)).ReturnsAsync(new Funcionario { Id = funcionarioId });
+        _funcionarios.Setup(r => r.GetByIdAsync(funcionarioId)).ReturnsAsync(new Funcionario(funcionarioId, string.Empty, string.Empty, string.Empty, TipoFuncionario.Mecanico, Guid.NewGuid()));
         _usuarios.Setup(r => r.ExisteVinculoFuncionarioAsync(funcionarioId)).ReturnsAsync(true);
 
         var acao = () => CriarService().CriarUsuario(Comando(funcionarioId));

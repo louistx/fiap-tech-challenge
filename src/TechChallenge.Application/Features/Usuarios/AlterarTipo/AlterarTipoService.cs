@@ -17,7 +17,7 @@ public class AlterarTipoService
         if (usuario is null)
             throw new KeyNotFoundException($"Usuário com Id {command.UsuarioId} não encontrado.");
 
-        usuario.TipoUsuario = command.TipoUsuario;
+        usuario = new Domain.Entities.Usuario(usuario.Id, usuario.Login, usuario.PasswordHash, command.TipoUsuario, usuario.Ativo, usuario.FuncionarioId);
         _usuarioRepository.UpdateAsync(usuario).GetAwaiter().GetResult();
     }
 }

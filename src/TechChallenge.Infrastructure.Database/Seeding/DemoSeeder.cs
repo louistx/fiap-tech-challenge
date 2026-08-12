@@ -24,6 +24,13 @@ internal static class DemoSeeder
     private static readonly Guid UsuarioAdminId = Guid.Parse("aaaaaaaa-0000-0000-0000-000000000013");
     private static readonly Guid UsuarioVendedorId = Guid.Parse("aaaaaaaa-0000-0000-0000-000000000014");
     private static readonly Guid UsuarioMecanicoId = Guid.Parse("aaaaaaaa-0000-0000-0000-000000000015");
+    private static readonly Guid CategoriaProdutoFiltroId = Guid.Parse("aaaaaaaa-0000-0000-0000-000000000016");
+    private static readonly Guid CategoriaProdutoPastilhaId = Guid.Parse("aaaaaaaa-0000-0000-0000-000000000017");
+    private static readonly Guid CategoriaServicoRevisaoId = Guid.Parse("aaaaaaaa-0000-0000-0000-000000000018");
+    private static readonly Guid CategoriaServicoDiagnosticoId = Guid.Parse("aaaaaaaa-0000-0000-0000-000000000019");
+    private static readonly Guid CategoriaVeiculoId = Guid.Parse("aaaaaaaa-0000-0000-0000-000000000020");
+    private static readonly Guid EstoqueFiltroId = Guid.Parse("aaaaaaaa-0000-0000-0000-000000000021");
+    private static readonly Guid EstoquePastilhaId = Guid.Parse("aaaaaaaa-0000-0000-0000-000000000022");
 
     public static async Task SeedAsync(IServiceProvider provider, ApplicationDbContext context)
     {
@@ -32,171 +39,112 @@ internal static class DemoSeeder
         await AddRangeIfMissingAsync(context, context.Endereco, Enderecos());
         await AddClienteIfMissingAsync(context);
         await AddRangeIfMissingAsync(context, context.Funcionario, Funcionarios());
+        await AddRangeIfMissingAsync(context, context.CategoriaProduto, CategoriaProdutos());
+        await AddRangeIfMissingAsync(context, context.CategoriaServico, CategoriaServicos());
+        await AddRangeIfMissingAsync(context, context.CategoriaVeiculo, CategoriaVeiculos());
         await AddRangeIfMissingAsync(context, context.Veiculo, Veiculos());
         await AddRangeIfMissingAsync(context, context.Servico, Servicos());
         await AddRangeIfMissingAsync(context, context.Produto, Produtos());
         await AddUsuariosIfMissingAsync(context, hasher);
+        await AddRangeIfMissingAsync(context, context.Estoque, Estoque());
 
         await context.SaveChangesAsync();
     }
 
     private static IReadOnlyCollection<Endereco> Enderecos() =>
     [
-        new()
-        {
-            Id = EnderecoClienteId,
-            Logradouro = "Rua Demo Cliente",
-            Complemento = "Apto 101",
-            Numero = "100",
-            Bairro = "Centro",
-            Cidade = "Sao Paulo",
-            Estado = "SP",
-            Cep = "01001000"
-        },
-        new()
-        {
-            Id = EnderecoVendedorId,
-            Logradouro = "Rua Demo Oficina",
-            Complemento = "Balcao",
-            Numero = "200",
-            Bairro = "Oficinas",
-            Cidade = "Sao Paulo",
-            Estado = "SP",
-            Cep = "02002000"
-        },
-        new()
-        {
-            Id = EnderecoMecanicoId,
-            Logradouro = "Rua Demo Oficina",
-            Complemento = "Box 3",
-            Numero = "200",
-            Bairro = "Oficinas",
-            Cidade = "Sao Paulo",
-            Estado = "SP",
-            Cep = "02002000"
-        }
+        new(EnderecoClienteId, "Rua Demo Cliente", "Apto 101", "100", "Centro", "Sao Paulo", "SP", "01001000"),
+        new(EnderecoVendedorId, "Rua Demo Oficina", "Balcao", "200", "Oficinas", "Sao Paulo", "SP", "02002000"),
+        new(EnderecoMecanicoId, "Rua Demo Oficina", "Box 3", "200", "Oficinas", "Sao Paulo", "SP", "02002000")
     ];
 
-    private static Cliente Cliente() => new()
-    {
-        Id = ClienteId,
-        Nome = "Cliente Demo",
-        TipoDocumento = TipoDocumento.Cpf,
-        Documento = "12345678909",
-        EnderecoId = EnderecoClienteId
-    };
+    private static Cliente Cliente() => new(ClienteId, "Cliente Demo", TipoDocumento.Cpf, "12345678909", EnderecoClienteId);
 
     private static IReadOnlyCollection<Funcionario> Funcionarios() =>
     [
-        new()
-        {
-            Id = VendedorId,
-            Nome = "Vendedor Demo",
-            Cpf = "12345678909",
-            Rg = "111111111",
-            TipoFuncionario = TipoFuncionario.Vendedor,
-            EnderecoId = EnderecoVendedorId
-        },
-        new()
-        {
-            Id = MecanicoId,
-            Nome = "Mecanico Demo",
-            Cpf = "98765432100",
-            Rg = "222222222",
-            TipoFuncionario = TipoFuncionario.Mecanico,
-            EnderecoId = EnderecoMecanicoId
-        },
-        new()
-        {
-            Id = AdminId,
-            Nome = "Administrador Demo",
-            Cpf = "11144477735",
-            Rg = "333333333",
-            TipoFuncionario = TipoFuncionario.Administrador,
-            EnderecoId = EnderecoVendedorId
-        }
+        new(VendedorId, "Vendedor Demo", "12345678909", "111111111", TipoFuncionario.Vendedor, EnderecoVendedorId),
+        new(MecanicoId, "Mecanico Demo", "98765432100", "222222222", TipoFuncionario.Mecanico, EnderecoMecanicoId),
+        new(AdminId, "Administrador Demo", "11144477735", "333333333", TipoFuncionario.Administrador, EnderecoVendedorId)
+    ];
+
+    private static IReadOnlyCollection<CategoriaProduto> CategoriaProdutos() =>
+    [
+        new (CategoriaProdutoFiltroId, "Filtros"),
+        new (Guid.NewGuid(), "Suspensão"),
+        new (CategoriaProdutoPastilhaId, "Freios"),
+        new (Guid.NewGuid(), "Correias"),
+        new (Guid.NewGuid(), "Kits"),
+        new (Guid.NewGuid(), "Ignição"),
+        new (Guid.NewGuid(), "Injeção"),
+        new (Guid.NewGuid(), "Óleos e Lubrificantes"),
+        new (Guid.NewGuid(), "Fluidos"),
+        new (Guid.NewGuid(), "Adivitos")
+    ];
+
+    private static IReadOnlyCollection<CategoriaServico> CategoriaServicos() =>
+    [
+        new (Guid.NewGuid(), "Troca de óleo do motor e filtros"),
+        new (Guid.NewGuid(), "Substituição de fluidos (freio, câmbio e arrefecimento)"),
+        new (Guid.NewGuid(), "Troca de velas, cabos e correias"),
+        new (CategoriaServicoRevisaoId, "Revisão periódica geral"),
+        new (Guid.NewGuid(), "Reparo e troca de pastilhas e discos de freio"),
+        new (Guid.NewGuid(), "Manutenção da suspensão (amortecedores e molas)"),
+        new (Guid.NewGuid(), "Alinhamento de direção e balanceamento de rodas"),
+        new (Guid.NewGuid(), "Geometria e cambagem"),
+        new (Guid.NewGuid(), "Retífica e reparo de motores"),
+        new (Guid.NewGuid(), "Manutenção de caixas de câmbio (manual e automático)"),
+        new (Guid.NewGuid(), "Sistema de injeção eletrônica e limpeza de bicos"),
+        new (Guid.NewGuid(), "Sistema de escapamento"),
+        new (Guid.NewGuid(), "Diagnóstico com scanner automotivo"),
+        new (Guid.NewGuid(), "Troca de bateria e reparo no alternador/motor de partida"),
+        new (Guid.NewGuid(), "Manutenção de ar-condicionado automotivo"),
+        new (Guid.NewGuid(), "Reparos em painel, som e iluminação"),
+        new (Guid.NewGuid(), "Funilaria (lanternagem) para correção de amassados"),
+        new (Guid.NewGuid(), "Pintura automotiva e polimento"),
+        new (Guid.NewGuid(), "Higienização interna"),
+        new (CategoriaServicoDiagnosticoId, "Diagnóstico elétrico")
+    ];
+
+    private static IReadOnlyCollection<CategoriaVeiculo> CategoriaVeiculos() =>
+    [
+        new (Guid.NewGuid(),"Moto"),
+        new (Guid.NewGuid(),"Motoneta"),
+        new (Guid.NewGuid(),"Triciclo"),
+        new (CategoriaVeiculoId, "Automóvel"),
+        new (Guid.NewGuid(), "Micro-ônibus"),
+        new (Guid.NewGuid(), "Ônibus"),
+        new (Guid.NewGuid(), "Caminhonete"),
+        new (Guid.NewGuid(), "Caminhão"),
+        new (Guid.NewGuid(), "Reboque"),
+        new (Guid.NewGuid(), "Camioneta"),
+        new (Guid.NewGuid(), "Utilitários"),
+        new (Guid.NewGuid(), "Tratores"),
+        new (Guid.NewGuid(), "Veículos de coleção"),
+        new (Guid.NewGuid(), "Adaptados")
     ];
 
     private static IReadOnlyCollection<Veiculo> Veiculos() =>
     [
-        new()
-        {
-            Id = VeiculoId,
-            Tipo = TipoVeiculo.Carro,
-            Placa = "DEM1O23",
-            Modelo = "Civic",
-            Marca = "Honda",
-            Cor = "Prata",
-            Ano = 2020,
-            Quilometragem = 45200,
-            Valor = 98000,
-            ClienteId = ClienteId
-        }
+        new(VeiculoId, "DEM1O23", "Civic", "Honda", "Prata", 2020, 45200, 98000, ClienteId, CategoriaVeiculoId)
     ];
 
     private static IReadOnlyCollection<Servico> Servicos() =>
     [
-        new()
-        {
-            Id = ServicoRevisaoId,
-            Descricao = "Revisao preventiva demo",
-            Valor = 350
-        },
-        new()
-        {
-            Id = ServicoDiagnosticoId,
-            Descricao = "Diagnostico eletrico demo",
-            Valor = 180
-        }
+        new(ServicoRevisaoId, "Revisão preventiva demo", 350, CategoriaServicoRevisaoId),
+        new(ServicoDiagnosticoId, "Diagnóstico elétrico demo", 180, CategoriaServicoDiagnosticoId)
     ];
 
     private static IReadOnlyCollection<Produto> Produtos() =>
     [
-        new()
-        {
-            Id = ProdutoFiltroId,
-            Descricao = "Filtro de oleo demo",
-            Valor = 65,
-            Quantidade = 10
-        },
-        new()
-        {
-            Id = ProdutoPastilhaId,
-            Descricao = "Pastilha de freio demo",
-            Valor = 220,
-            Quantidade = 1
-        }
+        new Produto(ProdutoFiltroId, "Filtro de oleo demo", 65, CategoriaProdutoFiltroId),
+        new Produto(ProdutoPastilhaId, "Pastilha de freio demo", 220, CategoriaProdutoPastilhaId)
     ];
 
     private static IReadOnlyCollection<Usuario> Usuarios(IPasswordHasher hasher) =>
     [
-        new()
-        {
-            Id = UsuarioAdminId,
-            Login = "admin.demo",
-            PasswordHash = hasher.Hash("Demo@123"),
-            TipoUsuario = TipoUsuario.Administrador,
-            FuncionarioId = AdminId,
-            Ativo = true
-        },
-        new()
-        {
-            Id = UsuarioVendedorId,
-            Login = "vendedor.demo",
-            PasswordHash = hasher.Hash("Demo@123"),
-            TipoUsuario = TipoUsuario.Vendedor,
-            FuncionarioId = VendedorId,
-            Ativo = true
-        },
-        new()
-        {
-            Id = UsuarioMecanicoId,
-            Login = "mecanico.demo",
-            PasswordHash = hasher.Hash("Demo@123"),
-            TipoUsuario = TipoUsuario.Mecanico,
-            FuncionarioId = MecanicoId,
-            Ativo = true
-        }
+        new(UsuarioAdminId, "admin.demo", hasher.Hash("Demo@123"), TipoUsuario.Administrador, true, AdminId),
+        new(UsuarioVendedorId, "vendedor.demo", hasher.Hash("Demo@123"), TipoUsuario.Vendedor, true, VendedorId),
+        new(UsuarioMecanicoId, "mecanico.demo", hasher.Hash("Demo@123"), TipoUsuario.Mecanico, true, MecanicoId)
     ];
 
     private static async Task AddClienteIfMissingAsync(ApplicationDbContext context)
@@ -219,11 +167,17 @@ internal static class DemoSeeder
         }
     }
 
+    private static IReadOnlyCollection<Estoque> Estoque() =>
+    [
+        new (EstoqueFiltroId, ProdutoFiltroId, 100),
+        new (EstoquePastilhaId, ProdutoPastilhaId, 50)
+    ];
+
     private static async Task AddRangeIfMissingAsync<TEntity>(
-        ApplicationDbContext context,
-        DbSet<TEntity> dbSet,
-        IEnumerable<TEntity> entities)
-        where TEntity : class
+    ApplicationDbContext context,
+    DbSet<TEntity> dbSet,
+    IEnumerable<TEntity> entities)
+    where TEntity : class
     {
         foreach (var entity in entities)
         {

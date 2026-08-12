@@ -70,6 +70,11 @@ namespace TechChallenge.Infrastructure.IoC.Injection
             services.AddScoped<IProdutoRepository, ProdutoRepository>();
             services.AddScoped<IServicoRepository, ServicoRepository>();
             services.AddScoped<IVeiculoRepository, VeiculoRepository>();
+            services.AddScoped<ICategoriaProdutoRepository, CategoriaProdutoRepository>();
+            services.AddScoped<ICategoriaServicoRepository, CategoriaServicoRepository>();
+            services.AddScoped<ICategoriaVeiculoRepository, CategoriaVeiculoRepository>();
+            services.AddScoped<IEstoqueRepository, EstoqueRepository>();
+
             services.AddScoped<INotificationService, LoggerNotificationService>();
 
             services.AddValidatorsFromAssemblyContaining<CriarClienteCommandValidator>();

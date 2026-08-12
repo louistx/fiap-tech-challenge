@@ -8,9 +8,6 @@ public class CriarVeiculoCommandValidator : AbstractValidator<CriarVeiculoComman
 {
     public CriarVeiculoCommandValidator()
     {
-        RuleFor(command => command.Tipo)
-            .IsInEnum();
-
         RuleFor(command => command.Placa)
             .NotEmpty()
             .MaximumLength(10)
@@ -40,6 +37,9 @@ public class CriarVeiculoCommandValidator : AbstractValidator<CriarVeiculoComman
             .GreaterThanOrEqualTo(0);
 
         RuleFor(command => command.ClienteId)
+            .NotEmpty();
+
+        RuleFor(command => command.CategoriaId)
             .NotEmpty();
     }
 }

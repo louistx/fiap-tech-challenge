@@ -18,8 +18,10 @@ namespace TechChallenge.Infrastructure.Database.Configuration
                 .HasPrecision(18, 2)
                 .IsRequired();
 
-            builder.Property(p => p.Quantidade)
-                .IsRequired();
+            builder.HasOne(v => v.Categoria)
+                .WithMany()
+                .HasForeignKey(v => v.CategoriaId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

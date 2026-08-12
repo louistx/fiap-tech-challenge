@@ -25,16 +25,13 @@ public class AtualizarClienteService
         if (cliente is null)
             throw new KeyNotFoundException($"Cliente com Id {command.Id} não encontrado.");
 
-        cliente.Nome = command.Nome;
-        cliente.TipoDocumento = command.TipoDocumento;
-        cliente.Documento = documento;
-        cliente.Endereco.Logradouro = command.Logradouro;
-        cliente.Endereco.Complemento = command.Complemento;
-        cliente.Endereco.Numero = command.Numero;
-        cliente.Endereco.Bairro = command.Bairro;
-        cliente.Endereco.Cidade = command.Cidade;
-        cliente.Endereco.Estado = command.Estado;
-        cliente.Endereco.Cep = command.Cep;
+        cliente = new Domain.Entities.Cliente(
+            cliente.Id,
+            command.Nome,
+            command.TipoDocumento,
+            documento,
+            cliente.Endereco.Id
+        );
 
         _clienteRepository.UpdateAsync(cliente).GetAwaiter().GetResult();
         return true;

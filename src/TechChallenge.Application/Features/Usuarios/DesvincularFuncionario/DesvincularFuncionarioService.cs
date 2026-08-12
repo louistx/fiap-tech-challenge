@@ -17,7 +17,7 @@ public class DesvincularFuncionarioService
         if (usuario is null)
             throw new KeyNotFoundException($"Usuário com Id {command.UsuarioId} não encontrado.");
 
-        usuario.FuncionarioId = null;
+        usuario = new Domain.Entities.Usuario(usuario.Id, usuario.Login, usuario.PasswordHash, usuario.TipoUsuario, usuario.Ativo, null);
         _usuarioRepository.UpdateAsync(usuario).GetAwaiter().GetResult();
     }
 }

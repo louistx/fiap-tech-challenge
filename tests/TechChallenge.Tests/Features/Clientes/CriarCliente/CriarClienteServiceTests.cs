@@ -44,7 +44,7 @@ public class CriarClienteServiceTests
         const string cpfFormatado = "529.982.247-25";
         var repository = new Mock<IClienteRepository>();
         repository.Setup(repo => repo.GetByDocumentAsync(cpfFormatado))
-            .ReturnsAsync(new Cliente { Id = Guid.NewGuid(), TipoDocumento = TipoDocumento.Cpf, Documento = cpfFormatado });
+            .ReturnsAsync(new Cliente(Guid.NewGuid(), string.Empty, TipoDocumento.Cpf, cpfFormatado, Guid.NewGuid()));
         var service = new CriarClienteService(repository.Object, new CriarClienteCommandValidator());
 
         var act = () => service.CriarCliente(command);

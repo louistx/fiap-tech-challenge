@@ -15,6 +15,7 @@ namespace TechChallenge.Infrastructure.Database.Seeding
         private static readonly Guid EnderecoFuncionarioExemploId = Guid.Parse("66666666-6666-6666-6666-666666666666");
         private static readonly Guid UsuarioExemploId = Guid.Parse("44444444-4444-4444-4444-444444444444");
         private static readonly Guid VeiculoExemploId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+        private static readonly Guid CategoriaVeiculoId = Guid.Parse("88888888-8888-8888-8888-888888888888");
 
         public static async Task SeedAsync(IServiceProvider provider, ApplicationDbContext context)
         {
@@ -25,6 +26,8 @@ namespace TechChallenge.Infrastructure.Database.Seeding
             await AddFuncionariosIfMissingAsync(context);
             await AddUsuariosIfMissingAsync(context, hasher);
             await AddVeiculosIfMissingAsync(context);
+            await AddRangeIfMissingAsync(context, context.CategoriaServico, CategoriaServicos());
+            await AddRangeIfMissingAsync(context, context.CategoriaProduto, CategoriaProdutos());
             await AddRangeIfMissingAsync(context, context.Servico, Servicos());
             await AddRangeIfMissingAsync(context, context.Produto, Produtos());
             await AddRangeIfMissingAsync(context, context.OrdemServico, OrdensServico());
@@ -34,79 +37,35 @@ namespace TechChallenge.Infrastructure.Database.Seeding
 
         private static IReadOnlyCollection<Endereco> Enderecos() =>
         [
-            new()
-            {
-                Id = EnderecoClienteExemploId,
-                Logradouro = "Rua Exemplo",
-                Complemento = "Casa",
-                Numero = "123",
-                Bairro = "Centro",
-                Cidade = "Sao Paulo",
-                Estado = "SP",
-                Cep = "01001000"
-            },
-            new()
-            {
-                Id = EnderecoFuncionarioExemploId,
-                Logradouro = "Rua Oficina",
-                Complemento = "Sala 2",
-                Numero = "456",
-                Bairro = "Centro",
-                Cidade = "Sao Paulo",
-                Estado = "SP",
-                Cep = "02002000"
-            }
+            new(EnderecoClienteExemploId, "Rua Exemplo", "Casa", "123", "Centro", "Sao Paulo", "SP", "01001000"),
+            new(EnderecoFuncionarioExemploId, "Rua Oficina", "Sala 2", "456", "Centro", "Sao Paulo", "SP", "02002000")
         ];
 
         private static IReadOnlyCollection<Cliente> Clientes() =>
         [
-            new()
-            {
-                Id = ClienteExemploId,
-                Nome = "Cliente Fake",
-                TipoDocumento = TipoDocumento.Rg,
-                Documento = "000000000",
-                EnderecoId = EnderecoClienteExemploId
-            }
+            new(ClienteExemploId, "Cliente Fake", TipoDocumento.Rg, "000000000", EnderecoClienteExemploId)
         ];
 
         private static IReadOnlyCollection<Funcionario> Funcionarios() =>
         [
-            new()
-            {
-                Id = FuncionarioExemploId,
-                Nome = "Funcionario Fake",
-                Cpf = "00000000000",
-                Rg = "000000000",
-                TipoFuncionario = TipoFuncionario.Mecanico,
-                EnderecoId = EnderecoFuncionarioExemploId
-            }
+            new(FuncionarioExemploId, "Funcionario Fake", "00000000000", "000000000", TipoFuncionario.Mecanico, EnderecoFuncionarioExemploId)
         ];
 
         private static IReadOnlyCollection<Usuario> Usuarios(IPasswordHasher hasher) =>
         [
-            new()
-            {
-                Id = UsuarioExemploId,
-                Login = "mecanico.fake",
-                PasswordHash = hasher.Hash("Senha@123"),
-                TipoUsuario = TipoUsuario.Mecanico,
-                FuncionarioId = FuncionarioExemploId,
-                Ativo = true
-            }
+            new(UsuarioExemploId, "mecanico.fake", hasher.Hash("Senha@123"), TipoUsuario.Mecanico, true, FuncionarioExemploId)
+        ];
+
+        private static IReadOnlyCollection<CategoriaServico> CategoriaServicos() => [];
+
+        private static IReadOnlyCollection<CategoriaProduto> CategoriaProdutos() => 
+        [
+            new(CategoriaVeiculoId, "Categoria Fake")
         ];
 
         private static IReadOnlyCollection<Veiculo> Veiculos() =>
         [
-            new()
-            {
-                Id = VeiculoExemploId,
-                Placa = "AAA1111",
-                Modelo = "Modelo Fake",
-                Ano = 2022,
-                Cor = "Cor Fake",
-                ClienteId = ClienteExemploId,
-            }
+            new(VeiculoExemploId, "AAA1111", "Modelo Fake", "Marca Fake", "Cor Fake", 2022, 0, 0, ClienteExemploId, CategoriaVeiculoId)
         ];
 
         private static IReadOnlyCollection<Servico> Servicos() => [];

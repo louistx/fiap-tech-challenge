@@ -11,7 +11,7 @@ public class ExcluirVeiculoServiceTests
     [Fact]
     public void DeveExcluirVeiculoQuandoNaoPossuirOrdemServico()
     {
-        var veiculo = new Veiculo { Id = Guid.NewGuid() };
+        var veiculo = new Veiculo(Guid.NewGuid(), string.Empty, string.Empty, string.Empty, string.Empty, 0, 0, 0, Guid.NewGuid(), Guid.NewGuid());
         var veiculoRepository = new Mock<IVeiculoRepository>();
         var ordemServicoRepository = new Mock<IOrdemServicoRepository>();
         veiculoRepository.Setup(repo => repo.GetByIdAsync(veiculo.Id)).ReturnsAsync(veiculo);
@@ -31,7 +31,7 @@ public class ExcluirVeiculoServiceTests
     [Fact]
     public void DeveImpedirExclusaoQuandoVeiculoPossuirOrdemServico()
     {
-        var veiculo = new Veiculo { Id = Guid.NewGuid() };
+        var veiculo = new Veiculo(Guid.NewGuid(), string.Empty, string.Empty, string.Empty, string.Empty, 0, 0, 0, Guid.NewGuid(), Guid.NewGuid());
         var veiculoRepository = new Mock<IVeiculoRepository>();
         var ordemServicoRepository = new Mock<IOrdemServicoRepository>();
         veiculoRepository.Setup(repo => repo.GetByIdAsync(veiculo.Id)).ReturnsAsync(veiculo);

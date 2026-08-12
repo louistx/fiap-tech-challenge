@@ -36,15 +36,7 @@ public class CriarUsuarioService
         if (command.FuncionarioId is { } funcionarioId)
             ValidarVinculo(funcionarioId);
 
-        var usuario = new Usuario
-        {
-            Id = Guid.NewGuid(),
-            Login = command.Login,
-            PasswordHash = _passwordHasher.Hash(command.Senha),
-            TipoUsuario = command.TipoUsuario,
-            Ativo = true,
-            FuncionarioId = command.FuncionarioId
-        };
+        var usuario = new Usuario(Guid.NewGuid(), command.Login, _passwordHasher.Hash(command.Senha), command.TipoUsuario, true, command.FuncionarioId);
 
         _usuarioRepository.AddAsync(usuario).GetAwaiter().GetResult();
         return usuario.Id;

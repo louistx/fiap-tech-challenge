@@ -41,7 +41,7 @@ public class TrocarSenhaService
         if (!_passwordHasher.Verify(command.SenhaAtual, usuario.PasswordHash))
             throw new UnauthorizedAccessException("Senha atual incorreta.");
 
-        usuario.PasswordHash = _passwordHasher.Hash(command.NovaSenha);
+        usuario = new Domain.Entities.Usuario(usuario.Id, usuario.Login, _passwordHasher.Hash(command.NovaSenha), usuario.TipoUsuario, usuario.Ativo, usuario.FuncionarioId);
         _usuarioRepository.UpdateAsync(usuario).GetAwaiter().GetResult();
 
         // Invalida todos os refresh tokens: força relogin com a nova senha.

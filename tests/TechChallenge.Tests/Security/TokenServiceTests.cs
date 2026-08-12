@@ -21,12 +21,7 @@ public class TokenServiceTests
     [Fact]
     public void AccessTokenDeveConterClaimsDeIdentidadeERole()
     {
-        var usuario = new Usuario
-        {
-            Id = Guid.NewGuid(),
-            Login = "admin",
-            TipoUsuario = TipoUsuario.Administrador
-        };
+        var usuario = new Usuario(Guid.NewGuid(), "admin", "admin123", TipoUsuario.Administrador, true);
 
         var resultado = CriarService().GerarAccessToken(usuario);
 
@@ -42,13 +37,7 @@ public class TokenServiceTests
     public void AccessTokenDeveIncluirFuncionarioIdQuandoVinculado()
     {
         var funcionarioId = Guid.NewGuid();
-        var usuario = new Usuario
-        {
-            Id = Guid.NewGuid(),
-            Login = "mec",
-            TipoUsuario = TipoUsuario.Mecanico,
-            FuncionarioId = funcionarioId
-        };
+        var usuario = new Usuario(Guid.NewGuid(), "mec", "mec((**&&tech", TipoUsuario.Mecanico, true, funcionarioId);
 
         var resultado = CriarService().GerarAccessToken(usuario);
 

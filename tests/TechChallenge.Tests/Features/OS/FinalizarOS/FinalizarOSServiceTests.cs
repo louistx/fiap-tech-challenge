@@ -13,7 +13,7 @@ public class FinalizarOSServiceTests
     [Fact]
     public void DeveFinalizarOSQuandoEstiverEmExecucao()
     {
-        var produto = new Produto { Id = Guid.NewGuid(), Descricao = "Filtro", Quantidade = 4 };
+        var produto = new Produto(Guid.NewGuid(), "Filtro", 4, Guid.NewGuid());
         var os = new OrdemServico
         {
             Id = Guid.NewGuid(),
@@ -23,13 +23,15 @@ public class FinalizarOSServiceTests
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         repository.Setup(repo => repo.UpdateAsync(os)).ReturnsAsync(os);
-        var service = new FinalizarOSService(repository.Object, new FinalizarOSCommandValidator());
+
+        var estoqueRepository = new Mock<IEstoqueRepository>();
+
+        var service = new FinalizarOSService(repository.Object, estoqueRepository.Object, new FinalizarOSCommandValidator());
 
         var resultado = service.FinalizarOS(new FinalizarOSCommand { OrdemServicoId = os.Id });
 
         resultado.Should().BeTrue();
         os.Status.Should().Be(StatusOS.Finalizada);
-        produto.Quantidade.Should().Be(2);
         os.DataFinalizacao.Should().NotBeNull();
         repository.Verify(repo => repo.UpdateAsync(os), Times.Once);
     }
@@ -47,16 +49,18 @@ public class FinalizarOSServiceTests
             [
                 new OrdemServicoProdutos
                 {
-                    Produto = new Produto { Id = Guid.NewGuid(), Descricao = "Filtro", Quantidade = 1 },
+                    Produto = new Produto(Guid.NewGuid(), "Filtro", 1, Guid.NewGuid()),
                     Quantidade = 2
                 }
             ]
         };
         var repository = new Mock<IOrdemServicoRepository>();
+        var estoqueRepository = new Mock<IEstoqueRepository>();
         var notificationService = new Mock<INotificationService>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         var service = new FinalizarOSService(
             repository.Object,
+            estoqueRepository.Object,
             new FinalizarOSCommandValidator(),
             notificationService.Object);
 
@@ -81,7 +85,8 @@ public class FinalizarOSServiceTests
         var os = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.AguardandoAprovacao };
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
-        var service = new FinalizarOSService(repository.Object, new FinalizarOSCommandValidator());
+        var estoqueRepository = new Mock<IEstoqueRepository>();
+        var service = new FinalizarOSService(repository.Object, estoqueRepository.Object, new FinalizarOSCommandValidator());
 
         var act = () => service.FinalizarOS(new FinalizarOSCommand { OrdemServicoId = os.Id });
 

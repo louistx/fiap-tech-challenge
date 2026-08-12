@@ -3,6 +3,7 @@ using Moq;
 using TechChallenge.Application.Abstractions.Repositories;
 using TechChallenge.Application.Features.Clientes.ExcluirCliente;
 using TechChallenge.Domain.Entities;
+using TechChallenge.Domain.Enums;
 
 namespace TechChallenge.Tests.Features.Clientes.ExcluirCliente;
 
@@ -11,7 +12,7 @@ public class ExcluirClienteServiceTests
     [Fact]
     public void DeveExcluirClienteQuandoNaoPossuirOrdemServico()
     {
-        var cliente = new Cliente { Id = Guid.NewGuid() };
+        var cliente = new Cliente(Guid.NewGuid(), string.Empty, TipoDocumento.Cpf, string.Empty, Guid.NewGuid());
         var clienteRepository = new Mock<IClienteRepository>();
         var ordemServicoRepository = new Mock<IOrdemServicoRepository>();
         clienteRepository.Setup(repo => repo.GetByIdAsync(cliente.Id)).ReturnsAsync(cliente);
@@ -31,7 +32,7 @@ public class ExcluirClienteServiceTests
     [Fact]
     public void DeveImpedirExclusaoQuandoClientePossuirOrdemServico()
     {
-        var cliente = new Cliente { Id = Guid.NewGuid() };
+        var cliente = new Cliente(Guid.NewGuid(), string.Empty, TipoDocumento.Cpf, string.Empty, Guid.NewGuid());
         var clienteRepository = new Mock<IClienteRepository>();
         var ordemServicoRepository = new Mock<IOrdemServicoRepository>();
         clienteRepository.Setup(repo => repo.GetByIdAsync(cliente.Id)).ReturnsAsync(cliente);

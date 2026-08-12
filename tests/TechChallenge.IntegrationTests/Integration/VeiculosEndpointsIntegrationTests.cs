@@ -23,11 +23,11 @@ public class VeiculosEndpointsIntegrationTests : IClassFixture<WebAplicationFact
     public async Task DeveExecutarCrudDeVeiculo()
     {
         var clienteId = await CriarClienteAsync();
+        var categoriaId = await CriarCategoriaAsync();
         var sequencia = Interlocked.Increment(ref _sequencia);
         var placa = $"CAR{sequencia % 10}A{sequencia % 10}{(sequencia + 1) % 10}";
         var criarRequest = new CriarVeiculoRequest
         {
-            Tipo = TipoVeiculo.Carro,
             Placa = placa,
             Modelo = "Civic",
             Marca = "Honda",
@@ -35,7 +35,8 @@ public class VeiculosEndpointsIntegrationTests : IClassFixture<WebAplicationFact
             Ano = 2022,
             Quilometragem = 10000,
             Valor = 90000,
-            ClienteId = clienteId
+            ClienteId = clienteId,
+            CategoriaId = categoriaId
         };
 
         var criarResponse = await _client.PostAsJsonAsync("/api/v1/veiculos", criarRequest);
@@ -59,7 +60,6 @@ public class VeiculosEndpointsIntegrationTests : IClassFixture<WebAplicationFact
 
         var atualizarRequest = new AtualizarVeiculoRequest
         {
-            Tipo = TipoVeiculo.Moto,
             Placa = $"MOT{sequencia % 10}B{sequencia % 10}{(sequencia + 2) % 10}",
             Modelo = "CG",
             Marca = "Honda",
@@ -67,7 +67,8 @@ public class VeiculosEndpointsIntegrationTests : IClassFixture<WebAplicationFact
             Ano = 2023,
             Quilometragem = 5000,
             Valor = 18000,
-            ClienteId = clienteId
+            ClienteId = clienteId,
+            CategoriaId = categoriaId
         };
         var atualizarResponse = await _client.PutAsJsonAsync($"/api/v1/veiculos/{veiculoId}", atualizarRequest);
         atualizarResponse.StatusCode.Should().Be(HttpStatusCode.OK);

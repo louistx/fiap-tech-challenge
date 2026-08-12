@@ -32,7 +32,7 @@ public class ResetarSenhaService
         if (usuario is null)
             throw new KeyNotFoundException($"Usuário com Id {command.UsuarioId} não encontrado.");
 
-        usuario.PasswordHash = _passwordHasher.Hash(command.NovaSenha);
+        usuario = new Domain.Entities.Usuario(usuario.Id, usuario.Login, _passwordHasher.Hash(command.NovaSenha), usuario.TipoUsuario, usuario.Ativo, usuario.FuncionarioId);
         _usuarioRepository.UpdateAsync(usuario).GetAwaiter().GetResult();
 
         _refreshTokenRepository

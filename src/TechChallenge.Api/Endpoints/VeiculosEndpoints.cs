@@ -59,7 +59,6 @@ public static class VeiculosEndpoints
     {
         var command = new CriarVeiculoCommand
         {
-            Tipo = request.Tipo,
             Placa = request.Placa,
             Modelo = request.Modelo,
             Marca = request.Marca,
@@ -67,7 +66,8 @@ public static class VeiculosEndpoints
             Ano = request.Ano,
             Quilometragem = request.Quilometragem,
             Valor = request.Valor,
-            ClienteId = request.ClienteId
+            ClienteId = request.ClienteId,
+            CategoriaId = request.CategoriaId
         };
 
         var id = service.CriarVeiculo(command);
@@ -81,7 +81,6 @@ public static class VeiculosEndpoints
         var response = new VeiculoResponse
         {
             Id = veiculo.Id,
-            Tipo = veiculo.Tipo,
             Placa = veiculo.Placa,
             Modelo = veiculo.Modelo,
             Marca = veiculo.Marca,
@@ -89,7 +88,8 @@ public static class VeiculosEndpoints
             Ano = veiculo.Ano,
             Quilometragem = veiculo.Quilometragem,
             Valor = veiculo.Valor,
-            ClienteId = veiculo.ClienteId
+            ClienteId = veiculo.ClienteId,
+            CategoriaId = veiculo.CategoriaId
         };
 
         return Results.Ok(response);
@@ -102,7 +102,6 @@ public static class VeiculosEndpoints
         var response = veiculos.Select(v => new VeiculoResponse
         {
             Id = v.Id,
-            Tipo = v.Tipo,
             Placa = v.Placa,
             Modelo = v.Modelo,
             Marca = v.Marca,
@@ -110,7 +109,8 @@ public static class VeiculosEndpoints
             Ano = v.Ano,
             Quilometragem = v.Quilometragem,
             Valor = v.Valor,
-            ClienteId = v.ClienteId
+            ClienteId = v.ClienteId,
+            CategoriaId = v.CategoriaId
         }).ToList();
 
         return Results.Ok(response);
@@ -121,7 +121,6 @@ public static class VeiculosEndpoints
         var command = new AtualizarVeiculoCommand
         {
             Id = id,
-            Tipo = request.Tipo,
             Placa = request.Placa,
             Modelo = request.Modelo,
             Marca = request.Marca,
@@ -129,7 +128,8 @@ public static class VeiculosEndpoints
             Ano = request.Ano,
             Quilometragem = request.Quilometragem,
             Valor = request.Valor,
-            ClienteId = request.ClienteId
+            ClienteId = request.ClienteId,
+            CategoriaId = request.CategoriaId
         };
 
         service.AtualizarVeiculo(command);

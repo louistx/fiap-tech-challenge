@@ -35,19 +35,7 @@ public class CriarVeiculoService
         if (cliente is null)
             throw new KeyNotFoundException($"Cliente com Id {command.ClienteId} não encontrado.");
 
-        var veiculo = new Veiculo
-        {
-            Id = Guid.NewGuid(),
-            Tipo = command.Tipo,
-            Placa = placa,
-            Modelo = command.Modelo,
-            Marca = command.Marca,
-            Cor = command.Cor,
-            Ano = command.Ano,
-            Quilometragem = command.Quilometragem,
-            Valor = command.Valor,
-            ClienteId = command.ClienteId
-        };
+        var veiculo = new Veiculo(Guid.NewGuid(), placa, command.Modelo, command.Marca, command.Cor, command.Ano, command.Quilometragem, command.Valor, command.ClienteId, command.CategoriaId);
 
         _veiculoRepository.AddAsync(veiculo).GetAwaiter().GetResult();
         return veiculo.Id;

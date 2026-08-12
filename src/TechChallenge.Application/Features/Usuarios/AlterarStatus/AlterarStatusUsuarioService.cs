@@ -22,7 +22,7 @@ public class AlterarStatusUsuarioService
         if (usuario is null)
             throw new KeyNotFoundException($"Usuário com Id {command.UsuarioId} não encontrado.");
 
-        usuario.Ativo = command.Ativo;
+        usuario = new Domain.Entities.Usuario(usuario.Id, usuario.Login, usuario.PasswordHash, usuario.TipoUsuario, command.Ativo, usuario.FuncionarioId);
         _usuarioRepository.UpdateAsync(usuario).GetAwaiter().GetResult();
 
         // Desativar derruba todos os refresh tokens ativos.

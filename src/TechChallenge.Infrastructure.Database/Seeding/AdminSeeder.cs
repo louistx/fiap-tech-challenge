@@ -23,14 +23,7 @@ namespace TechChallenge.Infrastructure.Database.Seeding
             if (string.IsNullOrWhiteSpace(senha))
                 return;
 
-            context.Usuario.Add(new Usuario
-            {
-                Id = Guid.NewGuid(),
-                Login = login,
-                PasswordHash = hasher.Hash(senha),
-                TipoUsuario = TipoUsuario.Administrador,
-                Ativo = true
-            });
+            context.Usuario.Add(new Usuario(Guid.NewGuid(), login, hasher.Hash(senha), TipoUsuario.Administrador, true));
 
             await context.SaveChangesAsync();
         }

@@ -87,7 +87,6 @@ public class CriarVeiculoCommandValidatorTests
     {
         return new CriarVeiculoCommand
         {
-            Tipo = TipoVeiculo.Carro,
             Placa = "ABC-1234",
             Modelo = "Civic",
             Marca = "Honda",
@@ -95,7 +94,8 @@ public class CriarVeiculoCommandValidatorTests
             Ano = 2022,
             Quilometragem = 10000,
             Valor = 90000,
-            ClienteId = Guid.NewGuid()
+            ClienteId = Guid.NewGuid(),
+            CategoriaId = Guid.NewGuid()
         };
     }
 }

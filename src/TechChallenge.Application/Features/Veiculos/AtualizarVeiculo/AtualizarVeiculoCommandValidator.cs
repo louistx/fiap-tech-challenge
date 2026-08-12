@@ -11,9 +11,6 @@ public class AtualizarVeiculoCommandValidator : AbstractValidator<AtualizarVeicu
         RuleFor(command => command.Id)
             .NotEmpty();
 
-        RuleFor(command => command.Tipo)
-            .IsInEnum();
-
         RuleFor(command => command.Placa)
             .NotEmpty()
             .MaximumLength(10)
@@ -43,6 +40,9 @@ public class AtualizarVeiculoCommandValidator : AbstractValidator<AtualizarVeicu
             .GreaterThanOrEqualTo(0);
 
         RuleFor(command => command.ClienteId)
+            .NotEmpty();
+
+        RuleFor(command => command.CategoriaId)
             .NotEmpty();
     }
 }

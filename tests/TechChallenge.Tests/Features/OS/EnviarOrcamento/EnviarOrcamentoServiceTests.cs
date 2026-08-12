@@ -27,14 +27,15 @@ public class EnviarOrcamentoServiceTests
                 {
                     Valor = 50,
                     Quantidade = 3,
-                    Produto = new Produto { Descricao = "Filtro", Quantidade = 5 }
+                    Produto = new Produto(Guid.NewGuid(), "Filtro", 0, Guid.NewGuid())
                 }
             ]
         };
         var repository = new Mock<IOrdemServicoRepository>();
+        var estoqueRepository = new Mock<IEstoqueRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         repository.Setup(repo => repo.UpdateAsync(os)).ReturnsAsync(os);
-        var service = new EnviarOrcamentoService(repository.Object, new EnviarOrcamentoCommandValidator());
+        var service = new EnviarOrcamentoService(repository.Object, estoqueRepository.Object, new EnviarOrcamentoCommandValidator());
 
         var resultado = service.EnviarOrcamento(new EnviarOrcamentoCommand { OrdemServicoId = os.Id });
 
@@ -54,7 +55,10 @@ public class EnviarOrcamentoServiceTests
         };
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
-        var service = new EnviarOrcamentoService(repository.Object, new EnviarOrcamentoCommandValidator());
+
+        var estoqueRepository = new Mock<IEstoqueRepository>();
+
+        var service = new EnviarOrcamentoService(repository.Object, estoqueRepository.Object, new EnviarOrcamentoCommandValidator());
 
         var act = () => service.EnviarOrcamento(new EnviarOrcamentoCommand { OrdemServicoId = os.Id });
 
@@ -76,16 +80,18 @@ public class EnviarOrcamentoServiceTests
             [
                 new OrdemServicoProdutos
                 {
-                    Produto = new Produto { Descricao = "Filtro", Quantidade = 1 },
+                    Produto = new Produto(Guid.NewGuid(), "Filtro", 0, Guid.NewGuid()),
                     Quantidade = 2
                 }
             ]
         };
         var repository = new Mock<IOrdemServicoRepository>();
+        var estoqueRepository = new Mock<IEstoqueRepository>();
         var notificationService = new Mock<INotificationService>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         var service = new EnviarOrcamentoService(
             repository.Object,
+            estoqueRepository.Object,
             new EnviarOrcamentoCommandValidator(),
             notificationService.Object);
 

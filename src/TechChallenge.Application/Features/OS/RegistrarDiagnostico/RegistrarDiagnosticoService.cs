@@ -13,6 +13,7 @@ public class RegistrarDiagnosticoService
     private readonly IOrdemServicoRepository _ordemServicoRepository;
     private readonly IServicoRepository _servicoRepository;
     private readonly IProdutoRepository _produtoRepository;
+    private readonly IEstoqueRepository _estoqueRepository;
     private readonly IValidator<RegistrarDiagnosticoCommand> _validator;
     private readonly INotificationService _notificationService;
 
@@ -20,12 +21,14 @@ public class RegistrarDiagnosticoService
         IOrdemServicoRepository ordemServicoRepository,
         IServicoRepository servicoRepository,
         IProdutoRepository produtoRepository,
+        IEstoqueRepository estoqueRepository,
         IValidator<RegistrarDiagnosticoCommand> validator,
         INotificationService? notificationService = null)
     {
         _ordemServicoRepository = ordemServicoRepository;
         _servicoRepository = servicoRepository;
         _produtoRepository = produtoRepository;
+        _estoqueRepository = estoqueRepository;
         _validator = validator;
         _notificationService = notificationService ?? NullNotificationService.Instance;
     }
@@ -63,9 +66,15 @@ public class RegistrarDiagnosticoService
             if (produto is null)
                 throw new KeyNotFoundException($"Produto com Id {item.Id} não encontrado.");
 
-            if (produto.Quantidade < item.Quantidade)
+            var estoque = _estoqueRepository.GetByIdProdutoAsync(item.Id).GetAwaiter().GetResult();
+
+            if (estoque is null)
             {
-                NotificarEstoqueInsuficiente(os, produto.Descricao, produto.Quantidade, item.Quantidade);
+                throw new InvalidOperationException($"Não foi encontrado estoque lançado para o produto {produto.Descricao}.");
+            }
+            else if (estoque.Quantidade < item.Quantidade)
+            {
+                NotificarEstoqueInsuficiente(os, produto.Descricao, estoque.Quantidade, item.Quantidade);
                 throw new InvalidOperationException($"Estoque insuficiente para o produto {produto.Descricao}.");
             }
 

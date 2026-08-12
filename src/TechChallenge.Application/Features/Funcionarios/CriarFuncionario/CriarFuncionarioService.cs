@@ -30,25 +30,9 @@ public class CriarFuncionarioService
         if (!Enum.TryParse<TipoFuncionario>(command.Cargo, true, out var tipoFuncionario))
             throw new InvalidOperationException($"Cargo {command.Cargo} inválido.");
 
-        var funcionario = new Funcionario
-        {
-            Id = Guid.NewGuid(),
-            Nome = command.Nome,
-            Cpf = cpf,
-            Rg = command.Rg,
-            TipoFuncionario = tipoFuncionario,
-            Endereco = new Endereco
-            {
-                Id = Guid.NewGuid(),
-                Logradouro = command.Logradouro,
-                Complemento = command.Complemento,
-                Numero = command.Numero,
-                Bairro = command.Bairro,
-                Cidade = command.Cidade,
-                Estado = command.Estado,
-                Cep = command.Cep
-            }
-        };
+        Endereco endereco = new Endereco(Guid.NewGuid(), command.Logradouro, command.Complemento, command.Numero, command.Bairro, command.Cidade, command.Estado, command.Cep);
+
+        var funcionario = new Funcionario(Guid.NewGuid(), command.Nome, cpf, command.Rg, tipoFuncionario, endereco.Id);
 
         _funcionarioRepository.AddAsync(funcionario).GetAwaiter().GetResult();
         return funcionario.Id;

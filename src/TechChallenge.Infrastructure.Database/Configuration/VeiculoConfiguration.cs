@@ -26,9 +26,6 @@ namespace TechChallenge.Infrastructure.Database.Configuration
             builder.Property(v => v.Cor)
                 .HasMaxLength(20);
 
-            builder.Property(v => v.Tipo)
-                .IsRequired();
-
             builder.Property(v => v.Ano)
                 .IsRequired();
 
@@ -43,6 +40,11 @@ namespace TechChallenge.Infrastructure.Database.Configuration
             builder.HasOne(v => v.ClienteResponsavel)
                 .WithMany()
                 .HasForeignKey(v => v.ClienteId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasOne(v => v.Categoria)
+                .WithMany()
+                .HasForeignKey(v => v.CategoriaId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

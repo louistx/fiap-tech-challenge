@@ -17,8 +17,8 @@ public class ListarOSOficinaServiceTests
             Id = Guid.NewGuid(),
             Status = StatusOS.EmDiagnostico,
             Descricao = "Motor falhando",
-            Veiculo = new Veiculo { Placa = "ABC1D23" },
-            FuncionarioResponsavel = new Funcionario { Nome = "Joao Mecanico" }
+            Veiculo = new Veiculo(Guid.NewGuid(), "ABC1D23", string.Empty, string.Empty, string.Empty, 0, 0, 0, Guid.NewGuid(), Guid.NewGuid()),
+            FuncionarioResponsavel = new Funcionario(Guid.NewGuid(), "Joao Mecanico", string.Empty, string.Empty, TipoFuncionario.Mecanico, Guid.NewGuid())
         };
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByStatusAsync(StatusOS.EmDiagnostico)).ReturnsAsync([os]);

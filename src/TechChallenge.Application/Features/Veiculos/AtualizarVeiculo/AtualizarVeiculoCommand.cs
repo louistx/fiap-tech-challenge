@@ -6,7 +6,6 @@ namespace TechChallenge.Application.Features.Veiculos.AtualizarVeiculo;
 public class AtualizarVeiculoCommand
 {
     public Guid Id { get; set; }
-    public TipoVeiculo Tipo { get; set; }
     public string Placa { get; set; } = string.Empty;
     public string Modelo { get; set; } = string.Empty;
     public string Marca { get; set; } = string.Empty;
@@ -15,4 +14,5 @@ public class AtualizarVeiculoCommand
     public decimal Quilometragem { get; set; }
     public decimal Valor { get; set; }
     public Guid ClienteId { get; set; }
+    public Guid CategoriaId { get; set; }
 }

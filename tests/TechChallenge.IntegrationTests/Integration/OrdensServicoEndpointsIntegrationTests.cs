@@ -101,7 +101,6 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
 
         var veiculoId = await CriarAsync("/api/v1/veiculos", new CriarVeiculoRequest
         {
-            Tipo = TipoVeiculo.Carro,
             Placa = $"ABC{sequencia % 10}D{sequencia % 10}{(sequencia + 1) % 10}",
             Modelo = "Onix",
             Marca = "Chevrolet",
@@ -109,7 +108,8 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
             Ano = 2020,
             Quilometragem = 50000,
             Valor = 50000,
-            ClienteId = clienteId
+            ClienteId = clienteId,
+            CategoriaId = categoriaId
         });
 
         var servicoId = await CriarAsync("/api/v1/servicos", new CriarServicoRequest
