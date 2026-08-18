@@ -3,6 +3,7 @@ using Moq;
 using TechChallenge.Application.Abstractions.Repositories;
 using TechChallenge.Application.Features.OS.ExcluirOS;
 using TechChallenge.Domain.Entities;
+using TechChallenge.Domain.Enums;
 
 namespace TechChallenge.Tests.Features.OS.ExcluirOS;
 
@@ -11,7 +12,7 @@ public class ExcluirOSServiceTests
     [Fact]
     public void DeveExcluirOSQuandoEncontrada()
     {
-        var os = new OrdemServico { Id = Guid.NewGuid() };
+        var os = new OrdemServico(Guid.NewGuid(), "Descrição da OS", string.Empty, StatusOS.Recebida, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0);
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         repository.Setup(repo => repo.DeleteAsync(os)).Returns(Task.CompletedTask);

@@ -12,7 +12,7 @@ public class RetornarParaDiagnosticoServiceTests
     [Fact]
     public void DeveRetornarOSReprovadaParaDiagnostico()
     {
-        var os = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.Reprovada };
+        var os = new OrdemServico(Guid.NewGuid(), "Descrição da OS", string.Empty, StatusOS.Reprovada, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0);
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         repository.Setup(repo => repo.UpdateAsync(os)).ReturnsAsync(os);
@@ -29,7 +29,7 @@ public class RetornarParaDiagnosticoServiceTests
     [Fact]
     public void DeveBloquearRetornoQuandoOSNaoEstiverReprovada()
     {
-        var os = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.AguardandoAprovacao };
+        var os = new OrdemServico(Guid.NewGuid(), "Descrição da OS", string.Empty, StatusOS.AguardandoAprovacao, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0);
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         var service = new RetornarParaDiagnosticoService(repository.Object, new RetornarParaDiagnosticoCommandValidator());

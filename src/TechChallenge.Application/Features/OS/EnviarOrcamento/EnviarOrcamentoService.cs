@@ -57,11 +57,11 @@ public class EnviarOrcamentoService
             }
         }
 
-        os.Valor =
+        os.AtribuirValor(
             os.Servicos.Sum(item => (item.Valor * item.Quantidade) + item.Acrescimo - item.Desconto) +
             os.Produtos.Sum(item => (item.Valor * item.Quantidade) + item.Acrescimo - item.Desconto) +
             os.Acrescimo -
-            os.Desconto;
+            os.Desconto);
 
         var statusAnterior = os.Status;
 
@@ -71,7 +71,7 @@ public class EnviarOrcamentoService
         return true;
     }
 
-    private void NotificarEstoqueInsuficiente(Guid ordemServicoId, Guid funcionarioResponsavelId, string produtoDescricao, int quantidadeDisponivel, int quantidadeNecessaria)
+    private void NotificarEstoqueInsuficiente(Guid ordemServicoId, Guid funcionarioResponsavelId, string produtoDescricao, double quantidadeDisponivel, double quantidadeNecessaria)
     {
         var mensagem = $"OS {ordemServicoId} precisa de {quantidadeNecessaria} unidade(s) de {produtoDescricao}, mas há {quantidadeDisponivel} em estoque.";
 

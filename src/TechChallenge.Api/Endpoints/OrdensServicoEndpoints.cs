@@ -18,6 +18,7 @@ using TechChallenge.Application.Features.OS.RegistrarDiagnostico;
 using TechChallenge.Application.Features.OS.RetornarParaDiagnostico;
 using TechChallenge.Application.Features.OS.ReprovarOrcamento;
 using TechChallenge.Domain.Enums;
+using TechChallenge.Infrastructure.IoC.Helpers;
 
 namespace TechChallenge.Api.Endpoints;
 
@@ -73,6 +74,14 @@ public static class OrdensServicoEndpoints
             .WithDescription("Obtém as informações de uma ordem de serviço existente do banco de dados")
             .RequireAuthorization(MecanicoOuVendedorPolicy)
             .Produces<OrdemServicoResponse>()
+            .Produces(StatusCodes.Status404NotFound);
+
+        group.MapGet("/{id}", ObterStatusOrdemServicoAsync)
+            .WithName("ObterStatusOrdemServico")
+            .WithSummary("Obtém o status de uma ordem de serviço")
+            .WithDescription("Obtém o status de uma ordem de serviço existente do banco de dados")
+            .RequireAuthorization(MecanicoOuVendedorPolicy)
+            .Produces<StatusOS>()
             .Produces(StatusCodes.Status404NotFound);
 
         group.MapPatch("/{id}/atribuir", AtribuirOrdemServicoAsync)
@@ -172,6 +181,13 @@ public static class OrdensServicoEndpoints
     {
         var os = service.ObterOS(new ObterOSQuery { Id = id });
         return Results.Ok(MapToResponse(os));
+    }
+
+    private static IResult ObterStatusOrdemServicoAsync(Guid id, ObterOSService service)
+    {
+        var os = service.ObterOS(new ObterOSQuery { Id = id });
+
+        return Results.Ok(SystemHelper.GetStatusDescription(os.Status));
     }
 
     private static IResult ObterOrdemServicoPorCodigoAcompanhamentoAsync(string codigo, ObterOSAcompanhamentoService service)

@@ -51,13 +51,7 @@ public class RegistrarDiagnosticoService
             if (servico is null)
                 throw new KeyNotFoundException($"Serviço com Id {item.Id} não encontrado.");
 
-            os.Servicos.Add(new OrdemServicoServicos
-            {
-                ServicoId = servico.Id,
-                Servico = servico,
-                Valor = (double)servico.Valor,
-                Quantidade = item.Quantidade
-            });
+            os.Servicos.Add(new OrdemServicoServicos(Guid.NewGuid(), Guid.NewGuid(), servico.Id, (double)servico.Valor, item.Quantidade, 0, 0));
         }
 
         foreach (var item in command.Produtos)
@@ -78,22 +72,16 @@ public class RegistrarDiagnosticoService
                 throw new InvalidOperationException($"Estoque insuficiente para o produto {produto.Descricao}.");
             }
 
-            os.Produtos.Add(new OrdemServicoProdutos
-            {
-                ProdutoId = produto.Id,
-                Produto = produto,
-                Valor = (double)produto.Valor,
-                Quantidade = item.Quantidade
-            });
+            os.Produtos.Add(new OrdemServicoProdutos(Guid.NewGuid(), Guid.NewGuid(), produto.Id, (double)produto.Valor, item.Quantidade, 0, 0));
         }
 
-        os.DataAtualizacao = DateTime.UtcNow;
+        os.AtualizarData(DateTime.UtcNow);
 
         _ordemServicoRepository.UpdateAsync(os).GetAwaiter().GetResult();
         return true;
     }
 
-    private void NotificarEstoqueInsuficiente(OrdemServico os, string produtoDescricao, int quantidadeDisponivel, int quantidadeNecessaria)
+    private void NotificarEstoqueInsuficiente(OrdemServico os, string produtoDescricao, double quantidadeDisponivel, double quantidadeNecessaria)
     {
         var mensagem = $"OS {os.Id} precisa de {quantidadeNecessaria} unidade(s) de {produtoDescricao}, mas há {quantidadeDisponivel} em estoque.";
 

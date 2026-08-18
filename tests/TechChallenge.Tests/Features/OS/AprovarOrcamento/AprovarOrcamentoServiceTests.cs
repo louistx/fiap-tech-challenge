@@ -12,7 +12,7 @@ public class AprovarOrcamentoServiceTests
     [Fact]
     public void DeveAprovarOrcamentoEIniciarExecucao()
     {
-        var os = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.AguardandoAprovacao };
+        var os = new OrdemServico(Guid.NewGuid(), "Descrição da OS", string.Empty, StatusOS.AguardandoAprovacao, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0);
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         repository.Setup(repo => repo.UpdateAsync(os)).ReturnsAsync(os);
@@ -29,8 +29,7 @@ public class AprovarOrcamentoServiceTests
     [Fact]
     public void DeveBloquearAprovacaoQuandoOSNaoAguardarAprovacao()
     {
-        var os = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.EmDiagnostico };
-        var repository = new Mock<IOrdemServicoRepository>();
+        var os = new OrdemServico(Guid.NewGuid(), "Descrição da OS", string.Empty, StatusOS.EmDiagnostico, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0); var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         var service = new AprovarOrcamentoService(repository.Object, new AprovarOrcamentoCommandValidator());
 

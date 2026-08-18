@@ -46,14 +46,7 @@ public class LoginService
         var refreshCru = _tokenService.GerarRefreshToken();
 
         var agora = DateTime.UtcNow;
-        var refreshToken = new RefreshToken
-        {
-            Id = Guid.NewGuid(),
-            UsuarioId = usuario.Id,
-            TokenHash = _tokenService.HashRefreshToken(refreshCru),
-            CriadoEm = agora,
-            ExpiraEm = agora.AddDays(_settings.RefreshTokenDays)
-        };
+        var refreshToken = new RefreshToken(Guid.NewGuid(), usuario.Id, _tokenService.HashRefreshToken(refreshCru), agora, agora.AddDays(_settings.RefreshTokenDays));
 
         _refreshTokenRepository.AddAsync(refreshToken).GetAwaiter().GetResult();
 

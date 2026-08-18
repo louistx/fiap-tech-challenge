@@ -12,7 +12,7 @@ public class CancelarOSServiceTests
     [Fact]
     public void DeveCancelarOSQuandoTransicaoForValida()
     {
-        var os = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.EmDiagnostico };
+        var os = new OrdemServico (Guid.NewGuid(), "Descrição da OS", string.Empty, StatusOS.EmDiagnostico, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0);
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         repository.Setup(repo => repo.UpdateAsync(os)).ReturnsAsync(os);
@@ -44,7 +44,7 @@ public class CancelarOSServiceTests
     [Fact]
     public void DeveBloquearCancelamentoDeOSEntregue()
     {
-        var os = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.Entregue };
+        var os = new OrdemServico(Guid.NewGuid(), "Descrição da OS", string.Empty, StatusOS.Entregue, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0);
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         var service = new CancelarOSService(repository.Object, new CancelarOSCommandValidator());

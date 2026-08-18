@@ -24,10 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\Response\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\TechChallenge.Application\TechChallenge.Application.csproj" />
     <ProjectReference Include="..\TechChallenge.Domain\TechChallenge.Domain.csproj" />
     <ProjectReference Include="..\TechChallenge.Infrastructure.Auth\TechChallenge.Infrastructure.Auth.csproj" />

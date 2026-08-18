@@ -12,14 +12,10 @@ public class ListarOSOficinaServiceTests
     [Fact]
     public void DeveListarOSDaOficinaMapeandoCamposBasicos()
     {
-        var os = new OrdemServico
-        {
-            Id = Guid.NewGuid(),
-            Status = StatusOS.EmDiagnostico,
-            Descricao = "Motor falhando",
-            Veiculo = new Veiculo(Guid.NewGuid(), "ABC1D23", string.Empty, string.Empty, string.Empty, 0, 0, 0, Guid.NewGuid(), Guid.NewGuid()),
-            FuncionarioResponsavel = new Funcionario(Guid.NewGuid(), "Joao Mecanico", string.Empty, string.Empty, TipoFuncionario.Mecanico, Guid.NewGuid())
-        };
+        var funcionario = new Funcionario(Guid.NewGuid(), "Joao Mecanico", string.Empty, string.Empty, TipoFuncionario.Mecanico, Guid.NewGuid());
+        var veiculo = new Veiculo(Guid.NewGuid(), "ABC1D23", string.Empty, string.Empty, string.Empty, 0, 0, 0, Guid.NewGuid(), Guid.NewGuid());
+        var os = new OrdemServico(Guid.NewGuid(), "Motor falhando", string.Empty, StatusOS.EmDiagnostico, Guid.NewGuid(), funcionario.Id, veiculo.Id, DateTime.UtcNow, null, null, 0, 0, 0);
+
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByStatusAsync(StatusOS.EmDiagnostico)).ReturnsAsync([os]);
         var service = new ListarOSOficinaService(repository.Object);

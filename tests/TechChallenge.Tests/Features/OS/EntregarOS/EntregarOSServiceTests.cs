@@ -12,7 +12,7 @@ public class EntregarOSServiceTests
     [Fact]
     public void DeveEntregarOSQuandoEstiverFinalizada()
     {
-        var os = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.Finalizada };
+        var os = new OrdemServico(Guid.NewGuid(), "Descrição da OS", string.Empty, StatusOS.Finalizada, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0);
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         repository.Setup(repo => repo.UpdateAsync(os)).ReturnsAsync(os);
@@ -29,7 +29,7 @@ public class EntregarOSServiceTests
     [Fact]
     public void DeveBloquearEntregaQuandoOSNaoEstiverFinalizada()
     {
-        var os = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.EmExecucao };
+        var os = new OrdemServico(Guid.NewGuid(), "Descrição da OS", string.Empty, StatusOS.EmExecucao, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0);
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         var service = new EntregarOSService(repository.Object, new EntregarOSCommandValidator());

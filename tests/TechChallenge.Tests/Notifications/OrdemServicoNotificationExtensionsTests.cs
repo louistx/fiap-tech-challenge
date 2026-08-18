@@ -12,12 +12,7 @@ public class OrdemServicoNotificationExtensionsTests
     public void DeveNotificarFuncionarioResponsavelQuandoOSTransicionar()
     {
         var funcionarioId = Guid.NewGuid();
-        var os = new OrdemServico
-        {
-            Id = Guid.NewGuid(),
-            FuncionarioResponsavelId = funcionarioId,
-            Status = StatusOS.EmExecucao
-        };
+        var os = new OrdemServico(Guid.NewGuid(), "Descrição da OS", string.Empty, StatusOS.EmExecucao, Guid.NewGuid(), funcionarioId, Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0);
         var notificationService = new Mock<INotificationService>();
 
         notificationService.Object.NotificarTransicaoOS(os, StatusOS.AguardandoAprovacao);
@@ -38,12 +33,7 @@ public class OrdemServicoNotificationExtensionsTests
     [Fact]
     public void DeveNotificarAdministradorQuandoOSNaoTiverFuncionarioResponsavel()
     {
-        var os = new OrdemServico
-        {
-            Id = Guid.NewGuid(),
-            FuncionarioResponsavelId = Guid.Empty,
-            Status = StatusOS.Cancelada
-        };
+        var os = new OrdemServico(Guid.NewGuid(), "Descrição da OS", string.Empty, StatusOS.Cancelada, Guid.NewGuid(), Guid.Empty, Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0);
         var notificationService = new Mock<INotificationService>();
 
         notificationService.Object.NotificarTransicaoOS(os, StatusOS.Recebida);

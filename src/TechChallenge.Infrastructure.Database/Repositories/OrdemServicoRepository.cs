@@ -38,10 +38,16 @@ namespace TechChallenge.Infrastructure.Database.Repositories
         public override async Task<List<OrdemServico>> GetAllAsync()
         {
             return await _context.OrdemServico
+                .Where(os => os.Status != StatusOS.Finalizada && os.Status != StatusOS.Entregue)
                 .Include(os => os.Servicos)
                 .ThenInclude(oss => oss.Servico)
                 .Include(os => os.Produtos)
                 .ThenInclude(osp => osp.Produto)
+                .OrderBy(os => os.Status == StatusOS.EmExecucao)
+                .ThenBy(os => os.Status == StatusOS.AguardandoAprovacao)
+                .ThenBy(os => os.Status == StatusOS.EmDiagnostico)
+                .ThenBy(os => os.Status == StatusOS.Recebida)
+                .ThenBy(os => os.DataCriacao)
                 .ToListAsync();
         }
 

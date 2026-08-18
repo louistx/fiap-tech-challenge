@@ -12,7 +12,7 @@ namespace TechChallenge.Infrastructure.Database.Configuration
 
             builder.HasOne(v => v.Produto)
                 .WithMany()
-                .HasForeignKey(v => v.IdProduto)
+                .HasForeignKey(v => v.ProdutoId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(p => p.Quantidade)

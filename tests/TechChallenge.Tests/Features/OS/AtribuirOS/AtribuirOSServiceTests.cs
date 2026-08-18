@@ -14,7 +14,7 @@ public class AtribuirOSServiceTests
     public void DeveAtribuirOSRecebidaParaMecanicoSemOSAtiva()
     {
         var mecanicoId = Guid.NewGuid();
-        var ordemServico = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.Recebida };
+        var ordemServico = new OrdemServico(Guid.NewGuid(), string.Empty, string.Empty, StatusOS.Recebida, Guid.NewGuid(), mecanicoId, Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
         var funcionarioRepository = new Mock<IFuncionarioRepository>();
         var ordemServicoRepository = new Mock<IOrdemServicoRepository>();
         funcionarioRepository.Setup(repo => repo.GetByIdAsync(mecanicoId))
@@ -47,12 +47,8 @@ public class AtribuirOSServiceTests
     public void DeveImpedirAtribuicaoQuandoMecanicoJaPossuirOSAtiva()
     {
         var mecanicoId = Guid.NewGuid();
-        var osAtiva = new OrdemServico
-        {
-            Id = Guid.NewGuid(),
-            Status = StatusOS.EmDiagnostico,
-            FuncionarioResponsavelId = mecanicoId
-        };
+        var osAtiva = new OrdemServico(Guid.NewGuid(), string.Empty, string.Empty, StatusOS.EmDiagnostico, Guid.NewGuid(), mecanicoId, Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
+
         var funcionarioRepository = new Mock<IFuncionarioRepository>();
         var ordemServicoRepository = new Mock<IOrdemServicoRepository>();
         funcionarioRepository.Setup(repo => repo.GetByIdAsync(mecanicoId))
@@ -79,7 +75,7 @@ public class AtribuirOSServiceTests
     public void DeveImpedirAtribuicaoQuandoOSNaoEstiverRecebida()
     {
         var mecanicoId = Guid.NewGuid();
-        var ordemServico = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.Finalizada };
+        var ordemServico = new OrdemServico(Guid.NewGuid(), string.Empty, string.Empty, StatusOS.Finalizada, Guid.NewGuid(), mecanicoId, Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
         var funcionarioRepository = new Mock<IFuncionarioRepository>();
         var ordemServicoRepository = new Mock<IOrdemServicoRepository>();
         funcionarioRepository.Setup(repo => repo.GetByIdAsync(mecanicoId))

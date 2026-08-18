@@ -99,6 +99,11 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
             Endereco = CriarEnderecoRequest()
         });
 
+        var categoriaId = await CriarAsync("/api/v1/categoriaveiculo", new CriarCategoriaVeiculoRequest
+        {
+            Descricao = "Hatch"
+        });
+
         var veiculoId = await CriarAsync("/api/v1/veiculos", new CriarVeiculoRequest
         {
             Placa = $"ABC{sequencia % 10}D{sequencia % 10}{(sequencia + 1) % 10}",

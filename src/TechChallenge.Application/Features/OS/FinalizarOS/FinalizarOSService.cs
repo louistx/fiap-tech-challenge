@@ -28,7 +28,7 @@ public class FinalizarOSService
 
     public bool FinalizarOS(FinalizarOSCommand command)
     {
-        List<Estoque> estoqueEntity = new List<Estoque>();
+        List<Domain.Entities.Estoque> estoqueEntity = new List<Domain.Entities.Estoque>();
 
         _validator.ValidateAndThrow(command);
 
@@ -61,7 +61,7 @@ public class FinalizarOSService
 
         foreach (var item in os.Produtos)
         {
-            var estoque = estoqueEntity.FirstOrDefault(e => e.IdProduto == item.ProdutoId);
+            var estoque = estoqueEntity.FirstOrDefault(e => e.ProdutoId == item.ProdutoId);
             
             estoque.AtualizarQuantidade(estoque.Quantidade - item.Quantidade);
             _estoqueRepository.UpdateAsync(estoque).GetAwaiter().GetResult();
@@ -75,7 +75,7 @@ public class FinalizarOSService
         return true;
     }
 
-    private void NotificarEstoqueInsuficiente(Guid ordemServicoId, Guid funcionarioResponsavelId, string produtoDescricao, int quantidadeDisponivel, int quantidadeNecessaria)
+    private void NotificarEstoqueInsuficiente(Guid ordemServicoId, Guid funcionarioResponsavelId, string produtoDescricao, double quantidadeDisponivel, double quantidadeNecessaria)
     {
         var mensagem = $"OS {ordemServicoId} precisa de {quantidadeNecessaria} unidade(s) de {produtoDescricao}, mas há {quantidadeDisponivel} em estoque.";
 

@@ -3,18 +3,18 @@
     public class Estoque
     {
         public Guid Id { get; private set; }
-        public Guid IdProduto { get; private set; }
+        public Guid ProdutoId { get; private set; }
         public Produto Produto { get; private set; } = null!;
-        public int Quantidade { get; private set; }
+        public double Quantidade { get; private set; }
 
-        public Estoque(Guid id, Guid idProduto, int quantidade)
+        public Estoque(Guid id, Guid idProduto, double quantidade)
         {
             Id = id;
-            IdProduto = idProduto;
+            ProdutoId = idProduto;
             Quantidade = quantidade;
         }
 
-        public void AtualizarQuantidade(int quantidade)
+        public void AtualizarQuantidade(double quantidade)
         {
             Quantidade = quantidade;
         }

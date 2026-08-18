@@ -49,17 +49,7 @@ public class CriarOSService
         if (veiculo is null)
             throw new KeyNotFoundException($"Veículo com Id {command.VeiculoId} não encontrado.");
 
-        var os = new OrdemServico
-        {
-            Id = Guid.NewGuid(),
-            Descricao = command.Descricao,
-            CodigoAcompanhamento = Guid.NewGuid().ToString("N"),
-            Status = StatusOS.Recebida,
-            ClienteResponsavelId = command.ClienteResponsavelId,
-            FuncionarioResponsavelId = command.FuncionarioResponsavelId,
-            VeiculoId = command.VeiculoId,
-            DataCriacao = DateTime.UtcNow
-        };
+        var os = new OrdemServico(Guid.NewGuid(), command.Descricao, Guid.NewGuid().ToString("N"), StatusOS.Recebida, command.ClienteResponsavelId, command.FuncionarioResponsavelId, command.VeiculoId, DateTime.UtcNow, null, null, valor: 0, desconto: 0, acrescimo: 0);
 
         _ordemServicoRepository.AddAsync(os).GetAwaiter().GetResult();
         _notificationService.NotificarFuncionariosPorFuncao(

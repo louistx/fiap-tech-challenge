@@ -23,7 +23,7 @@ public class VeiculosEndpointsIntegrationTests : IClassFixture<WebAplicationFact
     public async Task DeveExecutarCrudDeVeiculo()
     {
         var clienteId = await CriarClienteAsync();
-        var categoriaId = await CriarCategoriaAsync();
+        var categoriaId = await CriarCategoriaVeiculoAsync();
         var sequencia = Interlocked.Increment(ref _sequencia);
         var placa = $"CAR{sequencia % 10}A{sequencia % 10}{(sequencia + 1) % 10}";
         var criarRequest = new CriarVeiculoRequest
@@ -126,6 +126,20 @@ public class VeiculosEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         };
 
         var response = await _client.PostAsJsonAsync("/api/v1/clientes", request);
+        var body = await response.Content.ReadAsStringAsync();
+        response.StatusCode.Should().Be(HttpStatusCode.Created, body);
+        return await response.Content.ReadFromJsonAsync<Guid>();
+    }
+
+    private async Task<Guid> CriarCategoriaVeiculoAsync()
+    {
+        var sequencia = Interlocked.Increment(ref _sequencia);
+        var request = new CriarCategoriaVeiculoRequest
+        {
+            Descricao = "Sedan",
+        };
+
+        var response = await _client.PostAsJsonAsync("/api/v1/categoriaveiculo", request);
         var body = await response.Content.ReadAsStringAsync();
         response.StatusCode.Should().Be(HttpStatusCode.Created, body);
         return await response.Content.ReadFromJsonAsync<Guid>();

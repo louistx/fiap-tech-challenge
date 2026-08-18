@@ -14,12 +14,9 @@ public class FinalizarOSServiceTests
     public void DeveFinalizarOSQuandoEstiverEmExecucao()
     {
         var produto = new Produto(Guid.NewGuid(), "Filtro", 4, Guid.NewGuid());
-        var os = new OrdemServico
-        {
-            Id = Guid.NewGuid(),
-            Status = StatusOS.EmExecucao,
-            Produtos = [new OrdemServicoProdutos { Produto = produto, Quantidade = 2 }]
-        };
+        var os = new OrdemServico(Guid.NewGuid(), string.Empty, string.Empty, StatusOS.EmExecucao, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
+        var osp = new OrdemServicoProdutos(Guid.NewGuid(), os.Id, produto.Id, 0, 2, 0, 0);
+        os.AdicionarProdutos(osp);
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         repository.Setup(repo => repo.UpdateAsync(os)).ReturnsAsync(os);
@@ -40,20 +37,12 @@ public class FinalizarOSServiceTests
     public void DeveBloquearFinalizacaoQuandoEstoqueForInsuficiente()
     {
         var mecanicoId = Guid.NewGuid();
-        var os = new OrdemServico
-        {
-            Id = Guid.NewGuid(),
-            Status = StatusOS.EmExecucao,
-            FuncionarioResponsavelId = mecanicoId,
-            Produtos =
-            [
-                new OrdemServicoProdutos
-                {
-                    Produto = new Produto(Guid.NewGuid(), "Filtro", 1, Guid.NewGuid()),
-                    Quantidade = 2
-                }
-            ]
-        };
+        
+        var produto = new Produto(Guid.NewGuid(), "Filtro", 1, Guid.NewGuid());
+        var os = new OrdemServico(Guid.NewGuid(), string.Empty, string.Empty, StatusOS.EmExecucao, Guid.NewGuid(), mecanicoId, Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
+        var osp = new OrdemServicoProdutos(Guid.NewGuid(), os.Id, produto.Id, 0, 0, 0, 0);
+        os.AdicionarProdutos(osp);
+
         var repository = new Mock<IOrdemServicoRepository>();
         var estoqueRepository = new Mock<IEstoqueRepository>();
         var notificationService = new Mock<INotificationService>();
@@ -82,7 +71,7 @@ public class FinalizarOSServiceTests
     [Fact]
     public void DeveBloquearFinalizacaoQuandoOSNaoEstiverEmExecucao()
     {
-        var os = new OrdemServico { Id = Guid.NewGuid(), Status = StatusOS.AguardandoAprovacao };
+        var os = new OrdemServico(Guid.NewGuid(), string.Empty, string.Empty, StatusOS.AguardandoAprovacao, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         var estoqueRepository = new Mock<IEstoqueRepository>();

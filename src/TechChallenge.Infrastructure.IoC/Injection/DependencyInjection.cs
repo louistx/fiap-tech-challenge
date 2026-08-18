@@ -77,7 +77,7 @@ namespace TechChallenge.Infrastructure.IoC.Injection
 
             services.AddScoped<INotificationService, LoggerNotificationService>();
 
-            services.AddValidatorsFromAssemblyContaining<CriarClienteCommandValidator>();
+            services.AddValidatorsFromAssemblyContaining<CriarCategoriaProdutoCommandValidator>();
 
             services.AddScoped<CriarOSService>();
             services.AddScoped<ObterOSService>();
@@ -96,11 +96,11 @@ namespace TechChallenge.Infrastructure.IoC.Injection
             services.AddScoped<ListarOSOficinaService>();
             services.AddScoped<ExcluirOSService>();
 
-            services.AddScoped<CriarClienteService>();
-            services.AddScoped<ObterClienteService>();
-            services.AddScoped<ListarClientesService>();
-            services.AddScoped<AtualizarClienteService>();
-            services.AddScoped<ExcluirClienteService>();
+            services.AddScoped<CriarCategoriaProdutoService>();
+            services.AddScoped<ObterCategoriaProdutoService>();
+            services.AddScoped<ListarCategoriasProdutosService>();
+            services.AddScoped<AtualizarCategoriaProdutoService>();
+            services.AddScoped<ExcluirCategoriaProdutoService>();
 
             services.AddScoped<CriarFuncionarioService>();
             services.AddScoped<ObterFuncionarioService>();

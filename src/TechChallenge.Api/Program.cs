@@ -78,6 +78,10 @@ app.MapVeiculosEndpoints();
 app.MapServicosEndpoints();
 app.MapInventarioEndpoints();
 app.MapOrdensServicoEndpoints();
+app.MapCategoriaServicoEndpoints();
+app.MapCategoriaProdutoEndpoints();
+app.MapCategoriaVeiculoEndpoints();
+app.MapEstoqueEndpoints();
 
 await app.RunAsync();
 

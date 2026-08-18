@@ -33,6 +33,12 @@ namespace TechChallenge.Infrastructure.Database.Repositories
 #pragma warning restore CA1862
         }
 
+        public async Task<bool> ExisteVeiculoComCategoria(Guid categoriaId)
+        {
+            return await _context.Veiculo
+                .AnyAsync(v => v.CategoriaId == categoriaId);
+        }
+
         #endregion
     }
 }

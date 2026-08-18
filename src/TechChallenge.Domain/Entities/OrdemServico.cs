@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using TechChallenge.Domain.Enums;
 
 namespace TechChallenge.Domain.Entities;
@@ -18,24 +16,41 @@ public class OrdemServico
         [StatusOS.Cancelada] = []
     };
 
-    public Guid Id { get; set; }
-    public string Descricao { get; set; } = string.Empty;
-    public string CodigoAcompanhamento { get; set; } = string.Empty;
-    public StatusOS Status { get; set; }
-    public Guid ClienteResponsavelId { get; set; }
-    public Cliente ClienteResponsavel { get; set; } = null!;
-    public Guid FuncionarioResponsavelId { get; set; }
-    public Funcionario FuncionarioResponsavel { get; set; } = null!;
-    public Guid VeiculoId { get; set; }
-    public Veiculo Veiculo { get; set; } = null!;
-    public ICollection<OrdemServicoServicos> Servicos { get; set; } = new List<OrdemServicoServicos>();
-    public ICollection<OrdemServicoProdutos> Produtos { get; set; } = new List<OrdemServicoProdutos>();
-    public DateTime DataCriacao { get; set; }
-    public DateTime? DataAtualizacao { get; set; }
-    public DateTime? DataFinalizacao { get; set; }
-    public double Valor { get; set; }
-    public double Desconto { get; set; }
-    public double Acrescimo { get; set; }
+    public Guid Id { get; private set; }
+    public string Descricao { get; private set; } = string.Empty;
+    public string CodigoAcompanhamento { get; private set; } = string.Empty;
+    public StatusOS Status { get; private set; }
+    public Guid ClienteResponsavelId { get; private set; }
+    public Cliente ClienteResponsavel { get; private set; } = null!;
+    public Guid FuncionarioResponsavelId { get; private set; }
+    public Funcionario FuncionarioResponsavel { get; private set; } = null!;
+    public Guid VeiculoId { get; private set; }
+    public Veiculo Veiculo { get; private set; } = null!;
+    public ICollection<OrdemServicoServicos> Servicos { get; private set; } = new List<OrdemServicoServicos>();
+    public ICollection<OrdemServicoProdutos> Produtos { get; private set; } = new List<OrdemServicoProdutos>();
+    public DateTime DataCriacao { get; private set; }
+    public DateTime? DataAtualizacao { get; private set; }
+    public DateTime? DataFinalizacao { get; private set; }
+    public double Valor { get; private set; }
+    public double Desconto { get; private set; }
+    public double Acrescimo { get; private set; }
+
+    public OrdemServico(Guid id, string descricao, string codigoAcompanhamento, StatusOS status, Guid clienteResponsavelId, Guid funcionarioResponsavelId, Guid veiculoId, DateTime dataCriacao, DateTime? dataAtualizacao, DateTime? dataFinalizacao, double valor, double desconto, double acrescimo)
+    {
+        Id = id;
+        Descricao = descricao;
+        CodigoAcompanhamento = codigoAcompanhamento;
+        Status = status;
+        ClienteResponsavelId = clienteResponsavelId;
+        FuncionarioResponsavelId = funcionarioResponsavelId;
+        VeiculoId = veiculoId;
+        DataCriacao = dataCriacao;
+        DataAtualizacao = dataAtualizacao;
+        DataFinalizacao = dataFinalizacao;
+        Valor = valor;
+        Desconto = desconto;
+        Acrescimo = acrescimo;
+    }
 
     public void TransicionarPara(StatusOS novoStatus)
     {
@@ -47,5 +62,30 @@ public class OrdemServico
 
         if (novoStatus == StatusOS.Finalizada)
             DataFinalizacao = DateTime.UtcNow;
+    }
+
+    public void AtribuirFuncionario(Guid id)
+    {
+        FuncionarioResponsavelId = id;
+    }
+
+    public void AdicionarProdutos(OrdemServicoProdutos produto)
+    {
+        Produtos.Add(produto);
+    }
+
+    public void AdicionarServicos(OrdemServicoServicos servico)
+    {
+        Servicos.Add(servico);
+    }
+
+    public void AtualizarData(DateTime dataAtualizacao)
+    {
+        DataAtualizacao = dataAtualizacao;
+    }
+
+    public void AtribuirValor(double valor)
+    {
+        Valor = valor;
     }
 }

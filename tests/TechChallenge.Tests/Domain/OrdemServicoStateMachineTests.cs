@@ -43,7 +43,7 @@ public class OrdemServicoStateMachineTests
     [MemberData(nameof(TransicoesValidas))]
     public void DeveTransicionarQuandoMovimentoForValido(StatusOS origem, StatusOS destino)
     {
-        var os = new OrdemServico { Status = origem };
+        var os = new OrdemServico(Guid.NewGuid(), "Descrição da OS", string.Empty, origem, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0);
 
         os.TransicionarPara(destino);
 
@@ -55,7 +55,7 @@ public class OrdemServicoStateMachineTests
     [MemberData(nameof(TransicoesInvalidas))]
     public void DeveBloquearTransicaoInvalida(StatusOS origem, StatusOS destino)
     {
-        var os = new OrdemServico { Status = origem };
+        var os = new OrdemServico(Guid.NewGuid(), "Descrição da OS", string.Empty, origem, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0);
 
         var act = () => os.TransicionarPara(destino);
 
@@ -66,7 +66,7 @@ public class OrdemServicoStateMachineTests
     [Fact]
     public void DeveDefinirDataFinalizacaoQuandoFinalizar()
     {
-        var os = new OrdemServico { Status = StatusOS.EmExecucao };
+        var os = new OrdemServico(Guid.NewGuid(), "Descrição da OS", string.Empty, StatusOS.EmExecucao, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
 
         os.TransicionarPara(StatusOS.Finalizada);
 

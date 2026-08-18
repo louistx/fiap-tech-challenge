@@ -45,7 +45,7 @@ public class AtribuirOSService
 
         var statusAnterior = os.Status;
 
-        os.FuncionarioResponsavelId = command.MecanicoId;
+        os.AtribuirFuncionario(command.MecanicoId);
         os.TransicionarPara(StatusOS.EmDiagnostico);
         _notificationService.NotificarTransicaoOS(os, statusAnterior);
 

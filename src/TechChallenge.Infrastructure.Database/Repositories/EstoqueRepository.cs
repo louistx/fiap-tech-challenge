@@ -24,22 +24,17 @@ namespace TechChallenge.Infrastructure.Database.Repositories
 
         #region Members of IEstoqueRepository
 
-        public override async Task<Estoque?> GetByIdAsync(Guid id)
+        public async Task<Estoque?> GetByIdProdutoAsync(Guid idProduto)
         {
             return await _context.Estoque
-                .FirstOrDefaultAsync(e => e.Id == id);
+                .FirstOrDefaultAsync(e => e.ProdutoId == idProduto);
         }
 
         public override async Task<List<Estoque>> GetAllAsync()
         {
             return await _context.Estoque
+                .Include(e => e.Produto)
                 .ToListAsync();
-        }
-
-        public async Task<Estoque?> GetByIdProdutoAsync(Guid idProduto)
-        {
-            return await _context.Estoque
-                .FirstOrDefaultAsync(e => e.IdProduto == idProduto);
         }
 
         #endregion

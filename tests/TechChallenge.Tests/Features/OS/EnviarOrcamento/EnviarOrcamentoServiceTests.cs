@@ -13,24 +13,11 @@ public class EnviarOrcamentoServiceTests
     [Fact]
     public void DeveCalcularOrcamentoEEnviarQuandoOSTiverItens()
     {
-        var os = new OrdemServico
-        {
-            Id = Guid.NewGuid(),
-            Status = StatusOS.EmDiagnostico,
-            Servicos =
-            [
-                new OrdemServicoServicos { Valor = 100, Quantidade = 2, Acrescimo = 10, Desconto = 5 }
-            ],
-            Produtos =
-            [
-                new OrdemServicoProdutos
-                {
-                    Valor = 50,
-                    Quantidade = 3,
-                    Produto = new Produto(Guid.NewGuid(), "Filtro", 0, Guid.NewGuid())
-                }
-            ]
-        };
+        var os = new OrdemServico(Guid.NewGuid(), string.Empty, string.Empty, StatusOS.EmDiagnostico, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
+        
+        os.AdicionarServicos(new OrdemServicoServicos(Guid.NewGuid(), os.Id, Guid.NewGuid(), 100, 2, 10, 5));
+        os.AdicionarProdutos(new OrdemServicoProdutos(Guid.NewGuid(), os.Id, Guid.NewGuid(), 50, 3, 0, 0));
+
         var repository = new Mock<IOrdemServicoRepository>();
         var estoqueRepository = new Mock<IEstoqueRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
@@ -48,11 +35,7 @@ public class EnviarOrcamentoServiceTests
     [Fact]
     public void DeveBloquearEnvioQuandoOSNaoTiverItens()
     {
-        var os = new OrdemServico
-        {
-            Id = Guid.NewGuid(),
-            Status = StatusOS.EmDiagnostico
-        };
+        var os = new OrdemServico(Guid.NewGuid(), string.Empty, string.Empty, StatusOS.EmDiagnostico, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
 
@@ -71,20 +54,12 @@ public class EnviarOrcamentoServiceTests
     public void DeveNotificarQuandoEstoqueForInsuficienteAntesDoEnvio()
     {
         var mecanicoId = Guid.NewGuid();
-        var os = new OrdemServico
-        {
-            Id = Guid.NewGuid(),
-            Status = StatusOS.EmDiagnostico,
-            FuncionarioResponsavelId = mecanicoId,
-            Produtos =
-            [
-                new OrdemServicoProdutos
-                {
-                    Produto = new Produto(Guid.NewGuid(), "Filtro", 0, Guid.NewGuid()),
-                    Quantidade = 2
-                }
-            ]
-        };
+        var os = new OrdemServico(Guid.NewGuid(), string.Empty, string.Empty, StatusOS.EmDiagnostico, Guid.NewGuid(), mecanicoId, Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
+
+        var osp = new OrdemServicoProdutos(Guid.NewGuid(), os.Id, Guid.NewGuid(), 50, 3, 0, 0);
+        osp.AdicionarProduto(Guid.NewGuid(), "Filtro", 0, Guid.NewGuid());
+        os.AdicionarProdutos(osp);
+
         var repository = new Mock<IOrdemServicoRepository>();
         var estoqueRepository = new Mock<IEstoqueRepository>();
         var notificationService = new Mock<INotificationService>();

@@ -46,16 +46,8 @@ public class RefreshService
         var novoCru = _tokenService.GerarRefreshToken();
 
         var expira = agora.AddDays(_settings.RefreshTokenDays);
-        var novo = new RefreshToken
-        {
-            Id = Guid.NewGuid(),
-            UsuarioId = usuario.Id,
-            TokenHash = _tokenService.HashRefreshToken(novoCru),
-            CriadoEm = agora,
-            ExpiraEm = expira
-        };
+        var novo = new RefreshToken(Guid.NewGuid(), usuario.Id, _tokenService.HashRefreshToken(novoCru), agora, expira, agora);
 
-        token.RevogadoEm = agora;
         _refreshTokenRepository.AddAsync(novo).GetAwaiter().GetResult();
         _refreshTokenRepository.UpdateAsync(token).GetAwaiter().GetResult();
 

@@ -14,8 +14,8 @@ public class ListarOSServiceTests
     {
         var ordens = new List<OrdemServico>
         {
-            new() { Id = Guid.NewGuid(), Status = StatusOS.Recebida },
-            new() { Id = Guid.NewGuid(), Status = StatusOS.Finalizada }
+            new(Guid.NewGuid(), "Descrição da OS", string.Empty, StatusOS.Recebida, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0),
+            new(Guid.NewGuid(), "Descrição da OS", string.Empty, StatusOS.Finalizada, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0)
         };
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(ordens);
@@ -33,7 +33,7 @@ public class ListarOSServiceTests
     {
         var ordens = new List<OrdemServico>
         {
-            new() { Id = Guid.NewGuid(), Status = StatusOS.EmDiagnostico }
+            new(Guid.NewGuid(), "Descrição da OS", string.Empty, StatusOS.EmDiagnostico, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0)
         };
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByStatusAsync(StatusOS.EmDiagnostico)).ReturnsAsync(ordens);

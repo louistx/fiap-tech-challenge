@@ -24,7 +24,7 @@ public class RevogarRefreshTokenService
         if (token is null || token.UsuarioId != usuarioId)
             throw new KeyNotFoundException("Refresh token não encontrado.");
 
-        token.RevogadoEm = DateTime.UtcNow;
+        token.AlterarRevogacao(DateTime.UtcNow);
         _refreshTokenRepository.UpdateAsync(token).GetAwaiter().GetResult();
     }
 }

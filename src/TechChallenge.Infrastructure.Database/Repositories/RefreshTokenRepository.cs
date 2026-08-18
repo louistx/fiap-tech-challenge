@@ -39,7 +39,7 @@ namespace TechChallenge.Infrastructure.Database.Repositories
 
             foreach (var token in tokens)
             {
-                token.RevogadoEm = agora;
+                token.AlterarRevogacao(agora);
             }
 
             await _context.SaveChangesAsync();

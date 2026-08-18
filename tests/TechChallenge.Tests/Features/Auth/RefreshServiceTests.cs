@@ -38,14 +38,8 @@ public class RefreshServiceTests
         var usuario = new Usuario(Guid.NewGuid(), string.Empty, string.Empty, TipoUsuario.Vendedor, true);
 
         var agora = DateTime.UtcNow;
-        var token = new RefreshToken
-        {
-            Id = Guid.NewGuid(),
-            UsuarioId = usuario.Id,
-            Usuario = usuario,
-            CriadoEm = agora.AddMinutes(-1),
-            ExpiraEm = agora.AddDays(7)
-        };
+        var token = new RefreshToken(Guid.NewGuid(), usuario.Id, "hash", agora.AddDays(7), agora.AddMinutes(-5));
+
         _tokens.Setup(t => t.HashRefreshToken("cru")).Returns("hash");
         _tokens.Setup(t => t.HashRefreshToken("novo")).Returns("novo-hash");
         _refresh.Setup(r => r.GetByHashAsync("hash")).ReturnsAsync(token);
@@ -67,13 +61,8 @@ public class RefreshServiceTests
     public void DeveLancarQuandoTokenEstiverRevogado()
     {
         var agora = DateTime.UtcNow;
-        var token = new RefreshToken
-        {
-            Id = Guid.NewGuid(),
-            UsuarioId = Guid.NewGuid(),
-            ExpiraEm = agora.AddDays(7),
-            RevogadoEm = agora.AddMinutes(-5)
-        };
+        var token = new RefreshToken(Guid.NewGuid(), Guid.NewGuid(), string.Empty, agora.AddDays(7), agora.AddMinutes(-5));
+
         _tokens.Setup(t => t.HashRefreshToken("cru")).Returns("hash");
         _refresh.Setup(r => r.GetByHashAsync("hash")).ReturnsAsync(token);
 
