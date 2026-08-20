@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fiap-tech-challenge-api
+  labels:
+    app: fiap-tech-challenge-api
+spec:
+  selector:
+    matchLabels:
+      app: fiap-tech-challenge-api
+      tier: server
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: fiap-tech-challenge-api
+        tier: server
+        backstage.io/kubernetes-id: fiap-tech-challenge-api
+    spec:
+      containers:
+      - image: ghcr.io/louistx/fiap-tech-challenge
+        imagePullPolicy: Always
+        name: fiap-tech-challenge-api
+        env: 
+          - name: ASPNETCORE_ENVIRONMENT
+            value: default
+        ports:
+        - containerPort: 8080
