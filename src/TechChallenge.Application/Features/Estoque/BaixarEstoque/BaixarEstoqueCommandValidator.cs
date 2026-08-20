@@ -6,7 +6,7 @@ public class BaixarEstoqueCommandValidator : AbstractValidator<BaixarEstoqueComm
 {
     public BaixarEstoqueCommandValidator()
     {
-        RuleFor(command => command.Id)
+        RuleFor(command => command.ProdutoId)
             .NotEmpty();
 
         RuleFor(command => command.Quantidade)

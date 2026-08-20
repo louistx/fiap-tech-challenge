@@ -20,10 +20,10 @@ public class BaixarEstoqueService
     {
         _validator.ValidateAndThrow(command);
 
-        var estoque = _estoqueRepository.GetByIdAsync(command.Id).GetAwaiter().GetResult();
+        var estoque = _estoqueRepository.GetByIdAsync(command.ProdutoId).GetAwaiter().GetResult();
 
         if (estoque is null)
-            throw new KeyNotFoundException($"Estoque com Id {command.Id} não encontrado.");
+            throw new KeyNotFoundException($"Estoque com Id {command.ProdutoId} não encontrado.");
 
         estoque.AtualizarQuantidade(estoque.Quantidade - command.Quantidade);
 

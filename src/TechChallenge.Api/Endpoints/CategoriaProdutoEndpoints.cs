@@ -83,13 +83,13 @@ public static class CategoriaProdutoEndpoints
         return Results.NoContent();
     }
 
-    private static IResult ObterCategoriaProdutoAsync(Guid id, ObterEstoqueService service)
+    private static IResult ObterCategoriaProdutoAsync(Guid id, ObterCategoriaProdutoService service)
     {
         var categoria = service.ObterCategoriaProduto(new ObterCategoriaProdutoQuery { Id = id });
-        return Results.Ok(MapearCategoriaProdutoResponse(categoria));
+        return Results.Ok(MapearCategoriaProdutoResponse(categoria.Result));
     }
 
-    private static IResult ListarCategoriasProdutoAsync(ListarEstoquesService service)
+    private static IResult ListarCategoriasProdutoAsync(ListarCategoriasProdutosService service)
     {
         var categorias = service.ListarCategoriasProdutos(new ListarCategoriasProdutosQuery());
         return Results.Ok(categorias.Select(MapearCategoriaProdutoResponse).ToList());

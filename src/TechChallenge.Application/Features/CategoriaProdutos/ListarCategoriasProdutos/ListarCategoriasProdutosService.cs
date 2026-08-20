@@ -3,11 +3,11 @@ using TechChallenge.Application.Abstractions.Repositories;
 
 namespace TechChallenge.Application.Features.CategoriaProdutos.ListarCategoriasProdutos;
 
-public class ListarEstoquesService
+public class ListarCategoriasProdutosService
 {
     private readonly ICategoriaProdutoRepository _categoriaProdutoRepository;
 
-    public ListarEstoquesService(ICategoriaProdutoRepository categoriaProdutoRepository)
+    public ListarCategoriasProdutosService(ICategoriaProdutoRepository categoriaProdutoRepository)
     {
         _categoriaProdutoRepository = categoriaProdutoRepository;
     }
