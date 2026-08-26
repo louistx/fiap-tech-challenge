@@ -1,4 +1,6 @@
-# Requisitos Funcionais
+# Requisitos Funcionais - Fases 1 e 2
+
+Este documento reúne as regras funcionais da Fase 1 e as evoluções obrigatórias da Fase 2. Para o estado confirmado de cada item, consulte o [Checklist de Entregáveis](fase-2-entregaveis.md).
 
 ## RF01 - Cadastro do cliente
 - O sistema deve permitir que administradores e vendedores cadastrem, consultem, atualizem e excluam clientes.
@@ -97,3 +99,58 @@
 - Mudanças de estado devem gerar notificação para o funcionário responsável ou para administradores quando não houver responsável.
 - A falta de estoque deve notificar administradores e o mecânico responsável.
 - Nesta fase, as notificações são simuladas por logs da aplicação.
+
+## Evoluções obrigatórias da Fase 2
+
+### RF21 - Abertura completa da OS
+
+- A abertura deve receber os dados do cliente, veículo, serviços e peças necessários.
+- A resposta deve conter a identificação única da OS.
+- O contrato deve definir se os dados serão criados em cascata ou referenciados por IDs existentes.
+- **Situação atual:** parcial; retorna o ID, mas não recebe serviços/produtos na abertura.
+
+### RF22 - Consulta exclusiva do status
+
+- Deve existir uma rota não ambígua que retorne a situação atual da OS.
+- Os estados exigidos são `Recebida`, `EmDiagnostico`, `AguardandoAprovacao`, `EmExecucao`, `Finalizada` e `Entregue`.
+- **Situação atual:** bloqueada; há dois handlers `GET /ordens-servico/{id}` conflitantes.
+
+### RF23 - Decisão externa do orçamento
+
+- A API deve receber de um sistema externo a aprovação ou recusa do cliente.
+- O contrato deve possuir autenticação do integrador, idempotência, correlação e tratamento de repetição.
+- **Situação atual:** não implementada; aprovação/reprovação são operações administrativas internas.
+
+### RF24 - Priorização da listagem de OS
+
+- A listagem operacional deve priorizar `EmExecucao`, depois `AguardandoAprovacao`, `EmDiagnostico` e `Recebida`.
+- Dentro de cada prioridade, as OS mais antigas devem aparecer primeiro.
+- Finalizadas e entregues não devem aparecer nessa listagem, sem exclusão física dos registros.
+- O tratamento de `Reprovada` e `Cancelada` deve ser definido explicitamente.
+- **Situação atual:** parcial/bloqueada; o filtro existe, mas a ordenação booleana está invertida e inclui estados alternativos antes dos prioritários.
+
+### RF25 - Notificação de mudança de status
+
+- Mudanças de estado devem ser enviadas por e-mail ou ferramenta equivalente.
+- Falhas de envio não podem corromper a transação da OS; recomenda-se fila/outbox e retentativa.
+- **Situação atual:** não implementada; somente logs internos.
+
+### RF26 - Movimentação de estoque
+
+- O saldo deve ser separado do catálogo do produto.
+- Entradas e baixas devem validar produto, quantidade e saldo.
+- A quantidade nunca pode ficar negativa.
+- Deve existir uma única posição de estoque por produto e controle de concorrência.
+- A finalização da OS deve baixar os produtos exatamente uma vez.
+- **Situação atual:** entidade/endpoints criados, mas bloqueados por problemas de rota, mapeamento EF, ausência de migration e testes.
+
+## Requisitos não funcionais da Fase 2
+
+- arquitetura em camadas com dependências orientadas ao domínio;
+- build e execução reproduzíveis por Docker;
+- Deployment, Service, ConfigMap, Secret e HPA em `/k8s`;
+- cluster e banco provisionados por Terraform em `/infra`;
+- pipeline com build, testes, imagem, infraestrutura e deploy;
+- documentação da arquitetura, execução local, Kubernetes, Terraform, APIs e vídeo.
+
+A implementação detalhada e as lacunas estão no [Checklist de Entregáveis da Fase 2](fase-2-entregaveis.md).

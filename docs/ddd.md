@@ -4,6 +4,8 @@
 
 O domínio deste projeto representa o funcionamento de uma oficina mecânica. O fluxo principal começa com a solicitação de um orçamento pelo cliente e acompanha todo o ciclo de vida de uma Ordem de Serviço (OS), desde a sua criação até a finalização.
 
+Na Fase 2, o código passou por uma refatoração para encapsular acessores das entidades e separar catálogo, categorias e saldo de estoque. A direção do modelo é válida, mas a auditoria de 25/08/2026 encontrou falhas bloqueantes na materialização do `Estoque` pelo Entity Framework, migrations ausentes e testes quebrados. Por isso, as seções abaixo distinguem o modelo pretendido do estado operacional confirmado.
+
 ![Visualização DDD do projeto](assets/DDD_fluxo.png)
 
 ## Linguagem do domínio
@@ -19,6 +21,10 @@ Os principais termos utilizados no projeto são:
 - **Mecânico:** responsável pelo diagnóstico, inclusão dos serviços e produtos, execução e conclusão técnica do trabalho.
 - **Serviço:** atividade executada pelo mecânico, como revisão, troca ou reparo.
 - **Produto:** peça ou item de inventário utilizado na execução do serviço.
+- **Estoque:** saldo disponível de um produto, separado de sua descrição, preço e categoria.
+- **Categoria de produto:** classificação do catálogo de peças e insumos.
+- **Categoria de serviço:** classificação dos serviços oferecidos.
+- **Categoria de veículo:** classificação dos tipos de veículo cadastrados.
 - **Diagnóstico:** identificação dos serviços e produtos necessários para resolver o problema relatado.
 - **Código de acompanhamento:** identificador público usado pelo cliente para consultar o andamento da OS.
 - **Notificação interna:** comunicação simulada por log para funcionários e perfis envolvidos no fluxo.
@@ -42,7 +48,19 @@ Atualmente, a entidade relaciona:
 - data de atualização;
 - data de finalização.
 
-As entidades `Cliente`, `Veiculo`, `Funcionario`, `Servico` e `Produto` possuem identidade própria. Por isso, são referenciadas pela OS por meio de seus identificadores.
+As entidades `Cliente`, `Veiculo`, `Funcionario`, `Servico`, `Produto` e `Estoque` possuem identidade própria. Por isso, são referenciadas por identificadores. O saldo usa `ProdutoId` como vínculo de negócio e deve possuir uma única linha por produto.
+
+## Evolução do domínio na Fase 2
+
+A refatoração substituiu setters públicos por `private set` e adicionou construtores/métodos de alteração. Esse encapsulamento é positivo, mas ainda precisa proteger invariantes no próprio domínio:
+
+- `Estoque` deve aceitar somente entradas/baixas positivas e nunca permitir saldo negativo;
+- `Produto` deve validar descrição, valor e categoria;
+- `OrdemServico` deve expor operações de negócio em vez de alterações genéricas de valor/data;
+- quantidades devem usar um tipo consistente entre request, domínio e persistência;
+- atualização de saldo e transição da OS devem ocorrer na mesma unidade transacional.
+
+A construção atual de `Estoque(Guid id, Guid idProduto, double quantidade)` não é compatível com o binding do EF Core para a propriedade `ProdutoId`. Essa falha impede a inicialização do contexto e precisa ser corrigida antes de considerar a refatoração concluída.
 
 ## Fluxo do orçamento
 
@@ -82,7 +100,7 @@ Ao ser atribuída ao mecânico, a OS deve passar pelo estado **Em diagnóstico**
 - `DiagnosticoRegistrado`;
 - `ItemAdicionadoAoOrcamento`.
 
-As quantidades e os preços atuais de serviços e produtos são copiados para os itens associados à OS. A disponibilidade em estoque é validada no diagnóstico e antes do envio do orçamento; quando falta estoque, o sistema simula notificações por logger para administradores e para o mecânico responsável.
+As quantidades e os preços atuais de serviços e produtos são copiados para os itens associados à OS. A disponibilidade passou a ser consultada na entidade separada `Estoque`; quando falta saldo, o sistema pretende simular notificações por logger para administradores e para o mecânico responsável. A integração ainda está parcial porque mocks/testes e persistência não foram totalmente adaptados.
 
 ### 3. Envio para aprovação
 
@@ -168,20 +186,23 @@ Essa separação é uma proposta inicial. Os limites devem ser refinados conform
 
 | Parte do domínio | Situação atual |
 | --- | --- |
-| Entidades `Cliente`, `Veiculo`, `Funcionario`, `Servico`, `Produto` e `OrdemServico` | Modeladas no projeto de domínio |
+| Entidades `Cliente`, `Veiculo`, `Funcionario`, `Servico`, `Produto`, `Estoque` e `OrdemServico` | Modeladas; `Estoque` ainda incompatível com a materialização do EF Core |
+| Categorias de produto, serviço e veículo | Modeladas com endpoints/casos de uso, sem migration e sem testes específicos |
 | Relacionamentos da OS | Configurados com Entity Framework |
 | Criação, consulta, listagem e exclusão da OS | Integradas aos casos de uso e à persistência |
 | Atribuição da OS ao mecânico | Implementada, incluindo limite de uma OS ativa por mecânico |
 | Registro do diagnóstico | Implementado com associação de serviços e produtos |
 | Listagem de OS para a oficina | Implementada para OS em diagnóstico |
 | Persistência da OS | Implementada com Entity Framework e PostgreSQL |
-| Estados da OS | Máquina de estados implementada na entidade |
+| Estados da OS | Máquina de estados presente; a suíte atual possui regressões após a refatoração |
 | Orçamento e decisão do cliente | Cálculo, envio, aprovação, reprovação e revisão implementados |
-| Verificação de estoque | Implementada parcialmente: validação no diagnóstico/envio e baixa na finalização |
+| Verificação de estoque | Refatorada para entidade/repositório próprios, mas bloqueada por EF, rotas inconsistentes e testes falhos |
 | Quantidades dos itens | Modeladas e consideradas no cálculo, validação e baixa de estoque |
 | Notificações | Simuladas via logger na criação, nas transições de estado e na falta de estoque |
 | Acompanhamento público | Implementado por código único da OS |
 | Tempo médio de execução | Implementado para OS finalizadas ou entregues |
 | Finalização, entrega e cancelamento da OS | Implementados |
 
-Portanto, o diagrama documenta o **fluxo de negócio desejado**, enquanto o código atual já cobre o ciclo principal da OS. Permanecem pendentes reserva de estoque, notificações externas, pagamento, recibo, aprovação parcial e retrabalho.
+Portanto, o diagrama documenta o **fluxo de negócio desejado**. O código contém o ciclo principal, mas a versão auditada não está operacionalmente validada: 8 de 102 testes unitários e todos os 20 testes de integração falharam. Além da recuperação dessas regressões, permanecem pendentes abertura da OS com itens, reserva de estoque, notificações externas, pagamento, recibo, aprovação parcial e retrabalho.
+
+Consulte também a [Auditoria do Estoque](auditoria-estoque.md) e o [Checklist de Entregáveis da Fase 2](fase-2-entregaveis.md).

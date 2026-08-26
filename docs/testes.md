@@ -4,7 +4,9 @@
 
 O projeto utiliza testes automatizados para validar as regras de domínio, os serviços de aplicação, a segurança e o comportamento HTTP da API. A suíte é dividida entre testes unitários e testes de integração.
 
-No levantamento atual, existem 78 declarações de testes unitários e 20 declarações de testes de integração.
+No levantamento atual, existem 102 testes unitários e 20 testes de integração.
+
+> **Resultado verificado em 25/08/2026, commit `3a41407`:** o build concluiu com 10 avisos; 94 testes unitários passaram e 8 falharam; os 20 testes de integração falharam. A suíte não está verde após a refatoração de Estoque/Categorias.
 
 ## Organização
 
@@ -95,6 +97,8 @@ Os fluxos atualmente cobertos incluem:
 
 > Os testes de integração validam a aplicação com Entity Framework e SQLite em memória. Eles não substituem testes específicos de compatibilidade e operação com uma instância real do PostgreSQL.
 
+As novas rotas e casos de uso de `Estoque`, `CategoriaProduto`, `CategoriaServico` e `CategoriaVeiculo` ainda não possuem testes específicos localizados na suíte.
+
 ## Como executar
 
 Para executar toda a suíte a partir da raiz do repositório:
@@ -144,7 +148,7 @@ dotnet test tests/TechChallenge.IntegrationTests/TechChallenge.IntegrationTests.
   /p:CoverletOutput=../../.sonar/coverage/integration/
 ```
 
-A meta do projeto é manter pelo menos 80% de cobertura nos fluxos críticos. Esse patamar foi atingido na última análise local do SonarQube. A existência de cobertura não substitui a validação da qualidade e da relevância dos cenários testados.
+A meta do projeto é manter pelo menos 80% de cobertura nos fluxos críticos. Esse patamar foi atingido em uma análise histórica do SonarQube anterior à refatoração atual. A métrica deve ser coletada novamente somente depois de recuperar os testes; cobertura de uma suíte falha não comprova o estado entregável.
 
 ## Integração contínua
 
@@ -153,13 +157,37 @@ O repositório possui workflows separados para testes unitários e de integraç�
 - `.github/workflows/unit-tests.yml`;
 - `.github/workflows/integration-tests.yml`.
 
-Atualmente, ambos são iniciados manualmente por `workflow_dispatch`. O build da solução possui um workflow separado executado em atualizações da branch `main`.
+Atualmente, ambos são iniciados manualmente por `workflow_dispatch`. O build da solução possui um workflow separado executado em atualizações da branch `main`. Existe também um workflow manual para publicar a imagem no GHCR, mas não há pipeline integrada de deploy.
+
+## Falhas confirmadas na auditoria
+
+| Área | Resultado |
+| --- | --- |
+| Entidade `Estoque` e EF Core | Todos os testes de integração falham porque o construtor usa `idProduto`, que não pode ser associado à propriedade `ProdutoId` |
+| Serviços de OS e estoque | Mocks não adaptados geram acessos nulos e mensagens divergentes |
+| Refresh token | Teste de rotação trata token como expirado após a refatoração |
+| Listagem da oficina | Teste falha por navegação nula |
+| Criação de cliente | Teste falha por objeto nulo após mudança de construção/acessores |
+| Novos endpoints | Sem cobertura específica para estoque e categorias |
+
+Comandos usados na verificação:
+
+```bash
+dotnet restore TechChallenge.slnx
+dotnet build TechChallenge.slnx --no-restore
+dotnet test tests/TechChallenge.Tests/TechChallenge.Tests.csproj --no-build --no-restore
+dotnet test tests/TechChallenge.IntegrationTests/TechChallenge.IntegrationTests.csproj --no-build --no-restore
+```
 
 ## Situação atual
 
-A estrutura de testes unitários e de integração está implementada, as duas suítes executam com sucesso e a última análise local atingiu a meta de cobertura. A cobertura ainda deve evoluir principalmente para:
+A estrutura de testes unitários e de integração existe, mas as suítes não executam com sucesso no commit auditado. A prioridade é corrigir as regressões e depois ampliar a cobertura para:
 
 - estados alternativos da OS pela API, incluindo reprovação, retorno para diagnóstico e cancelamento;
 - autorização dos demais endpoints e perfis;
 - execução com PostgreSQL real;
 - fluxos futuros de reserva de estoque, notificações externas, pagamento e recibo.
+- entrada, consulta, baixa, concorrência e migration do novo estoque;
+- categorias de produto, serviço e veículo;
+- listagem priorizada e rota exclusiva de status da Fase 2;
+- callback externo de decisão do orçamento e notificação externa de status.

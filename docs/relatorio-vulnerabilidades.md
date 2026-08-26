@@ -4,6 +4,8 @@
 
 A análise estática do projeto foi executada localmente com o **SonarQube Community Build** e o **SonarScanner for .NET**. O processo considera o código da aplicação, métricas de segurança, confiabilidade, manutenibilidade, duplicação e a cobertura produzida pelos testes automatizados.
 
+> **Escopo temporal:** os resultados abaixo são evidência histórica da execução anterior à refatoração de Estoque/Categorias incorporada na Fase 2. Em 25/08/2026, o build compilou com 10 avisos, 8 de 102 testes unitários falharam e os 20 testes de integração falharam. Portanto, o Quality Gate e a cobertura de 84,1% não representam o estado atual até que um novo scan seja executado com a suíte recuperada.
+
 ## Resultado da análise
 
 O painel registrou aprovação no Quality Gate e apresentou os seguintes resultados para o código geral:
@@ -152,6 +154,16 @@ trivy image techchallengeapi
 
 Essas verificações complementam o SonarQube ao analisar dependências e a imagem do container, superfícies que não são integralmente cobertas pela análise estática do código.
 
+## Revalidação exigida para a Fase 2
+
+Antes da entrega, deve ser registrada uma nova execução após:
+
+1. corrigir a construção/migration de `Estoque` e recuperar os testes;
+2. incluir os novos endpoints de Estoque e Categorias na cobertura;
+3. analisar as rotas duplicadas, nulabilidade e atualizações concorrentes de saldo;
+4. executar análise de dependências e da imagem produzida pelo Dockerfile revisado;
+5. anexar a nova evidência, data, commit e decisão dos apontamentos.
+
 ## Conclusão
 
-A execução registrada foi aprovada no Quality Gate, não identificou problemas de segurança nem Security Hotspots e atingiu 84,1% de cobertura. Como ação de melhoria, os dois apontamentos de manutenibilidade devem ser revisados e as análises de dependências e da imagem Docker devem acompanhar futuras versões do projeto.
+A execução histórica foi aprovada no Quality Gate, não identificou problemas de segurança nem Security Hotspots e atingiu 84,1% de cobertura. Ela comprova o estado anterior, não a refatoração atual. A Fase 2 permanece sem evidência de segurança/qualidade válida até a nova análise sobre um commit com build sem alertas críticos e testes verdes.

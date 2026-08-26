@@ -1,15 +1,16 @@
-# Tech Challenge — Sistema de Gestão para Oficina Mecânica
+# Tech Challenge - Sistema de Gestão para Oficina Mecânica - Fase 2
 
-Projeto desenvolvido para a **Pós-Tech da FIAP**, como parte do Tech Challenge da Fase 1.
+Projeto desenvolvido para a **Pós-Tech da FIAP**. A Fase 2 evolui o mesmo repositório iniciado na Fase 1, com foco em qualidade, resiliência, escalabilidade, infraestrutura como código e automação de entrega.
 
-O objetivo é construir o MVP do back-end de um sistema integrado para uma oficina mecânica, centralizando o cadastro de clientes e veículos, o controle das Ordens de Serviço, a elaboração de orçamentos, a gestão do inventário e o acompanhamento da execução dos serviços.
+O sistema centraliza clientes, veículos, Ordens de Serviço, orçamentos, serviços, produtos e estoque. A evolução desta fase deve completar as APIs operacionais, consolidar a arquitetura em camadas, executar em Kubernetes, provisionar cluster/banco com Terraform e automatizar build, testes, imagem e deploy.
 
-> **Status do projeto:** em desenvolvimento. A API já possui persistência com PostgreSQL, migrations, autenticação JWT, refresh tokens, autorização por perfil e CRUD dos principais cadastros. O fluxo de OS implementa criação, atribuição, diagnóstico, controle e baixa de estoque, orçamento, decisão, conclusão, entrega e cancelamento, além de acompanhamento público, métricas e notificações internas por log. Pagamento, aprovação parcial, notificações externas e reserva efetiva de estoque seguem no roadmap.
+> **Status auditado em 25/08/2026 (`3a41407`):** o build compila com 10 avisos, mas 8 de 102 testes unitários e todos os 20 testes de integração falham após a refatoração de Estoque/Categorias. Os manifestos K8s são parciais, Terraform não existe e não há pipeline completa de deploy. Consulte o [checklist de entregáveis](docs/fase-2-entregaveis.md) antes de considerar qualquer item pronto para entrega.
 
 ## Sumário
 
 - [Contexto do desafio](#contexto-do-desafio)
 - [Objetivos](#objetivos)
+- [Entregáveis da Fase 2](#entregáveis-da-fase-2)
 - [Escopo funcional](#escopo-funcional)
 - [Fluxo principal da Ordem de Serviço](#fluxo-principal-da-ordem-de-serviço)
 - [Domain-Driven Design](#domain-driven-design)
@@ -20,6 +21,9 @@ O objetivo é construir o MVP do back-end de um sistema integrado para uma ofici
 - [Endpoints](#endpoints)
 - [Como executar localmente](#como-executar-localmente)
 - [Execução com Docker](#execução-com-docker)
+- [Kubernetes](#kubernetes)
+- [Terraform](#terraform)
+- [CI/CD](#cicd)
 - [Banco de dados](#banco-de-dados)
 - [Testes](#testes)
 - [Segurança](#segurança)
@@ -44,7 +48,7 @@ Como solução, o projeto propõe um **Sistema Integrado de Atendimento e Execu�
 
 ## Objetivos
 
-O objetivo principal é desenvolver a primeira versão do back-end da oficina utilizando um monólito organizado em camadas e orientado pelos princípios de Domain-Driven Design.
+Na Fase 1, o objetivo foi desenvolver o MVP do back-end da oficina em um monólito organizado em camadas e orientado por Domain-Driven Design. Na Fase 2, o objetivo é evoluir essa base para suportar crescimento com código sustentável, infraestrutura escalável e deploy automatizado.
 
 O sistema deverá:
 
@@ -57,6 +61,16 @@ O sistema deverá:
 - oferecer documentação interativa com Swagger;
 - permitir execução local e conteinerizada;
 - aplicar validações, autenticação e testes automatizados nos fluxos críticos.
+- refatorar segundo Clean Code e Clean Architecture/Arquitetura Hexagonal;
+- priorizar a fila operacional de OS e integrar decisões externas de orçamento;
+- notificar mudanças de estado por ferramenta externa;
+- executar a aplicação em Kubernetes com configuração, segredos e HPA;
+- provisionar cluster e banco com Terraform;
+- automatizar build, testes, imagem e deploy por CI/CD.
+
+## Entregáveis da Fase 2
+
+O estado completo dos requisitos oficiais está no [Checklist de Entregáveis](docs/fase-2-entregaveis.md). Os principais itens ainda bloqueantes são: correção da persistência e das rotas de Estoque, recuperação dos testes, APIs completas da Fase 2, ConfigMap/Secret/HPA, Terraform, pipeline de deploy, link público das APIs, vídeo e PDF final do portal.
 
 ## Escopo funcional
 
@@ -222,6 +236,8 @@ flowchart TD
 | `TechChallenge.Tests` | Testes unitários |
 | `TechChallenge.IntegrationTests` | Testes de integração |
 
+A arquitetura-alvo da Fase 2, incluindo componentes, infraestrutura provisionada e fluxo de deploy, está em [Arquitetura Proposta - Fase 2](docs/arquitetura-fase-2.md).
+
 ## Tecnologias
 
 - **C#**
@@ -246,10 +262,15 @@ flowchart TD
 ├── .github/
 │   └── workflows/                     # Automações do GitHub Actions
 ├── docker-compose/                    # Orquestração dos containers
+├── k8s/                               # Manifests parciais e overlays Kustomize
+├── infra/                             # Pendente: Terraform para cluster e banco
 ├── docs/
 │   ├── assets/                        # Diagramas e imagens
+│   ├── arquitetura-fase-2.md           # Aplicação, infraestrutura e deploy propostos
+│   ├── auditoria-estoque.md            # Auditoria técnica de Estoque e entidades
 │   ├── ddd.md                         # Documentação de DDD
 │   ├── event-storming.md              # Documentação do Event Storming
+│   ├── fase-2-entregaveis.md           # Checklist oficial da Fase 2
 │   ├── relatorio-vulnerabilidades.md  # Resultado e execução do scan
 │   ├── requisitos.md                  # Requisitos funcionais
 │   └── testes.md                      # Estratégia e cobertura de testes
@@ -271,43 +292,39 @@ flowchart TD
 
 Esta seção diferencia os requisitos do produto do que já está efetivamente disponível no código.
 
-| Funcionalidade | Estado |
+| Funcionalidade | Estado auditado |
 | --- | --- |
-| Estrutura da solução em camadas | Implementada |
-| Entidades principais do domínio | Implementadas inicialmente |
-| Configurações do Entity Framework Core | Implementadas com PostgreSQL |
-| Migrations | Disponíveis |
-| Middleware global de exceções | Implementado |
-| CRUD de clientes | Implementado |
-| CRUD de veículos | Implementado |
-| CRUD de funcionários | Implementado |
-| CRUD de serviços | Implementado |
-| CRUD de produtos/inventário | Implementado |
-| Fluxo principal de Ordens de Serviço | Implementado |
-| Autenticação JWT | Implementada |
-| Refresh token | Implementado |
-| Hash de senha PBKDF2 | Implementado |
-| RBAC por perfil de usuário | Implementado |
-| Seeding de administrador, dados fictícios e dados de demonstração | Implementado e configurável |
-| Estados e transições da OS | Implementados com máquina de estados |
-| Cálculo, envio, aprovação e reprovação do orçamento | Implementados |
-| Retorno da OS reprovada para diagnóstico | Implementado |
-| Finalização, entrega e cancelamento da OS | Implementados |
-| Controle efetivo de estoque | Implementado parcialmente: quantidade disponível, validação e baixa ao finalizar OS |
-| Notificações internas | Simuladas via logger na criação, transições e falta de estoque |
-| Notificações ao cliente | Planejadas |
-| Validação de CPF e placas antiga/Mercosul | Implementada |
-| Validação de CNPJ | Implementada |
-| Acompanhamento público da OS por código | Implementado |
-| Monitoramento do tempo médio | Implementado |
-| Testes unitários e de integração | Implementados e ampliados |
-| Cobertura mínima de 80% | Atingida na última análise SonarQube local |
+| Estrutura em projetos/camadas | Presente; Clean Architecture parcial |
+| Entidades com acessores encapsulados | Refatoradas; invariantes e compatibilidade EF incompletas |
+| EF Core/PostgreSQL | Existente; novo `Estoque` bloqueia a criação do modelo |
+| Migrations | Existem para a Fase 1; faltam Estoque e Categorias |
+| Cadastros, autenticação e fluxo principal da OS | Código presente, com regressões na suíte |
+| Categorias de produto, serviço e veículo | Endpoints/casos de uso presentes; sem migration e sem testes específicos |
+| Estoque separado de Produto | Parcial e bloqueado por rotas, mapping, migration e invariantes |
+| Abertura completa da OS com itens | Parcial; serviços/produtos não entram no contrato de abertura |
+| Consulta exclusiva de status | Bloqueada por rota GET duplicada |
+| Decisão externa do orçamento | Não implementada |
+| Priorização da listagem | Filtro existe, ordenação está invertida |
+| Notificação externa de status | Não implementada; há somente logs internos |
+| Docker Compose | Configuração validada |
+| Kubernetes | Deployment/Service parciais; selector e overlay inválidos; sem ConfigMap, Secret e HPA |
+| Terraform | Não implementado |
+| CI/CD completo | Parcial; build e imagem separados, testes manuais, sem deploy |
+| Testes | 94/102 unitários aprovados; 0/20 integrações aprovadas |
+| Cobertura de 84,1% | Evidência histórica anterior à refatoração; precisa novo scan |
 
 > A autorização possui política de fallback: por padrão, todo endpoint exige usuário autenticado. As exceções explícitas são login, refresh token, Swagger/OpenAPI e demais rotas marcadas com `AllowAnonymous`.
 
 ## Endpoints
 
 Todos os endpoints utilizam o prefixo `/api/v1`.
+
+Com a API em execução, a collection completa é exposta por:
+
+- Swagger UI: `http://localhost:5020/swagger` no perfil local ou `http://localhost:8080/swagger` no Docker;
+- OpenAPI JSON: `/openapi/v1.json`.
+
+Ainda falta publicar uma URL estável ou versionar uma collection Postman para uso fora do ambiente local.
 
 Erros são retornados no formato `ProblemDetails`, com `status`, `title`, `detail` e `traceId`. Falhas de validação utilizam `ValidationProblemDetails` e agrupam as mensagens por campo. Detalhes internos não são expostos em respostas de erro 500.
 
@@ -366,6 +383,10 @@ O cadastro de cliente recebe `tipoDocumento` (`Cpf`, `Cnpj` ou `Rg`) e `document
 | `PUT` | `/api/v1/servicos/{id}` | Atualiza um serviço | Administrador ou Vendedor |
 | `DELETE` | `/api/v1/servicos/{id}` | Exclui um serviço | Administrador ou Vendedor |
 
+### Categorias
+
+Há CRUDs em `/api/v1/categoriaproduto`, `/api/v1/categoriaservico` e `/api/v1/categoriaveiculo`. Eles foram adicionados na refatoração da Fase 2, mas ainda não possuem migration nem testes específicos e não devem ser considerados prontos para produção.
+
 ### Produtos e inventário
 
 | Método | Rota | Descrição | Acesso |
@@ -376,7 +397,18 @@ O cadastro de cliente recebe `tipoDocumento` (`Cpf`, `Cnpj` ou `Rg`) e `document
 | `PUT` | `/api/v1/produtos/{id}` | Atualiza um produto | Administrador ou Vendedor |
 | `DELETE` | `/api/v1/produtos/{id}` | Exclui um produto | Administrador ou Vendedor |
 
-Produtos possuem quantidade disponível. O diagnóstico e o envio do orçamento validam disponibilidade; quando falta estoque, administradores e o mecânico responsável são notificados via logger. A baixa de estoque ocorre na finalização da OS, com nova validação antes do consumo.
+Após a refatoração, `Produto` representa catálogo (descrição, valor e categoria), enquanto a quantidade pertence à entidade `Estoque`. O contrato atual de produto ainda não envia `IdCategoria` ao comando, portanto também precisa ser alinhado ao novo modelo.
+
+### Estoque
+
+| Método atual | Rota atual | Intenção | Situação auditada |
+| --- | --- | --- | --- |
+| `POST` | `/api/v1/estoque` | Adicionar quantidade | Bloqueado: o endpoint ignora a quantidade do request |
+| `GET` | `/api/v1/estoque` | Listar saldos | Bloqueado pela materialização do EF Core |
+| `DELETE` | `/api/v1/estoque/{produtoId}` | Consultar saldo | Verbo e binding incorretos; deveria ser consulta GET |
+| `PUT` | `/api/v1/estoque` | Baixar quantidade | Busca identificador errado, permite saldo negativo e retorna status inadequado |
+
+Não use essas rotas como contrato definitivo antes das correções descritas na [Auditoria do Estoque](docs/auditoria-estoque.md).
 
 ### Ordens de Serviço
 
@@ -398,6 +430,8 @@ Produtos possuem quantidade disponível. O diagnóstico e o envio do orçamento 
 | `PATCH` | `/api/v1/ordens-servico/{id}/entregar` | Registra a entrega do veículo | Administrador ou Vendedor |
 | `PATCH` | `/api/v1/ordens-servico/{id}/cancelar` | Cancela uma OS não encerrada | Administrador |
 | `DELETE` | `/api/v1/ordens-servico/{id}` | Exclui uma OS | Administrador |
+
+O endpoint exclusivo de status ainda não está disponível de forma válida: foi mapeado com o mesmo método e rota da consulta completa, causando conflito `ASP0022`. A rota recomendada é `GET /api/v1/ordens-servico/{id}/status`.
 
 ### Usuários
 
@@ -608,6 +642,45 @@ http://localhost:9000/dashboard?id=fiap-tech-challenge
 
 Essa configuração usa o banco embutido do SonarQube e é indicada apenas para análise local. Em Linux, caso o container não inicie, ajuste `vm.max_map_count` conforme a recomendação exibida pelo próprio container.
 
+## Kubernetes
+
+O repositório já contém uma base Kustomize em `/k8s`, mas ela ainda não representa um deploy funcional. Nesta auditoria:
+
+- `kubectl kustomize k8s/base` renderizou Deployment e Service;
+- o selector do Service não corresponde aos labels dos pods;
+- o overlay local falhou porque `namespace.yaml` não existe;
+- não foram encontrados ConfigMap, Secret, HPA, banco, probes ou requests/limits.
+
+Depois de corrigir esses itens, o fluxo esperado será:
+
+```bash
+kubectl apply -k k8s/overlays/docker-local
+kubectl rollout status deployment/fiap-tech-challenge-api-local
+kubectl get pods,service,hpa -n techchallenge
+```
+
+Os comandos são documentação do procedimento-alvo; os manifests atuais ainda não permitem executá-lo até o fim. Consulte [Arquitetura Proposta - Fase 2](docs/arquitetura-fase-2.md).
+
+## Terraform
+
+O diretório `/infra` e os scripts Terraform ainda não foram implementados. A Fase 2 exige provisionamento do cluster Kubernetes e do banco, além da descrição dos recursos e de como aplicar.
+
+A estrutura, decisões pendentes e comandos futuros de `init`, `validate`, `plan` e `apply` estão documentados em [Arquitetura Proposta - Fase 2](docs/arquitetura-fase-2.md). Esses comandos só serão executáveis depois que provedor, módulos, ambientes, variáveis e backend de estado forem definidos.
+
+## CI/CD
+
+O estado atual é:
+
+| Workflow | Gatilho | Cobertura |
+| --- | --- | --- |
+| `build.yml` | push em `main` e manual | restore e build |
+| `unit-tests.yml` | manual | testes unitários |
+| `integration-tests.yml` | manual | testes de integração |
+| `docker-image.yml` | manual | build e push para GHCR |
+| `discord-notifications.yml` | push/PR | notificação de eventos do repositório |
+
+Ainda faltam gates automáticos de testes e jobs para Terraform, banco, aplicação dos manifests, rollout e smoke test. Além disso, a suíte atual está vermelha, portanto nenhum deploy deve ser promovido antes da recuperação dos testes.
+
 ## Banco de dados
 
 O projeto utiliza **PostgreSQL** por meio do Entity Framework Core e provider Npgsql.
@@ -690,7 +763,7 @@ dotnet test TechChallenge.slnx \
 
 O **Coverlet** será utilizado em conjunto com o xUnit para medir a cobertura dos testes.
 
-> **Situação atual:** há 78 declarações de testes unitários e 20 de integração, cobrindo autenticação, cadastros, inventário, regras de estoque, notificações, métricas e o fluxo principal da OS. A última análise local do SonarQube atingiu a meta mínima de 80% de cobertura nos domínios críticos.
+> **Situação auditada:** existem 102 testes unitários e 20 de integração. Em 25/08/2026, 94 unitários passaram, 8 falharam e todos os 20 testes de integração falharam. A cobertura de 84,1% pertence a uma execução anterior e precisa ser recalculada depois das correções.
 
 ## Segurança
 
@@ -738,6 +811,11 @@ Os resultados obtidos, a evidência e as limitações estão registrados no [rel
 | Documento | Conteúdo |
 | --- | --- |
 | [Índice da documentação](docs/README.md) | Acesso central aos documentos |
+| [Entregáveis da Fase 2](docs/fase-2-entregaveis.md) | Checklist oficial com evidências, lacunas e bloqueadores |
+| [Arquitetura da Fase 2](docs/arquitetura-fase-2.md) | Componentes, infraestrutura-alvo, fluxo de deploy, Kubernetes e Terraform |
+| [Auditoria do Estoque](docs/auditoria-estoque.md) | Endpoint, entidade, validações, acessores, persistência e testes |
+| [Documento de entrega da Fase 2](docs/entrega-fase-2.md) | Fonte do PDF final, links e checklist de exportação |
+| [Roteiro do vídeo da Fase 2](docs/roteiro-video-fase-2.md) | Sequência de demonstração para até 15 minutos |
 | [DDD](docs/ddd.md) | Domínio, agregado, estados, comandos e relação com o código |
 | [Event Storming](docs/event-storming.md) | Fluxos, eventos, políticas e pontos de decisão |
 | [Requisitos funcionais](docs/requisitos.md) | Levantamento inicial dos requisitos |
@@ -747,6 +825,24 @@ Os resultados obtidos, a evidência e as limitações estão registrados no [rel
 | [Quadro no Figma](https://www.figma.com/board/RDxPpsRgOD8J3wvPTh2659/Untitled?node-id=0-1&p=f) | Event Storming colaborativo |
 
 ## Roadmap
+
+### Fase 2
+
+- [ ] Concluir a refatoração de entidades e acessores; corrigir invariantes e materialização do EF Core (parcial).
+- [ ] Corrigir e testar as rotas de Estoque e Categorias.
+- [ ] Criar migration para Estoque/Categorias.
+- [ ] Recuperar os 8 testes unitários e os 20 testes de integração falhos.
+- [ ] Abrir OS com cliente, veículo, serviços e produtos no mesmo contrato.
+- [ ] Criar rota exclusiva e não ambígua para consulta de status.
+- [ ] Corrigir prioridade da listagem e o tratamento de estados alternativos.
+- [ ] Implementar callback externo de aprovação/recusa e notificação externa de status.
+- [ ] Revisar Dockerfile e validar build da imagem; Docker Compose está sintaticamente válido (parcial).
+- [ ] Corrigir/completar K8s com selector, overlay, ConfigMap, Secret, HPA, banco, probes e recursos (parcial).
+- [ ] Criar Terraform em `/infra` para cluster e banco.
+- [ ] Integrar build, testes, imagem e deploy na pipeline.
+- [ ] Publicar collection/Swagger estável, gravar vídeo e gerar PDF de entrega.
+
+### Base da Fase 1
 
 - [x] Estruturar a solução .NET.
 - [x] Criar os projetos de domínio, aplicação, API e infraestrutura.

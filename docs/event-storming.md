@@ -4,6 +4,8 @@
 
 O Event Storming foi utilizado para mapear o funcionamento da oficina a partir dos acontecimentos relevantes para o negócio. O fluxo cobre desde a chegada do cliente e o cadastro do veículo até o pagamento e a retirada do veículo.
 
+O quadro continua sendo a fonte de descoberta do domínio da Fase 1. Na Fase 2, o catálogo foi ampliado com categorias e o saldo foi separado em uma entidade `Estoque`. Essa refatoração ainda possui falhas de persistência e não altera os eventos de negócio descritos aqui.
+
 O quadro colaborativo completo pode ser consultado no Figma:
 
 - [Visualizar Event Storming no Figma](https://www.figma.com/board/RDxPpsRgOD8J3wvPTh2659/Untitled?node-id=0-1&p=f)
@@ -354,21 +356,22 @@ O quadro representa o processo de negócio desejado. No código atual, os cadast
 
 | Parte do Event Storming | Situação atual |
 | --- | --- |
-| Cliente, veículo, funcionário, serviço, produto e OS | Entidades existentes |
+| Cliente, veículo, funcionário, serviço, produto, estoque e OS | Entidades existentes; o novo `Estoque` ainda não é materializável pelo EF Core |
+| Categorias de produto, serviço e veículo | Incluídas na Fase 2, sem eventos explicitados no quadro original |
 | Cadastro e consulta | CRUD integrado aos casos de uso e repositórios |
 | Criação e consulta da OS | Implementadas com persistência PostgreSQL |
 | Atribuição ao mecânico | Implementada com limite de uma OS ativa por mecânico |
 | Registro do diagnóstico | Implementado com serviços e produtos associados |
-| Estados e transições da OS | Máquina de estados implementada no domínio |
+| Estados e transições da OS | Máquina de estados implementada, com regressões na suíte após a refatoração |
 | Orçamento, quantidades e preços históricos dos itens | Modelados e considerados no cálculo do valor e no consumo de estoque |
 | Aprovação integral e reprovação | Implementadas; a OS reprovada pode retornar ao diagnóstico |
 | Aprovação parcial e negociação | Ainda não implementadas |
-| Reserva e baixa de estoque | Baixa implementada na finalização; reserva ainda não implementada |
-| Notificações | Simuladas via logger na criação, nas transições de estado e na falta de estoque |
+| Reserva e baixa de estoque | Fluxo migrado para entidade separada, mas persistência/rotas/testes ainda estão bloqueados; reserva não implementada |
+| Notificações | Logs internos presentes; e-mail ou ferramenta externa para status da OS não implementado |
 | Execução, finalização e entrega | Implementadas no ciclo de estados |
 | Acompanhamento público da OS | Implementado por código único, sem necessidade de autenticação |
 | Tempo médio de execução | Implementado para acompanhamento administrativo |
 | Inspeção e retrabalho | Ainda não implementados |
 | Pagamento e recibo | Ainda não modelados |
 
-As imagens documentam a descoberta do domínio. Os pontos ainda pendentes devem ser refinados e transformados em regras explícitas, estados válidos e casos de uso testáveis.
+As imagens documentam a descoberta do domínio. Para a Fase 2 também faltam eventos explícitos para `EstoqueAdicionado`, `EstoqueBaixado`, `DecisaoExternaRecebida` e `StatusDaOSNotificado`, além da definição de idempotência e concorrência. Os pontos pendentes devem ser transformados em regras explícitas e casos de uso testáveis.
