@@ -69,6 +69,18 @@ public class OrdemServico
         FuncionarioResponsavelId = id;
     }
 
+    public void AtribuirFuncionario(Funcionario funcionario)
+    {
+        FuncionarioResponsavel = funcionario;
+        FuncionarioResponsavelId = funcionario.Id;
+    }
+
+    public void AtribuirVeiculo(Veiculo veiculo)
+    {
+        Veiculo = veiculo;
+        VeiculoId = veiculo.Id;
+    }
+
     public void AdicionarProdutos(OrdemServicoProdutos produto)
     {
         Produtos.Add(produto);

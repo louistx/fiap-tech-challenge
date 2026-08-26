@@ -51,7 +51,8 @@ public class RegistrarDiagnosticoService
             if (servico is null)
                 throw new KeyNotFoundException($"Serviço com Id {item.Id} não encontrado.");
 
-            os.Servicos.Add(new OrdemServicoServicos(Guid.NewGuid(), Guid.NewGuid(), servico.Id, (double)servico.Valor, item.Quantidade, 0, 0));
+            os.AdicionarServicos(new OrdemServicoServicos(
+                Guid.Empty, os.Id, servico.Id, (double)servico.Valor, item.Quantidade, 0, 0));
         }
 
         foreach (var item in command.Produtos)
@@ -64,7 +65,8 @@ public class RegistrarDiagnosticoService
 
             if (estoque is null)
             {
-                throw new InvalidOperationException($"Não foi encontrado estoque lançado para o produto {produto.Descricao}.");
+                NotificarEstoqueInsuficiente(os, produto.Descricao, 0, item.Quantidade);
+                throw new InvalidOperationException($"Estoque insuficiente para o produto {produto.Descricao}.");
             }
             else if (estoque.Quantidade < item.Quantidade)
             {
@@ -72,7 +74,8 @@ public class RegistrarDiagnosticoService
                 throw new InvalidOperationException($"Estoque insuficiente para o produto {produto.Descricao}.");
             }
 
-            os.Produtos.Add(new OrdemServicoProdutos(Guid.NewGuid(), Guid.NewGuid(), produto.Id, (double)produto.Valor, item.Quantidade, 0, 0));
+            os.AdicionarProdutos(new OrdemServicoProdutos(
+                Guid.Empty, os.Id, produto.Id, (double)produto.Valor, item.Quantidade, 0, 0));
         }
 
         os.AtualizarData(DateTime.UtcNow);

@@ -18,7 +18,7 @@ using TechChallenge.Application.Features.OS.RegistrarDiagnostico;
 using TechChallenge.Application.Features.OS.RetornarParaDiagnostico;
 using TechChallenge.Application.Features.OS.ReprovarOrcamento;
 using TechChallenge.Domain.Enums;
-using TechChallenge.Infrastructure.IoC.Helpers;
+using TechChallenge.Domain.Helpers;
 
 namespace TechChallenge.Api.Endpoints;
 
@@ -76,7 +76,7 @@ public static class OrdensServicoEndpoints
             .Produces<OrdemServicoResponse>()
             .Produces(StatusCodes.Status404NotFound);
 
-        group.MapGet("/{id}", ObterStatusOrdemServicoAsync)
+        group.MapGet("/{id:guid}/status", ObterStatusOrdemServicoAsync)
             .WithName("ObterStatusOrdemServico")
             .WithSummary("Obtém o status de uma ordem de serviço")
             .WithDescription("Obtém o status de uma ordem de serviço existente do banco de dados")
@@ -163,17 +163,27 @@ public static class OrdensServicoEndpoints
         return app;
     }
 
-    private static IResult CriarOrdemServicoAsync(CriarOrdemServicoRequest request, CriarOSService service)
+    private static async Task<IResult> CriarOrdemServicoAsync(CriarOrdemServicoRequest request, CriarOSService service)
     {
         var command = new CriarOSCommand
         {
             Descricao = request.Descricao,
             ClienteResponsavelId = request.ClienteResponsavelId,
             FuncionarioResponsavelId = request.FuncionarioResponsavelId,
-            VeiculoId = request.VeiculoId
+            VeiculoId = request.VeiculoId,
+            Servicos = request.Servicos.Select(item => new ItemOrdemServicoCommand
+            {
+                Id = item.Id,
+                Quantidade = item.Quantidade
+            }).ToList(),
+            Produtos = request.Produtos.Select(item => new ItemOrdemServicoCommand
+            {
+                Id = item.Id,
+                Quantidade = item.Quantidade
+            }).ToList()
         };
 
-        var id = service.CriarOS(command);
+        var id = await service.CriarOSAsync(command);
         return Results.Created($"/api/v1/ordens-servico/{id}", id);
     }
 

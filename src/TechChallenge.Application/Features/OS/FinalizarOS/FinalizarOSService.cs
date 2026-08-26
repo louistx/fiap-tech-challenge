@@ -39,21 +39,18 @@ public class FinalizarOSService
         foreach (var item in os.Produtos)
         {
             var estoque = _estoqueRepository.GetByIdProdutoAsync(item.ProdutoId).GetAwaiter().GetResult();
+            var produtoDescricao = item.Produto?.Descricao ?? item.ProdutoId.ToString();
 
-            if (estoque is null)
-            {
-                throw new InvalidOperationException($"Estoque não encontrado para o produto {item.Produto.Descricao}.");
-            }
-            else if (estoque.Quantidade < item.Quantidade)
+            if (estoque is null || estoque.Quantidade < item.Quantidade)
             {
                 NotificarEstoqueInsuficiente(
                     os.Id,
                     os.FuncionarioResponsavelId,
-                    item.Produto.Descricao,
-                    estoque.Quantidade,
+                    produtoDescricao,
+                    estoque?.Quantidade ?? 0,
                     item.Quantidade);
 
-                throw new InvalidOperationException($"Estoque insuficiente para o produto {item.Produto.Descricao}.");
+                throw new InvalidOperationException($"Estoque insuficiente para o produto {produtoDescricao}.");
             }
 
             estoqueEntity.Add(estoque);
@@ -63,7 +60,7 @@ public class FinalizarOSService
         {
             var estoque = estoqueEntity.FirstOrDefault(e => e.ProdutoId == item.ProdutoId);
             
-            estoque.AtualizarQuantidade(estoque.Quantidade - item.Quantidade);
+            estoque!.Baixar(item.Quantidade);
             _estoqueRepository.UpdateAsync(estoque).GetAwaiter().GetResult();
         }
 

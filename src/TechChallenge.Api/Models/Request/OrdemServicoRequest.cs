@@ -7,6 +7,8 @@ public class CriarOrdemServicoRequest
     public Guid ClienteResponsavelId { get; set; }
     public Guid FuncionarioResponsavelId { get; set; }
     public Guid VeiculoId { get; set; }
+    public List<ItemDiagnosticoRequest> Servicos { get; set; } = [];
+    public List<ItemDiagnosticoRequest> Produtos { get; set; } = [];
 }
 
 public class AtribuirOrdemServicoRequest
