@@ -39,7 +39,7 @@ flowchart LR
 - Infraestruturas implementam essas portas.
 - `Api` transforma HTTP em comandos/consultas e compõe as dependências.
 
-O repositório já segue parte desse desenho, mas a auditoria encontrou chamadas síncronas sobre APIs assíncronas, regras inconsistentes de identificação no estoque, helpers duplicados e falhas de materialização do EF Core. A separação de projetos, isoladamente, não conclui a Clean Architecture.
+O repositório já segue parte desse desenho. Identificação, materialização e helpers duplicados foram corrigidos; ainda existem chamadas síncronas sobre APIs assíncronas em casos de uso legados e oportunidades de reduzir acoplamentos. A separação de projetos, isoladamente, não conclui a Clean Architecture.
 
 ## Infraestrutura-alvo
 

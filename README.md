@@ -4,7 +4,7 @@ Projeto desenvolvido para a **Pós-Tech da FIAP**. A Fase 2 evolui o mesmo repos
 
 O sistema centraliza clientes, veículos, Ordens de Serviço, orçamentos, serviços, produtos e estoque. A evolução desta fase deve completar as APIs operacionais, consolidar a arquitetura em camadas, executar em Kubernetes, provisionar cluster/banco com Terraform e automatizar build, testes, imagem e deploy.
 
-> **Status auditado em 25/08/2026 (`3a41407`):** o build compila com 10 avisos, mas 8 de 102 testes unitários e todos os 20 testes de integração falham após a refatoração de Estoque/Categorias. Os manifestos K8s são parciais, Terraform não existe e não há pipeline completa de deploy. Consulte o [checklist de entregáveis](docs/fase-2-entregaveis.md) antes de considerar qualquer item pronto para entrega.
+> **Status validado em 26/08/2026:** build sem avisos, 111 testes unitários e 26 testes de integração aprovados. Estoque/Categorias, abertura da OS com itens, rota de status e fila priorizada foram corrigidos. Os manifestos K8s continuam parciais, Terraform não existe e o deploy no cluster ainda não foi automatizado. Consulte o [checklist de entregáveis](docs/fase-2-entregaveis.md).
 
 ## Sumário
 
@@ -297,20 +297,20 @@ Esta seção diferencia os requisitos do produto do que já está efetivamente d
 | Estrutura em projetos/camadas | Presente; Clean Architecture parcial |
 | Entidades com acessores encapsulados | Refatoradas; invariantes e compatibilidade EF incompletas |
 | EF Core/PostgreSQL | Existente; novo `Estoque` bloqueia a criação do modelo |
-| Migrations | Existem para a Fase 1; faltam Estoque e Categorias |
+| Migrations | Migration da Fase 2 criada para Estoque e Categorias, com migração do saldo legado |
 | Cadastros, autenticação e fluxo principal da OS | Código presente, com regressões na suíte |
-| Categorias de produto, serviço e veículo | Endpoints/casos de uso presentes; sem migration e sem testes específicos |
-| Estoque separado de Produto | Parcial e bloqueado por rotas, mapping, migration e invariantes |
+| Categorias de produto, serviço e veículo | Endpoints, casos de uso, migration e exercícios de integração presentes |
+| Estoque separado de Produto | Implementado com saldo não negativo, índice único e concorrência otimista |
 | Abertura completa da OS com itens | Parcial; serviços/produtos não entram no contrato de abertura |
-| Consulta exclusiva de status | Bloqueada por rota GET duplicada |
+| Consulta exclusiva de status | Disponível em `GET /api/v1/ordens-servico/{id}/status` |
 | Decisão externa do orçamento | Não implementada |
-| Priorização da listagem | Filtro existe, ordenação está invertida |
+| Priorização da listagem | Ordem operacional corrigida e validada por teste de integração |
 | Notificação externa de status | Não implementada; há somente logs internos |
 | Docker Compose | Configuração validada |
 | Kubernetes | Deployment/Service parciais; selector e overlay inválidos; sem ConfigMap, Secret e HPA |
 | Terraform | Não implementado |
-| CI/CD completo | Parcial; build e imagem separados, testes manuais, sem deploy |
-| Testes | 94/102 unitários aprovados; 0/20 integrações aprovadas |
+| CI/CD completo | Parcial; build/testes/publicação da imagem integrados, sem deploy no cluster |
+| Testes | 111/111 unitários e 26/26 integrações aprovados |
 | Cobertura de 84,1% | Evidência histórica anterior à refatoração; precisa novo scan |
 
 > A autorização possui política de fallback: por padrão, todo endpoint exige usuário autenticado. As exceções explícitas são login, refresh token, Swagger/OpenAPI e demais rotas marcadas com `AllowAnonymous`.
@@ -385,7 +385,7 @@ O cadastro de cliente recebe `tipoDocumento` (`Cpf`, `Cnpj` ou `Rg`) e `document
 
 ### Categorias
 
-Há CRUDs em `/api/v1/categoriaproduto`, `/api/v1/categoriaservico` e `/api/v1/categoriaveiculo`. Eles foram adicionados na refatoração da Fase 2, mas ainda não possuem migration nem testes específicos e não devem ser considerados prontos para produção.
+Há CRUDs em `/api/v1/categoriaproduto`, `/api/v1/categoriaservico` e `/api/v1/categoriaveiculo`. A migration da Fase 2 cria as três tabelas e os fluxos de produto, serviço, veículo e OS exercitam essas categorias nos testes de integração.
 
 ### Produtos e inventário
 
@@ -403,10 +403,10 @@ Após a refatoração, `Produto` representa catálogo (descrição, valor e cate
 
 | Método atual | Rota atual | Intenção | Situação auditada |
 | --- | --- | --- | --- |
-| `POST` | `/api/v1/estoque` | Adicionar quantidade | Bloqueado: o endpoint ignora a quantidade do request |
-| `GET` | `/api/v1/estoque` | Listar saldos | Bloqueado pela materialização do EF Core |
-| `DELETE` | `/api/v1/estoque/{produtoId}` | Consultar saldo | Verbo e binding incorretos; deveria ser consulta GET |
-| `PUT` | `/api/v1/estoque` | Baixar quantidade | Busca identificador errado, permite saldo negativo e retorna status inadequado |
+| `POST` | `/api/v1/estoque` | Adiciona quantidade e retorna o saldo atualizado | Administrador ou Vendedor |
+| `GET` | `/api/v1/estoque` | Lista os saldos | Público |
+| `GET` | `/api/v1/estoque/{produtoId}` | Consulta o saldo pelo produto | Administrador ou Vendedor |
+| `PUT` | `/api/v1/estoque` | Baixa quantidade sem permitir saldo negativo | Administrador ou Vendedor |
 
 Não use essas rotas como contrato definitivo antes das correções descritas na [Auditoria do Estoque](docs/auditoria-estoque.md).
 
@@ -417,6 +417,7 @@ Não use essas rotas como contrato definitivo antes das correções descritas na
 | `POST` | `/api/v1/ordens-servico` | Cria uma OS no estado `Recebida` | Administrador ou Vendedor |
 | `GET` | `/api/v1/ordens-servico` | Lista as Ordens de Serviço | Administrador ou Vendedor |
 | `GET` | `/api/v1/ordens-servico/{id}` | Consulta uma OS | Administrador, Mecânico ou Vendedor |
+| `GET` | `/api/v1/ordens-servico/{id}/status` | Consulta exclusivamente o status de uma OS | Administrador, Mecânico ou Vendedor |
 | `GET` | `/api/v1/ordens-servico/oficina` | Lista as OS destinadas à visualização da oficina | Administrador, Mecânico ou Vendedor |
 | `GET` | `/api/v1/ordens-servico/acompanhamento/{codigo}` | Consulta pública de acompanhamento da OS por código | Anônimo |
 | `GET` | `/api/v1/ordens-servico/tempo-medio-execucao` | Retorna a quantidade de OS finalizadas e o tempo médio de execução | Administrador ou Vendedor |
@@ -431,7 +432,7 @@ Não use essas rotas como contrato definitivo antes das correções descritas na
 | `PATCH` | `/api/v1/ordens-servico/{id}/cancelar` | Cancela uma OS não encerrada | Administrador |
 | `DELETE` | `/api/v1/ordens-servico/{id}` | Exclui uma OS | Administrador |
 
-O endpoint exclusivo de status ainda não está disponível de forma válida: foi mapeado com o mesmo método e rota da consulta completa, causando conflito `ASP0022`. A rota recomendada é `GET /api/v1/ordens-servico/{id}/status`.
+O endpoint exclusivo de status usa `GET /api/v1/ordens-servico/{id}/status`, sem conflito com a consulta completa.
 
 ### Usuários
 
@@ -679,7 +680,7 @@ O estado atual é:
 | `docker-image.yml` | manual | build e push para GHCR |
 | `discord-notifications.yml` | push/PR | notificação de eventos do repositório |
 
-Ainda faltam gates automáticos de testes e jobs para Terraform, banco, aplicação dos manifests, rollout e smoke test. Além disso, a suíte atual está vermelha, portanto nenhum deploy deve ser promovido antes da recuperação dos testes.
+Os testes agora são gates automáticos da publicação da imagem. Ainda faltam jobs para Terraform, banco, aplicação dos manifests, rollout e smoke test; nenhum deploy deve ser promovido antes de esses gates de infraestrutura existirem.
 
 ## Banco de dados
 
@@ -763,7 +764,7 @@ dotnet test TechChallenge.slnx \
 
 O **Coverlet** será utilizado em conjunto com o xUnit para medir a cobertura dos testes.
 
-> **Situação auditada:** existem 102 testes unitários e 20 de integração. Em 25/08/2026, 94 unitários passaram, 8 falharam e todos os 20 testes de integração falharam. A cobertura de 84,1% pertence a uma execução anterior e precisa ser recalculada depois das correções.
+> **Situação validada em 26/08/2026:** 111 testes unitários e 26 testes de integração aprovados, sem falhas. A cobertura de 84,1% pertence a uma execução histórica do SonarQube e ainda deve ser recalculada no código atual.
 
 ## Segurança
 
@@ -830,13 +831,13 @@ Os resultados obtidos, a evidência e as limitações estão registrados no [rel
 
 - [ ] Concluir a refatoração de entidades e acessores; corrigir invariantes e materialização do EF Core (parcial).
 - [ ] Corrigir e testar as rotas de Estoque e Categorias.
-- [ ] Criar migration para Estoque/Categorias.
-- [ ] Recuperar os 8 testes unitários e os 20 testes de integração falhos.
+- [x] Criar migration para Estoque/Categorias.
+- [x] Recuperar as suítes unitária e de integração.
 - [ ] Abrir OS com cliente, veículo, serviços e produtos no mesmo contrato.
-- [ ] Criar rota exclusiva e não ambígua para consulta de status.
+- [x] Criar rota exclusiva e não ambígua para consulta de status.
 - [ ] Corrigir prioridade da listagem e o tratamento de estados alternativos.
 - [ ] Implementar callback externo de aprovação/recusa e notificação externa de status.
-- [ ] Revisar Dockerfile e validar build da imagem; Docker Compose está sintaticamente válido (parcial).
+- [ ] Validar o build e o smoke test da imagem; o Dockerfile foi corrigido e o Docker Compose está sintaticamente válido (parcial).
 - [ ] Corrigir/completar K8s com selector, overlay, ConfigMap, Secret, HPA, banco, probes e recursos (parcial).
 - [ ] Criar Terraform em `/infra` para cluster e banco.
 - [ ] Integrar build, testes, imagem e deploy na pipeline.

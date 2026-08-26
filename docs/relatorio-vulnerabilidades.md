@@ -4,7 +4,7 @@
 
 A análise estática do projeto foi executada localmente com o **SonarQube Community Build** e o **SonarScanner for .NET**. O processo considera o código da aplicação, métricas de segurança, confiabilidade, manutenibilidade, duplicação e a cobertura produzida pelos testes automatizados.
 
-> **Escopo temporal:** os resultados abaixo são evidência histórica da execução anterior à refatoração de Estoque/Categorias incorporada na Fase 2. Em 25/08/2026, o build compilou com 10 avisos, 8 de 102 testes unitários falharam e os 20 testes de integração falharam. Portanto, o Quality Gate e a cobertura de 84,1% não representam o estado atual até que um novo scan seja executado com a suíte recuperada.
+> **Escopo temporal:** os resultados abaixo são evidência histórica anterior às correções atuais. Em 26/08/2026, o build foi validado sem avisos e as suítes passaram com 111 testes unitários e 26 de integração. Mesmo assim, o Quality Gate e a cobertura de 84,1% só representarão o código atual depois de um novo scan do SonarQube.
 
 ## Resultado da análise
 
@@ -166,4 +166,4 @@ Antes da entrega, deve ser registrada uma nova execução após:
 
 ## Conclusão
 
-A execução histórica foi aprovada no Quality Gate, não identificou problemas de segurança nem Security Hotspots e atingiu 84,1% de cobertura. Ela comprova o estado anterior, não a refatoração atual. A Fase 2 permanece sem evidência de segurança/qualidade válida até a nova análise sobre um commit com build sem alertas críticos e testes verdes.
+A execução histórica foi aprovada no Quality Gate, não identificou problemas de segurança nem Security Hotspots e atingiu 84,1% de cobertura. Ela comprova o estado anterior, não as correções atuais. O pré-requisito de build e testes verdes já foi recuperado; ainda falta executar e anexar um novo scan do SonarQube.

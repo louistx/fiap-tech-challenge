@@ -4,7 +4,7 @@
 
 O Event Storming foi utilizado para mapear o funcionamento da oficina a partir dos acontecimentos relevantes para o negócio. O fluxo cobre desde a chegada do cliente e o cadastro do veículo até o pagamento e a retirada do veículo.
 
-O quadro continua sendo a fonte de descoberta do domínio da Fase 1. Na Fase 2, o catálogo foi ampliado com categorias e o saldo foi separado em uma entidade `Estoque`. Essa refatoração ainda possui falhas de persistência e não altera os eventos de negócio descritos aqui.
+O quadro continua sendo a fonte de descoberta do domínio da Fase 1. Na Fase 2, o catálogo foi ampliado com categorias e o saldo foi separado em uma entidade `Estoque`. A persistência dessa refatoração foi corrigida e validada; os eventos de negócio descritos aqui permanecem aplicáveis.
 
 O quadro colaborativo completo pode ser consultado no Figma:
 

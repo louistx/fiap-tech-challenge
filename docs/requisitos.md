@@ -107,13 +107,13 @@ Este documento reúne as regras funcionais da Fase 1 e as evoluções obrigatór
 - A abertura deve receber os dados do cliente, veículo, serviços e peças necessários.
 - A resposta deve conter a identificação única da OS.
 - O contrato deve definir se os dados serão criados em cascata ou referenciados por IDs existentes.
-- **Situação atual:** parcial; retorna o ID, mas não recebe serviços/produtos na abertura.
+- **Situação atual:** implementada; cliente e veículo são referenciados por IDs e serviços/produtos podem ser enviados na abertura.
 
 ### RF22 - Consulta exclusiva do status
 
 - Deve existir uma rota não ambígua que retorne a situação atual da OS.
 - Os estados exigidos são `Recebida`, `EmDiagnostico`, `AguardandoAprovacao`, `EmExecucao`, `Finalizada` e `Entregue`.
-- **Situação atual:** bloqueada; há dois handlers `GET /ordens-servico/{id}` conflitantes.
+- **Situação atual:** implementada em `GET /ordens-servico/{id}/status`; falta ampliar o teste HTTP para cada estado obrigatório.
 
 ### RF23 - Decisão externa do orçamento
 
@@ -127,7 +127,7 @@ Este documento reúne as regras funcionais da Fase 1 e as evoluções obrigatór
 - Dentro de cada prioridade, as OS mais antigas devem aparecer primeiro.
 - Finalizadas e entregues não devem aparecer nessa listagem, sem exclusão física dos registros.
 - O tratamento de `Reprovada` e `Cancelada` deve ser definido explicitamente.
-- **Situação atual:** parcial/bloqueada; o filtro existe, mas a ordenação booleana está invertida e inclui estados alternativos antes dos prioritários.
+- **Situação atual:** implementada e validada; reprovadas, canceladas, finalizadas e entregues não entram na fila operacional.
 
 ### RF25 - Notificação de mudança de status
 
@@ -142,7 +142,7 @@ Este documento reúne as regras funcionais da Fase 1 e as evoluções obrigatór
 - A quantidade nunca pode ficar negativa.
 - Deve existir uma única posição de estoque por produto e controle de concorrência.
 - A finalização da OS deve baixar os produtos exatamente uma vez.
-- **Situação atual:** entidade/endpoints criados, mas bloqueados por problemas de rota, mapeamento EF, ausência de migration e testes.
+- **Situação atual:** implementada com migration, índice único, saldo não negativo, concorrência otimista e testes verdes.
 
 ## Requisitos não funcionais da Fase 2
 

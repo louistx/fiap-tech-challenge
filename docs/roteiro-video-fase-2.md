@@ -43,4 +43,4 @@ Nunca mostre tokens, secrets, senhas, connection strings ou dados pessoais reais
 
 ## Situação atual
 
-O roteiro não é executável integralmente no commit `3a41407`: a suíte está vermelha, Estoque bloqueia o EF Core, K8s está incompleto, Terraform está ausente e não há deploy na pipeline. Esses pontos estão detalhados no [Checklist de Entregáveis](fase-2-entregaveis.md).
+O roteiro ainda não é executável integralmente: aplicação e suítes estão verdes, mas K8s está incompleto, Terraform está ausente, callback/notificação externos não foram concluídos e não há deploy na pipeline. Esses pontos estão detalhados no [Checklist de Entregáveis](fase-2-entregaveis.md).

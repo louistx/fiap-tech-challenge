@@ -2,7 +2,7 @@
 
 ## Fase 2
 
-- [Matriz de entregáveis e checklist](fase-2-entregaveis.md)
+- [Checklist de entregáveis e progresso](fase-2-entregaveis.md)
 - [Arquitetura proposta, infraestrutura e fluxo de deploy](arquitetura-fase-2.md)
 - [Auditoria do endpoint de Estoque, entidades e validações](auditoria-estoque.md)
 - [Fonte do documento final de entrega](entrega-fase-2.md)
@@ -22,4 +22,4 @@
 
 ## Estado da revisão
 
-A documentação foi revisada em 25/08/2026 contra os PDFs das fases 1 e 2 e o commit `3a41407`. Os documentos diferenciam requisito, implementação existente e pendência. Kubernetes e Terraform são descritos conforme solicitado; esta revisão não adicionou infraestrutura.
+A documentação foi revisada em 26/08/2026 contra os PDFs das fases 1 e 2 e a implementação local validada. Os documentos diferenciam requisito, implementação existente e pendência. Kubernetes e Terraform continuam apenas documentados nesta rodada.

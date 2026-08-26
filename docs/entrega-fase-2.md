@@ -46,12 +46,12 @@ A descrição completa de componentes, recursos e fluxo de deploy está em [Arqu
 
 A solução mantém o monólito modular da Fase 1 e separa API, aplicação, domínio, contratos e infraestrutura. PostgreSQL é usado para persistência; Docker e Docker Compose suportam o desenvolvimento local. A Fase 2 propõe execução em Kubernetes, escalabilidade via HPA, infraestrutura Terraform e entrega por GitHub Actions.
 
-No estado auditado em 25/08/2026, essa evolução ainda não está pronta para apresentação final: Estoque/Categorias quebram a inicialização do EF Core nos testes, há regressões nas APIs da Fase 2, Kubernetes está incompleto, Terraform não existe e o deploy não foi integrado à pipeline.
+No estado validado em 26/08/2026, Estoque/Categorias e as principais correções das APIs da Fase 2 estão operacionais, com build sem avisos, 111 testes unitários e 26 integrações aprovados. A entrega ainda não está pronta porque Kubernetes está incompleto, Terraform não existe, callback/notificação externos não foram implementados e o deploy não foi integrado à pipeline.
 
 ## Checklist antes de exportar o PDF
 
 - [ ] Todos os bloqueadores do [Checklist de Entregáveis](fase-2-entregaveis.md) foram resolvidos.
-- [ ] Build, testes unitários e testes de integração estão verdes no commit apresentado.
+- [x] Build, testes unitários e testes de integração estão verdes na validação local.
 - [ ] A URL/collection das APIs foi publicada e validada.
 - [ ] Kubernetes e HPA foram demonstrados em ambiente funcional.
 - [ ] Terraform provisionou cluster e banco conforme a documentação.

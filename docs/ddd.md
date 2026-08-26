@@ -4,7 +4,7 @@
 
 O domínio deste projeto representa o funcionamento de uma oficina mecânica. O fluxo principal começa com a solicitação de um orçamento pelo cliente e acompanha todo o ciclo de vida de uma Ordem de Serviço (OS), desde a sua criação até a finalização.
 
-Na Fase 2, o código passou por uma refatoração para encapsular acessores das entidades e separar catálogo, categorias e saldo de estoque. A direção do modelo é válida, mas a auditoria de 25/08/2026 encontrou falhas bloqueantes na materialização do `Estoque` pelo Entity Framework, migrations ausentes e testes quebrados. Por isso, as seções abaixo distinguem o modelo pretendido do estado operacional confirmado.
+Na Fase 2, o código passou por uma refatoração para encapsular acessores das entidades e separar catálogo, categorias e saldo de estoque. As falhas bloqueantes encontradas em 25/08/2026 foram corrigidas e a validação de 26/08/2026 terminou com build sem avisos e todas as suítes verdes.
 
 ![Visualização DDD do projeto](assets/DDD_fluxo.png)
 
@@ -52,15 +52,15 @@ As entidades `Cliente`, `Veiculo`, `Funcionario`, `Servico`, `Produto` e `Estoqu
 
 ## Evolução do domínio na Fase 2
 
-A refatoração substituiu setters públicos por `private set` e adicionou construtores/métodos de alteração. Esse encapsulamento é positivo, mas ainda precisa proteger invariantes no próprio domínio:
+A refatoração substituiu setters públicos por `private set` e adicionou construtores/métodos de alteração. O Estoque agora protege suas invariantes; permanecem oportunidades de aprofundar o modelo:
 
-- `Estoque` deve aceitar somente entradas/baixas positivas e nunca permitir saldo negativo;
+- `Estoque` aceita somente entradas/baixas positivas e nunca permite saldo negativo;
 - `Produto` deve validar descrição, valor e categoria;
 - `OrdemServico` deve expor operações de negócio em vez de alterações genéricas de valor/data;
-- quantidades devem usar um tipo consistente entre request, domínio e persistência;
+- quantidades de peças usam `int` entre request, domínio e persistência;
 - atualização de saldo e transição da OS devem ocorrer na mesma unidade transacional.
 
-A construção atual de `Estoque(Guid id, Guid idProduto, double quantidade)` não é compatível com o binding do EF Core para a propriedade `ProdutoId`. Essa falha impede a inicialização do contexto e precisa ser corrigida antes de considerar a refatoração concluída.
+A construção de `Estoque(Guid id, Guid produtoId, int quantidade)` está alinhada à propriedade `ProdutoId`, possui construtor privado para o EF Core e inicializa o token de concorrência `Versao`.
 
 ## Fluxo do orçamento
 
@@ -76,7 +76,7 @@ No código atual, o orçamento é representado pela composição de serviços e 
 
 ### 1. Criação da OS
 
-O administrador ou vendedor cria uma OS informando o cliente responsável, o veículo, o funcionário responsável e o relato inicial. A OS recebe um código único de acompanhamento, é persistida diretamente no estado **Recebida** e gera uma notificação interna aos mecânicos.
+O administrador ou vendedor cria uma OS informando o cliente responsável, o veículo, o funcionário responsável, o relato inicial e, opcionalmente, serviços e produtos. A OS recebe um código único de acompanhamento, é persistida diretamente no estado **Recebida** e gera uma notificação interna aos mecânicos.
 
 **Comando de domínio:** `CriarOrdemServico`  
 **Estado resultante:** `Recebida`
@@ -100,7 +100,7 @@ Ao ser atribuída ao mecânico, a OS deve passar pelo estado **Em diagnóstico**
 - `DiagnosticoRegistrado`;
 - `ItemAdicionadoAoOrcamento`.
 
-As quantidades e os preços atuais de serviços e produtos são copiados para os itens associados à OS. A disponibilidade passou a ser consultada na entidade separada `Estoque`; quando falta saldo, o sistema pretende simular notificações por logger para administradores e para o mecânico responsável. A integração ainda está parcial porque mocks/testes e persistência não foram totalmente adaptados.
+As quantidades e os preços atuais de serviços e produtos são copiados para os itens associados à OS. A disponibilidade é consultada na entidade separada `Estoque`; quando falta saldo, o sistema registra notificações por logger para administradores e para o mecânico responsável. Persistência e testes desses fluxos estão verdes.
 
 ### 3. Envio para aprovação
 
@@ -186,23 +186,23 @@ Essa separação é uma proposta inicial. Os limites devem ser refinados conform
 
 | Parte do domínio | Situação atual |
 | --- | --- |
-| Entidades `Cliente`, `Veiculo`, `Funcionario`, `Servico`, `Produto`, `Estoque` e `OrdemServico` | Modeladas; `Estoque` ainda incompatível com a materialização do EF Core |
-| Categorias de produto, serviço e veículo | Modeladas com endpoints/casos de uso, sem migration e sem testes específicos |
+| Entidades `Cliente`, `Veiculo`, `Funcionario`, `Servico`, `Produto`, `Estoque` e `OrdemServico` | Modeladas e materializadas pelo EF Core |
+| Categorias de produto, serviço e veículo | Modeladas com endpoints, casos de uso, migration e exercícios de integração |
 | Relacionamentos da OS | Configurados com Entity Framework |
 | Criação, consulta, listagem e exclusão da OS | Integradas aos casos de uso e à persistência |
 | Atribuição da OS ao mecânico | Implementada, incluindo limite de uma OS ativa por mecânico |
 | Registro do diagnóstico | Implementado com associação de serviços e produtos |
 | Listagem de OS para a oficina | Implementada para OS em diagnóstico |
 | Persistência da OS | Implementada com Entity Framework e PostgreSQL |
-| Estados da OS | Máquina de estados presente; a suíte atual possui regressões após a refatoração |
+| Estados da OS | Máquina de estados presente e suíte verde |
 | Orçamento e decisão do cliente | Cálculo, envio, aprovação, reprovação e revisão implementados |
-| Verificação de estoque | Refatorada para entidade/repositório próprios, mas bloqueada por EF, rotas inconsistentes e testes falhos |
+| Verificação de estoque | Entidade/repositório próprios, rotas consistentes, saldo protegido e concorrência otimista |
 | Quantidades dos itens | Modeladas e consideradas no cálculo, validação e baixa de estoque |
 | Notificações | Simuladas via logger na criação, nas transições de estado e na falta de estoque |
 | Acompanhamento público | Implementado por código único da OS |
 | Tempo médio de execução | Implementado para OS finalizadas ou entregues |
 | Finalização, entrega e cancelamento da OS | Implementados |
 
-Portanto, o diagrama documenta o **fluxo de negócio desejado**. O código contém o ciclo principal, mas a versão auditada não está operacionalmente validada: 8 de 102 testes unitários e todos os 20 testes de integração falharam. Além da recuperação dessas regressões, permanecem pendentes abertura da OS com itens, reserva de estoque, notificações externas, pagamento, recibo, aprovação parcial e retrabalho.
+Portanto, o diagrama documenta o **fluxo de negócio desejado** e o ciclo principal está operacionalmente validado por 111 testes unitários e 26 de integração. Permanecem pendentes reserva formal de estoque, notificações externas, callback externo de decisão, pagamento, recibo, aprovação parcial e retrabalho.
 
 Consulte também a [Auditoria do Estoque](auditoria-estoque.md) e o [Checklist de Entregáveis da Fase 2](fase-2-entregaveis.md).
