@@ -16,6 +16,7 @@ COPY ["src/TechChallenge.Api/TechChallenge.Api.csproj", "src/TechChallenge.Api/"
 COPY ["src/TechChallenge.Application/TechChallenge.Application.csproj", "src/TechChallenge.Application/"]
 COPY ["src/TechChallenge.Application.Abstractions/TechChallenge.Application.Abstractions.csproj", "src/TechChallenge.Application.Abstractions/"]
 COPY ["src/TechChallenge.Domain/TechChallenge.Domain.csproj", "src/TechChallenge.Domain/"]
+COPY ["src/TechChallenge.Infrastructure.Auth/TechChallenge.Infrastructure.Auth.csproj", "src/TechChallenge.Infrastructure.Auth/"]
 COPY ["src/TechChallenge.Infrastructure.Database/TechChallenge.Infrastructure.Database.csproj", "src/TechChallenge.Infrastructure.Database/"]
 COPY ["src/TechChallenge.Infrastructure.IoC/TechChallenge.Infrastructure.IoC.csproj", "src/TechChallenge.Infrastructure.IoC/"]
 RUN dotnet restore "./src/TechChallenge.Api/TechChallenge.Api.csproj"
