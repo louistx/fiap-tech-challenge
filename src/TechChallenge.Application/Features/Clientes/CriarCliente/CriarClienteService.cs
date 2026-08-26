@@ -30,6 +30,7 @@ public class CriarClienteService
         Endereco endereco = new Endereco(Guid.NewGuid(), command.Logradouro, command.Complemento, command.Numero, command.Bairro, command.Cidade, command.Estado, command.Cep);
 
         var cliente = new Cliente(Guid.NewGuid(), command.Nome, command.TipoDocumento, documento, endereco.Id);
+        cliente.AtribuirEndereco(endereco);
 
         _clienteRepository.AddAsync(cliente).GetAwaiter().GetResult();
         return cliente.Id;

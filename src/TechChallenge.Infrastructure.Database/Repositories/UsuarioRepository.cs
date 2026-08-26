@@ -17,13 +17,15 @@ namespace TechChallenge.Infrastructure.Database.Repositories
 
         public async Task<Usuario?> GetByLoginAsync(string login)
         {
+            var loginNormalizado = login.ToUpper();
             return await _context.Usuario
-                .FirstOrDefaultAsync(u => u.Login.ToUpperInvariant() == login.ToUpperInvariant());
+                .FirstOrDefaultAsync(u => u.Login.ToUpper() == loginNormalizado);
         }
 
         public async Task<bool> ExisteLoginAsync(string login)
         {
-            return await _context.Usuario.AnyAsync(u => u.Login.ToUpperInvariant() == login.ToUpperInvariant());
+            var loginNormalizado = login.ToUpper();
+            return await _context.Usuario.AnyAsync(u => u.Login.ToUpper() == loginNormalizado);
         }
 
         public async Task<bool> ExisteVinculoFuncionarioAsync(Guid funcionarioId)

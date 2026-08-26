@@ -22,4 +22,18 @@ public class Funcionario
         TipoFuncionario = tipoFuncionario;
         EnderecoId = enderecoId;
     }
+
+    public void AtribuirEndereco(Endereco endereco)
+    {
+        Endereco = endereco;
+        EnderecoId = endereco.Id;
+    }
+
+    public void Atualizar(string nome, string cpf, string rg, TipoFuncionario tipoFuncionario)
+    {
+        Nome = nome;
+        Cpf = cpf;
+        Rg = rg;
+        TipoFuncionario = tipoFuncionario;
+    }
 }

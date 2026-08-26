@@ -30,4 +30,10 @@ public class RefreshToken
     {
         RevogadoEm = revogadoEm;
     }
+
+    public void AtribuirUsuario(Usuario usuario)
+    {
+        Usuario = usuario;
+        UsuarioId = usuario.Id;
+    }
 }

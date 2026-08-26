@@ -28,4 +28,17 @@ public class Veiculo
         ClienteId = clienteId;
         CategoriaId = categoriaId;
     }
+
+    public void Atualizar(string placa, string modelo, string marca, string cor, int ano, decimal quilometragem, decimal valor, Guid clienteId, Guid categoriaId)
+    {
+        Placa = placa;
+        Modelo = modelo;
+        Marca = marca;
+        Cor = cor;
+        Ano = ano;
+        Quilometragem = quilometragem;
+        Valor = valor;
+        ClienteId = clienteId;
+        CategoriaId = categoriaId;
+    }
 }

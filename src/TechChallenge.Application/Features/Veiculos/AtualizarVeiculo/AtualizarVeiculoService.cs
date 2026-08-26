@@ -37,8 +37,7 @@ public class AtualizarVeiculoService
         if (cliente is null)
             throw new KeyNotFoundException($"Cliente com Id {command.ClienteId} não encontrado.");
 
-        veiculo = new Domain.Entities.Veiculo(
-            veiculo.Id,
+        veiculo.Atualizar(
             placa,
             command.Modelo,
             command.Marca,
@@ -47,8 +46,7 @@ public class AtualizarVeiculoService
             command.Quilometragem,
             command.Valor,
             command.ClienteId,
-            command.CategoriaId
-        );
+            command.CategoriaId);
 
         _veiculoRepository.UpdateAsync(veiculo).GetAwaiter().GetResult();
         return true;

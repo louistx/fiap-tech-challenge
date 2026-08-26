@@ -45,7 +45,9 @@ namespace TechChallenge.Infrastructure.Database.Repositories
 
         public virtual async Task<T> UpdateAsync(T entity)
         {
-            _dbSet.Update(entity);
+            if (_context.Entry(entity).State == EntityState.Detached)
+                _dbSet.Update(entity);
+
             await _context.SaveChangesAsync();
             return entity;
         }

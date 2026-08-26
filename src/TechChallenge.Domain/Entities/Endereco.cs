@@ -27,4 +27,15 @@ public class Endereco
         Estado = estado;
         Cep = cep;
     }
+
+    public void Atualizar(string logradouro, string complemento, string numero, string bairro, string cidade, string estado, string cep)
+    {
+        Logradouro = logradouro;
+        Complemento = complemento;
+        Numero = numero;
+        Bairro = bairro;
+        Cidade = cidade;
+        Estado = estado;
+        Cep = cep;
+    }
 }

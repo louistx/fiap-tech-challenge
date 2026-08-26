@@ -33,6 +33,7 @@ public class CriarFuncionarioService
         Endereco endereco = new Endereco(Guid.NewGuid(), command.Logradouro, command.Complemento, command.Numero, command.Bairro, command.Cidade, command.Estado, command.Cep);
 
         var funcionario = new Funcionario(Guid.NewGuid(), command.Nome, cpf, command.Rg, tipoFuncionario, endereco.Id);
+        funcionario.AtribuirEndereco(endereco);
 
         _funcionarioRepository.AddAsync(funcionario).GetAwaiter().GetResult();
         return funcionario.Id;

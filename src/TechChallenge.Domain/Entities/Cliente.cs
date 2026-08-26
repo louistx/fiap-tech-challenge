@@ -20,4 +20,17 @@ public class Cliente
         Documento = documento;
         EnderecoId = enderecoId;
     }
+
+    public void AtribuirEndereco(Endereco endereco)
+    {
+        Endereco = endereco;
+        EnderecoId = endereco.Id;
+    }
+
+    public void Atualizar(string nome, TipoDocumento tipoDocumento, string documento)
+    {
+        Nome = nome;
+        TipoDocumento = tipoDocumento;
+        Documento = documento;
+    }
 }

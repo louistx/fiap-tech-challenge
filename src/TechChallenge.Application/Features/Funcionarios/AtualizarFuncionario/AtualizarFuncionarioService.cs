@@ -29,9 +29,15 @@ public class AtualizarFuncionarioService
         if (!Enum.TryParse<TipoFuncionario>(command.Cargo, true, out var tipoFuncionario))
             throw new InvalidOperationException($"Cargo {command.Cargo} inválido.");
 
-        Endereco endereco = new Endereco(funcionario.Endereco.Id, command.Logradouro, command.Complemento, command.Numero, command.Bairro, command.Cidade, command.Estado, command.Cep);
-
-        funcionario = new Funcionario(funcionario.Id, command.Nome, cpf, command.Rg, tipoFuncionario, funcionario.Endereco.Id);
+        funcionario.Atualizar(command.Nome, cpf, command.Rg, tipoFuncionario);
+        funcionario.Endereco.Atualizar(
+            command.Logradouro,
+            command.Complemento,
+            command.Numero,
+            command.Bairro,
+            command.Cidade,
+            command.Estado,
+            command.Cep);
 
         _funcionarioRepository.UpdateAsync(funcionario).GetAwaiter().GetResult();
         return true;
