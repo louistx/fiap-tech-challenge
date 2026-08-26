@@ -15,25 +15,29 @@ public class AtualizarItemInventarioService
         IValidator<AtualizarItemInventarioCommand> validator)
     {
         _produtoRepository = produtoRepository;
+        _estoqueRepository = estoqueRepository;
         _validator = validator;
     }
 
-    public bool AtualizarItemInventario(AtualizarItemInventarioCommand command)
+    public async Task<bool> AtualizarItemInventarioAsync(AtualizarItemInventarioCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var produto = _produtoRepository.GetByIdAsync(command.Id).GetAwaiter().GetResult();
+        var produto = await _produtoRepository.GetByIdAsync(command.Id);
         if (produto is null)
             throw new KeyNotFoundException($"Item de inventário com Id {command.Id} não encontrado.");
 
-        produto = new Domain.Entities.Produto(produto.Id, command.Descricao, command.Valor, produto.CategoriaId);
+        produto.Atualizar(command.Descricao, command.Valor);
 
-        var estoque = _estoqueRepository.GetByIdProdutoAsync(command.Id).GetAwaiter().GetResult();
+        var estoque = await _estoqueRepository.GetByIdProdutoAsync(command.Id);
 
         if (estoque is null)
             throw new KeyNotFoundException($"Estoque para o item de inventário com Id {command.Id} não encontrado.");
 
-        _produtoRepository.UpdateAsync(produto).GetAwaiter().GetResult();
+        estoque.DefinirQuantidade(command.Quantidade);
+
+        await _produtoRepository.UpdateAsync(produto);
+        await _estoqueRepository.UpdateAsync(estoque);
         return true;
     }
 }

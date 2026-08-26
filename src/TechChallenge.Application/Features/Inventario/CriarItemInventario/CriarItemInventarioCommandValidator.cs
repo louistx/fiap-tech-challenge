@@ -15,5 +15,8 @@ public class CriarItemInventarioCommandValidator : AbstractValidator<CriarItemIn
 
         RuleFor(command => command.Quantidade)
             .GreaterThanOrEqualTo(0);
+
+        RuleFor(command => command.IdCategoria)
+            .NotEmpty();
     }
 }

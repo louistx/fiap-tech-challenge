@@ -3,5 +3,5 @@
 public class EstoqueResponse
 {
     public Guid ProdutoId { get; set; }
-    public double Quantidade { get; set; }
+    public int Quantidade { get; set; }
 }

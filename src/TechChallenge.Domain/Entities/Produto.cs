@@ -7,12 +7,23 @@ public class Produto
     public decimal Valor { get; private set; }
     public Guid CategoriaId { get; private set; }
     public CategoriaProduto Categoria { get; private set; } = null!;
+    public Estoque? Estoque { get; private set; }
 
-    public Produto(Guid id, string descricao, decimal valor, Guid categoria)
+    private Produto()
+    {
+    }
+
+    public Produto(Guid id, string descricao, decimal valor, Guid categoriaId)
     {
         Id = id;
         Descricao = descricao;
         Valor = valor;
-        CategoriaId = categoria;
+        CategoriaId = categoriaId;
+    }
+
+    public void Atualizar(string descricao, decimal valor)
+    {
+        Descricao = descricao;
+        Valor = valor;
     }
 }

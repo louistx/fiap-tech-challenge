@@ -11,12 +11,12 @@ public class ObterEstoqueService
         _estoqueRepository = estoqueRepository;
     }
 
-    public async Task<Domain.Entities.Estoque> ObterEstoque(ObterEstoqueQuery query)
+    public async Task<Domain.Entities.Estoque> ObterEstoqueAsync(ObterEstoqueQuery query)
     {
-        var estoque = await _estoqueRepository.GetByIdAsync(query.Id);
+        var estoque = await _estoqueRepository.GetByIdProdutoAsync(query.ProdutoId);
 
         if (estoque is null)
-            throw new KeyNotFoundException($"Estoque do produto Id {query.Id} não encontrado.");
+            throw new KeyNotFoundException($"Estoque do produto {query.ProdutoId} não encontrado.");
 
         return estoque;
     }

@@ -1,11 +1,9 @@
 ﻿using TechChallenge.Api.Models.Request;
 using TechChallenge.Api.Models.Response;
-using TechChallenge.Application.Features.CategoriaProdutos.ObterCategoriaProduto;
 using TechChallenge.Application.Features.Estoque.AdicionarEstoque;
 using TechChallenge.Application.Features.Estoque.BaixarEstoque;
 using TechChallenge.Application.Features.Estoque.ListarEstoques;
 using TechChallenge.Application.Features.Estoque.ObterEstoque;
-using TechChallenge.Application.Features.Veiculos.ObterVeiculo;
 using TechChallenge.Domain.Entities;
 
 namespace TechChallenge.Api.Endpoints;
@@ -31,55 +29,52 @@ public static class EstoqueEndpoints
             .WithDescription("Lista todos os produtos e suas quantidades em estoque")
             .Produces<List<EstoqueResponse>>();
 
-        group.MapDelete("/{produtoId}", ObterEstoqueAsync)
+        group.MapGet("/{produtoId:guid}", ObterEstoqueAsync)
             .WithName("ObterEstoque")
             .RequireAuthorization("AdminOuVendedor")
             .WithSummary("Obtém informações de um produto em estoque de acordo com o Id do produto informado")
             .WithDescription("Obtém informações sobre a quantidade disponível de um produto em estoque")
-            .ProducesValidationProblem();
+            .Produces<EstoqueResponse>()
+            .Produces(StatusCodes.Status404NotFound);
 
         group.MapPut("/", BaixarEstoqueAsync)
             .WithName("BaixarEstoque")
             .RequireAuthorization("AdminOuVendedor")
             .WithSummary("Baixa produto do estoque")
             .WithDescription("Baixa uma quantidade específica de um produto do estoque")
-            .ProducesValidationProblem();
+            .Produces<EstoqueResponse>(StatusCodes.Status200OK)
+            .ProducesValidationProblem()
+            .Produces(StatusCodes.Status404NotFound);
 
         return app;
     }
 
-    private static IResult ListarEstoquesAsync(ListarEstoquesService service)
+    private static async Task<IResult> ListarEstoquesAsync(ListarEstoquesService service)
     {
-        var categorias = service.ListarEstoques(new ListarEstoquesQuery());
-        return Results.Ok(categorias.Select(MapearEstoqueResponse).ToList());
+        var estoques = await service.ListarEstoquesAsync(new ListarEstoquesQuery());
+        return Results.Ok(estoques.Select(MapearEstoqueResponse).ToList());
     }
 
-    private static async Task<IResult> ObterEstoqueAsync(Guid id, ObterEstoqueService service)
+    private static async Task<IResult> ObterEstoqueAsync(Guid produtoId, ObterEstoqueService service)
     {
-        Domain.Entities.Estoque estoque = await service.ObterEstoque(new ObterEstoqueQuery { Id = id });
-
-        var response = new EstoqueResponse
-        {
-            ProdutoId = estoque.ProdutoId,
-            Quantidade = estoque.Quantidade
-        };
-
-        return Results.Ok(response);
+        var estoque = await service.ObterEstoqueAsync(new ObterEstoqueQuery { ProdutoId = produtoId });
+        return Results.Ok(MapearEstoqueResponse(estoque));
     }
 
-    private static IResult AdicionarEstoqueAsync(AdicionarEstoqueRequest request, AdicionarEstoqueService service)
+    private static async Task<IResult> AdicionarEstoqueAsync(AdicionarEstoqueRequest request, AdicionarEstoqueService service)
     {
         var command = new AdicionarEstoqueCommand
         {
-            ProdutoId = request.ProdutoId
+            ProdutoId = request.ProdutoId,
+            Quantidade = request.Quantidade
         };
 
-        service.AdicionarEstoque(command);
+        var estoque = await service.AdicionarEstoqueAsync(command);
 
-        return Results.Created($"/api/v1/estoque/adicionar", $"Produto: {request.ProdutoId} adicionado ao estoque.");
+        return Results.Created($"/api/v1/estoque/{estoque.ProdutoId}", MapearEstoqueResponse(estoque));
     }
 
-    private static IResult BaixarEstoqueAsync(BaixarEstoqueRequest request, BaixarEstoqueService service)
+    private static async Task<IResult> BaixarEstoqueAsync(BaixarEstoqueRequest request, BaixarEstoqueService service)
     {
         var command = new BaixarEstoqueCommand
         {
@@ -87,9 +82,9 @@ public static class EstoqueEndpoints
             Quantidade = request.Quantidade
         };
 
-        service.BaixarEstoque(command);
+        var estoque = await service.BaixarEstoqueAsync(command);
 
-        return Results.Created($"/api/v1/estoque/baixar", $"Produto: {request.ProdutoId} baixado do estoque.");  
+        return Results.Ok(MapearEstoqueResponse(estoque));
     }
 
     private static EstoqueResponse MapearEstoqueResponse(Estoque estoque)

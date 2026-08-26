@@ -12,5 +12,8 @@ public class CriarServicoCommandValidator : AbstractValidator<CriarServicoComman
 
         RuleFor(command => command.Valor)
             .GreaterThanOrEqualTo(0);
+
+        RuleFor(command => command.CategoriaId)
+            .NotEmpty();
     }
 }

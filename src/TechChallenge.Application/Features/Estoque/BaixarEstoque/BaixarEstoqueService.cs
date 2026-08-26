@@ -1,7 +1,5 @@
 using FluentValidation;
 using TechChallenge.Application.Abstractions.Repositories;
-using TechChallenge.Application.Validation;
-using TechChallenge.Domain.Enums;
 
 namespace TechChallenge.Application.Features.Estoque.BaixarEstoque;
 
@@ -16,19 +14,17 @@ public class BaixarEstoqueService
         _validator = validator;
     }
 
-    public bool BaixarEstoque(BaixarEstoqueCommand command)
+    public async Task<Domain.Entities.Estoque> BaixarEstoqueAsync(BaixarEstoqueCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var estoque = _estoqueRepository.GetByIdAsync(command.ProdutoId).GetAwaiter().GetResult();
+        var estoque = await _estoqueRepository.GetByIdProdutoAsync(command.ProdutoId);
 
         if (estoque is null)
-            throw new KeyNotFoundException($"Estoque com Id {command.ProdutoId} não encontrado.");
+            throw new KeyNotFoundException($"Estoque do produto {command.ProdutoId} não encontrado.");
 
-        estoque.AtualizarQuantidade(estoque.Quantidade - command.Quantidade);
+        estoque.Baixar(command.Quantidade);
 
-        _estoqueRepository.UpdateAsync(estoque).GetAwaiter().GetResult();
-
-        return true;
+        return await _estoqueRepository.UpdateAsync(estoque);
     }
 }

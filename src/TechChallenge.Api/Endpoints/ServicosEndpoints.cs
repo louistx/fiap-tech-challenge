@@ -60,7 +60,8 @@ public static class ServicosEndpoints
         var command = new CriarServicoCommand
         {
             Descricao = request.Descricao,
-            Valor = request.Valor
+            Valor = request.Valor,
+            CategoriaId = request.CategoriaId
         };
 
         var id = service.CriarServico(command);

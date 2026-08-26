@@ -7,4 +7,5 @@ public class ProdutoResponse
     public string Descricao { get; set; } = string.Empty;
     public decimal Valor { get; set; }
     public int Quantidade { get; set; }
+    public Guid CategoriaId { get; set; }
 }

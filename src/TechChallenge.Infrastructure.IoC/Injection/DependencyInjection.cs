@@ -29,6 +29,10 @@ using TechChallenge.Application.Features.Funcionarios.CriarFuncionario;
 using TechChallenge.Application.Features.Funcionarios.ExcluirFuncionario;
 using TechChallenge.Application.Features.Funcionarios.ListarFuncionarios;
 using TechChallenge.Application.Features.Funcionarios.ObterFuncionario;
+using TechChallenge.Application.Features.Estoque.AdicionarEstoque;
+using TechChallenge.Application.Features.Estoque.BaixarEstoque;
+using TechChallenge.Application.Features.Estoque.ListarEstoques;
+using TechChallenge.Application.Features.Estoque.ObterEstoque;
 using TechChallenge.Application.Features.Inventario.AtualizarItemInventario;
 using TechChallenge.Application.Features.Inventario.CriarItemInventario;
 using TechChallenge.Application.Features.Inventario.ExcluirItemInventario;
@@ -110,6 +114,11 @@ namespace TechChallenge.Infrastructure.IoC.Injection
             services.AddScoped<CancelarOSService>();
             services.AddScoped<ListarOSOficinaService>();
             services.AddScoped<ExcluirOSService>();
+
+            services.AddScoped<AdicionarEstoqueService>();
+            services.AddScoped<BaixarEstoqueService>();
+            services.AddScoped<ListarEstoquesService>();
+            services.AddScoped<ObterEstoqueService>();
 
             services.AddScoped<CriarCategoriaProdutoService>();
             services.AddScoped<ObterCategoriaProdutoService>();

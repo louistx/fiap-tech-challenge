@@ -22,7 +22,7 @@ public class AtualizarServicoService
         if (servico is null)
             throw new KeyNotFoundException($"Serviço com Id {command.Id} não encontrado.");
 
-        servico = new Domain.Entities.Servico(servico.Id, command.Descricao, command.Valor, command.CategoriaId);
+        servico.Atualizar(command.Descricao, command.Valor);
 
         _servicoRepository.UpdateAsync(servico).GetAwaiter().GetResult();
         return true;

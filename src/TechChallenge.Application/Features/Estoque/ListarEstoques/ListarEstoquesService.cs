@@ -12,8 +12,8 @@ public class ListarEstoquesService
         _estoqueRepository = estoqueRepository;
     }
 
-    public List<Domain.Entities.Estoque> ListarEstoques(ListarEstoquesQuery query)
+    public Task<List<Domain.Entities.Estoque>> ListarEstoquesAsync(ListarEstoquesQuery query)
     {
-        return _estoqueRepository.GetAllAsync().GetAwaiter().GetResult();
+        return _estoqueRepository.GetAllAsync();
     }
 }

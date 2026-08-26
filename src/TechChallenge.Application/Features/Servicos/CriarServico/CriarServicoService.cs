@@ -8,17 +8,26 @@ namespace TechChallenge.Application.Features.Servicos.CriarServico;
 public class CriarServicoService
 {
     private readonly IServicoRepository _servicoRepository;
+    private readonly ICategoriaServicoRepository _categoriaServicoRepository;
     private readonly IValidator<CriarServicoCommand> _validator;
 
-    public CriarServicoService(IServicoRepository servicoRepository, IValidator<CriarServicoCommand> validator)
+    public CriarServicoService(
+        IServicoRepository servicoRepository,
+        ICategoriaServicoRepository categoriaServicoRepository,
+        IValidator<CriarServicoCommand> validator)
     {
         _servicoRepository = servicoRepository;
+        _categoriaServicoRepository = categoriaServicoRepository;
         _validator = validator;
     }
 
     public Guid CriarServico(CriarServicoCommand command)
     {
         _validator.ValidateAndThrow(command);
+
+        var categoria = _categoriaServicoRepository.GetByIdAsync(command.CategoriaId).GetAwaiter().GetResult();
+        if (categoria is null)
+            throw new KeyNotFoundException($"Categoria de serviço com Id {command.CategoriaId} não encontrada.");
 
         var servico = new Servico(Guid.NewGuid(), command.Descricao, command.Valor, command.CategoriaId);
 

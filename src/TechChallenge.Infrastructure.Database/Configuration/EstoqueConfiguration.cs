@@ -11,11 +11,18 @@ namespace TechChallenge.Infrastructure.Database.Configuration
             builder.HasKey(c => c.Id);
 
             builder.HasOne(v => v.Produto)
-                .WithMany()
-                .HasForeignKey(v => v.ProdutoId)
+                .WithOne(p => p.Estoque)
+                .HasForeignKey<Estoque>(v => v.ProdutoId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.HasIndex(p => p.ProdutoId)
+                .IsUnique();
+
             builder.Property(p => p.Quantidade)
+                .IsRequired();
+
+            builder.Property(p => p.Versao)
+                .IsConcurrencyToken()
                 .IsRequired();
         }
     }

@@ -16,25 +16,24 @@ public class AdicionarEstoqueService
         _validator = validator;
     }
 
-    public bool AdicionarEstoque(AdicionarEstoqueCommand command)
+    public async Task<Domain.Entities.Estoque> AdicionarEstoqueAsync(AdicionarEstoqueCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var produto = _produtoRepository.GetByIdAsync(command.ProdutoId).GetAwaiter().GetResult();
+        var produto = await _produtoRepository.GetByIdAsync(command.ProdutoId);
 
         if (produto is null)
             throw new KeyNotFoundException($"Produto {command.ProdutoId} não encontrado");
 
-        var estoque = _estoqueRepository.GetByIdProdutoAsync(command.ProdutoId).GetAwaiter().GetResult();
+        var estoque = await _estoqueRepository.GetByIdProdutoAsync(command.ProdutoId);
         
         if (estoque is null)
-            _estoqueRepository.AddAsync(new Domain.Entities.Estoque(Guid.NewGuid(), command.ProdutoId, command.Quantidade));
+            return await _estoqueRepository.AddAsync(
+                new Domain.Entities.Estoque(Guid.NewGuid(), command.ProdutoId, command.Quantidade));
         else
         {
-            estoque.AtualizarQuantidade(estoque.Quantidade + command.Quantidade);
-            _estoqueRepository.UpdateAsync(estoque).GetAwaiter().GetResult();
+            estoque.Adicionar(command.Quantidade);
+            return await _estoqueRepository.UpdateAsync(estoque);
         }
-
-        return true;
     }
 }

@@ -54,16 +54,17 @@ public static class InventarioEndpoints
         return app;
     }
 
-    private static IResult CriarItemInventarioAsync(CriarProdutoRequest request, CriarItemInventarioService service)
+    private static async Task<IResult> CriarItemInventarioAsync(CriarProdutoRequest request, CriarItemInventarioService service)
     {
         var command = new CriarItemInventarioCommand
         {
             Descricao = request.Descricao,
             Valor = request.Valor,
-            Quantidade = request.Quantidade
+            Quantidade = request.Quantidade,
+            IdCategoria = request.IdCategoria
         };
 
-        var id = service.CriarItemInventario(command);
+        var id = await service.CriarItemInventarioAsync(command);
         return Results.Created($"/api/v1/produtos/{id}", id);
     }
 
@@ -79,7 +80,7 @@ public static class InventarioEndpoints
         return Results.Ok(produtos.Select(MapearProdutoResponse).ToList());
     }
 
-    private static IResult AtualizarItemInventarioAsync(Guid id, AtualizarProdutoRequest request, AtualizarItemInventarioService service)
+    private static async Task<IResult> AtualizarItemInventarioAsync(Guid id, AtualizarProdutoRequest request, AtualizarItemInventarioService service)
     {
         var command = new AtualizarItemInventarioCommand
         {
@@ -89,13 +90,13 @@ public static class InventarioEndpoints
             Quantidade = request.Quantidade
         };
 
-        service.AtualizarItemInventario(command);
+        await service.AtualizarItemInventarioAsync(command);
         return Results.Ok();
     }
 
-    private static IResult ExcluirItemInventarioAsync(Guid id, ExcluirItemInventarioService service)
+    private static async Task<IResult> ExcluirItemInventarioAsync(Guid id, ExcluirItemInventarioService service)
     {
-        service.ExcluirItemInventario(new ExcluirItemInventarioCommand { Id = id });
+        await service.ExcluirItemInventarioAsync(new ExcluirItemInventarioCommand { Id = id });
         return Results.NoContent();
     }
 
@@ -105,7 +106,9 @@ public static class InventarioEndpoints
         {
             Id = produto.Id,
             Descricao = produto.Descricao,
-            Valor = produto.Valor
+            Valor = produto.Valor,
+            Quantidade = produto.Estoque?.Quantidade ?? 0,
+            CategoriaId = produto.CategoriaId
         };
     }
 }

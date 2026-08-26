@@ -15,4 +15,10 @@ public class Servico
         Valor = valor;
         CategoriaId = categoriaId;
     }
+
+    public void Atualizar(string descricao, decimal valor)
+    {
+        Descricao = descricao;
+        Valor = valor;
+    }
 }
