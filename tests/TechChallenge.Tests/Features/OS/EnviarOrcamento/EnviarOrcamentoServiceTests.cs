@@ -15,11 +15,14 @@ public class EnviarOrcamentoServiceTests
     {
         var os = new OrdemServico(Guid.NewGuid(), string.Empty, string.Empty, StatusOS.EmDiagnostico, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
         
-        os.AdicionarServicos(new OrdemServicoServicos(Guid.NewGuid(), os.Id, Guid.NewGuid(), 100, 2, 10, 5));
-        os.AdicionarProdutos(new OrdemServicoProdutos(Guid.NewGuid(), os.Id, Guid.NewGuid(), 50, 3, 0, 0));
+        os.AdicionarServicos(new OrdemServicoServicos(Guid.NewGuid(), os.Id, Guid.NewGuid(), 100, 2, 5, 10));
+        var produtoId = Guid.NewGuid();
+        os.AdicionarProdutos(new OrdemServicoProdutos(Guid.NewGuid(), os.Id, produtoId, 50, 3, 0, 0));
 
         var repository = new Mock<IOrdemServicoRepository>();
         var estoqueRepository = new Mock<IEstoqueRepository>();
+        estoqueRepository.Setup(repo => repo.GetByIdProdutoAsync(produtoId))
+            .ReturnsAsync(new TechChallenge.Domain.Entities.Estoque(Guid.NewGuid(), produtoId, 3));
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
         repository.Setup(repo => repo.UpdateAsync(os)).ReturnsAsync(os);
         var service = new EnviarOrcamentoService(repository.Object, estoqueRepository.Object, new EnviarOrcamentoCommandValidator());

@@ -16,7 +16,7 @@ public class RegistrarDiagnosticoServiceTests
         var osId = Guid.NewGuid();
         var produtoId = Guid.NewGuid();
         var mecanicoId = Guid.NewGuid();
-        var os = new OrdemServico(osId, string.Empty, string.Empty, StatusOS.EmDiagnostico, mecanicoId, Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
+        var os = new OrdemServico(osId, string.Empty, string.Empty, StatusOS.EmDiagnostico, Guid.NewGuid(), mecanicoId, Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
         var ordemServicoRepository = new Mock<IOrdemServicoRepository>();
         var servicoRepository = new Mock<IServicoRepository>();
         var produtoRepository = new Mock<IProdutoRepository>();

@@ -11,7 +11,7 @@ namespace TechChallenge.Tests.Features.OS.CriarOS;
 public class CriarOSServiceTests
 {
     [Fact]
-    public void DeveCriarOSEnotificarMecanicos()
+    public async Task DeveCriarOSEnotificarMecanicos()
     {
         var clienteId = Guid.NewGuid();
         var funcionarioId = Guid.NewGuid();
@@ -20,6 +20,9 @@ public class CriarOSServiceTests
         var clienteRepository = new Mock<IClienteRepository>();
         var funcionarioRepository = new Mock<IFuncionarioRepository>();
         var veiculoRepository = new Mock<IVeiculoRepository>();
+        var servicoRepository = new Mock<IServicoRepository>();
+        var produtoRepository = new Mock<IProdutoRepository>();
+        var estoqueRepository = new Mock<IEstoqueRepository>();
         var notificationService = new Mock<INotificationService>();
         clienteRepository.Setup(repo => repo.GetByIdAsync(clienteId))
             .ReturnsAsync(new Cliente(clienteId, string.Empty, TipoDocumento.Cpf, string.Empty, Guid.NewGuid()));
@@ -34,10 +37,13 @@ public class CriarOSServiceTests
             clienteRepository.Object,
             funcionarioRepository.Object,
             veiculoRepository.Object,
+            servicoRepository.Object,
+            produtoRepository.Object,
+            estoqueRepository.Object,
             new CriarOSCommandValidator(),
             notificationService.Object);
 
-        var osId = service.CriarOS(new CriarOSCommand
+        var osId = await service.CriarOSAsync(new CriarOSCommand
         {
             Descricao = "Troca de óleo",
             ClienteResponsavelId = clienteId,

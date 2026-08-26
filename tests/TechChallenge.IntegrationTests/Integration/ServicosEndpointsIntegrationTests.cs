@@ -20,10 +20,12 @@ public class ServicosEndpointsIntegrationTests : IClassFixture<WebAplicationFact
     [Fact]
     public async Task DeveExecutarCrudDeServico()
     {
+        var categoriaId = await CriarCategoriaServicoAsync();
         var criarRequest = new CriarServicoRequest
         {
             Descricao = "Troca de oleo",
-            Valor = 120
+            Valor = 120,
+            CategoriaId = categoriaId
         };
 
         var criarResponse = await _client.PostAsJsonAsync("/api/v1/servicos", criarRequest);
@@ -77,5 +79,17 @@ public class ServicosEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         var response = await _client.PostAsJsonAsync("/api/v1/servicos", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    private async Task<Guid> CriarCategoriaServicoAsync()
+    {
+        var response = await _client.PostAsJsonAsync("/api/v1/categoriaservico", new CriarCategoriaServicoRequest
+        {
+            Descricao = $"Categoria {Guid.NewGuid():N}"
+        });
+
+        var body = await response.Content.ReadAsStringAsync();
+        response.StatusCode.Should().Be(HttpStatusCode.Created, body);
+        return await response.Content.ReadFromJsonAsync<Guid>();
     }
 }

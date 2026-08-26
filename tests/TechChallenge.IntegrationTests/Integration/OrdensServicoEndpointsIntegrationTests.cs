@@ -50,6 +50,9 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
         os.DataFinalizacao.Should().NotBeNull();
         os.CodigoAcompanhamento.Should().NotBeNullOrWhiteSpace();
 
+        var statusResponse = await _client.GetAsync($"/api/v1/ordens-servico/{osId}/status");
+        statusResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+
         var acompanhamentoResponse = await _client.GetAsync($"/api/v1/ordens-servico/acompanhamento/{os.CodigoAcompanhamento}");
         acompanhamentoResponse.StatusCode.Should().Be(HttpStatusCode.OK);
         var osAcompanhamento =
@@ -62,6 +65,30 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
         var metrica = await metricaResponse.Content.ReadFromJsonAsync<TempoMedioExecucaoResponse>();
         metrica.Should().NotBeNull();
         metrica.QuantidadeOrdensFinalizadas.Should().BeGreaterThan(0);
+    }
+
+    [Fact]
+    public async Task DeveReceberServicosEProdutosNaAbertura()
+    {
+        var dados = await CriarDadosBaseAsync();
+
+        var osId = await CriarAsync("/api/v1/ordens-servico", new CriarOrdemServicoRequest
+        {
+            Descricao = "Revisao preventiva",
+            ClienteResponsavelId = dados.ClienteId,
+            FuncionarioResponsavelId = dados.FuncionarioId,
+            VeiculoId = dados.VeiculoId,
+            Servicos = [new ItemDiagnosticoRequest { Id = dados.ServicoId, Quantidade = 1 }],
+            Produtos = [new ItemDiagnosticoRequest { Id = dados.ProdutoId, Quantidade = 2 }]
+        });
+
+        var response = await _client.GetAsync($"/api/v1/ordens-servico/{osId}");
+        var body = await response.Content.ReadAsStringAsync();
+        response.StatusCode.Should().Be(HttpStatusCode.OK, body);
+        var os = await response.Content.ReadFromJsonAsync<OrdemServicoResponse>(JsonTestOptions.Web);
+        os.Should().NotBeNull();
+        os.Servicos.Should().ContainSingle(item => item.Id == dados.ServicoId);
+        os.Produtos.Should().ContainSingle(item => item.Id == dados.ProdutoId && item.Quantidade == 2);
     }
 
     [Fact]
@@ -101,7 +128,7 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
 
         var categoriaId = await CriarAsync("/api/v1/categoriaveiculo", new CriarCategoriaVeiculoRequest
         {
-            Descricao = "Hatch"
+            Descricao = $"Hatch {sequencia}"
         });
 
         var veiculoId = await CriarAsync("/api/v1/veiculos", new CriarVeiculoRequest
@@ -117,13 +144,32 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
             CategoriaId = categoriaId
         });
 
+        var categoriaServicoId = await CriarAsync("/api/v1/categoriaservico", new CriarCategoriaServicoRequest
+        {
+            Descricao = $"Mecanica {sequencia}"
+        });
+
         var servicoId = await CriarAsync("/api/v1/servicos", new CriarServicoRequest
         {
             Descricao = "Diagnostico eletronico",
-            Valor = 120
+            Valor = 120,
+            CategoriaId = categoriaServicoId
         });
 
-        return new DadosBase(clienteId, funcionarioId, veiculoId, servicoId);
+        var categoriaProdutoId = await CriarAsync("/api/v1/categoriaproduto", new CriarCategoriaProdutoRequest
+        {
+            Descricao = $"Filtros {sequencia}"
+        });
+
+        var produtoId = await CriarAsync("/api/v1/produtos", new CriarProdutoRequest
+        {
+            Descricao = $"Filtro de oleo {sequencia}",
+            Valor = 45,
+            Quantidade = 10,
+            IdCategoria = categoriaProdutoId
+        });
+
+        return new DadosBase(clienteId, funcionarioId, veiculoId, servicoId, produtoId);
     }
 
     private async Task<Guid> CriarOrdemServicoAsync(DadosBase dados)
@@ -200,7 +246,12 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
         return resto < 2 ? 0 : 11 - resto;
     }
 
-    private sealed record DadosBase(Guid ClienteId, Guid FuncionarioId, Guid VeiculoId, Guid ServicoId);
+    private sealed record DadosBase(
+        Guid ClienteId,
+        Guid FuncionarioId,
+        Guid VeiculoId,
+        Guid ServicoId,
+        Guid ProdutoId);
 
     private sealed class TempoMedioExecucaoResponse
     {

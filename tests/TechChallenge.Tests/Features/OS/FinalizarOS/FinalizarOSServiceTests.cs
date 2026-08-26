@@ -22,6 +22,9 @@ public class FinalizarOSServiceTests
         repository.Setup(repo => repo.UpdateAsync(os)).ReturnsAsync(os);
 
         var estoqueRepository = new Mock<IEstoqueRepository>();
+        var estoque = new TechChallenge.Domain.Entities.Estoque(Guid.NewGuid(), produto.Id, 2);
+        estoqueRepository.Setup(repo => repo.GetByIdProdutoAsync(produto.Id)).ReturnsAsync(estoque);
+        estoqueRepository.Setup(repo => repo.UpdateAsync(estoque)).ReturnsAsync(estoque);
 
         var service = new FinalizarOSService(repository.Object, estoqueRepository.Object, new FinalizarOSCommandValidator());
 
@@ -40,7 +43,8 @@ public class FinalizarOSServiceTests
         
         var produto = new Produto(Guid.NewGuid(), "Filtro", 1, Guid.NewGuid());
         var os = new OrdemServico(Guid.NewGuid(), string.Empty, string.Empty, StatusOS.EmExecucao, Guid.NewGuid(), mecanicoId, Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
-        var osp = new OrdemServicoProdutos(Guid.NewGuid(), os.Id, produto.Id, 0, 0, 0, 0);
+        var osp = new OrdemServicoProdutos(Guid.NewGuid(), os.Id, produto.Id, 0, 2, 0, 0);
+        osp.AdicionarProduto(produto.Id, produto.Descricao, produto.Valor, produto.CategoriaId);
         os.AdicionarProdutos(osp);
 
         var repository = new Mock<IOrdemServicoRepository>();

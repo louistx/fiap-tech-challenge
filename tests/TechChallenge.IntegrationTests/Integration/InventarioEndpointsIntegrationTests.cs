@@ -19,10 +19,13 @@ public class InventarioEndpointsIntegrationTests : IClassFixture<WebAplicationFa
     [Fact]
     public async Task DeveExecutarCrudDeProduto()
     {
+        var categoriaId = await CriarCategoriaProdutoAsync("Filtros");
         var criarRequest = new CriarProdutoRequest
         {
             Descricao = "Filtro de oleo",
-            Valor = 45
+            Valor = 45,
+            Quantidade = 10,
+            IdCategoria = categoriaId
         };
 
         var criarResponse = await _client.PostAsJsonAsync("/api/v1/produtos", criarRequest);
@@ -38,6 +41,8 @@ public class InventarioEndpointsIntegrationTests : IClassFixture<WebAplicationFa
         produto.Should().NotBeNull();
         produto.Descricao.Should().Be(criarRequest.Descricao);
         produto.Valor.Should().Be(criarRequest.Valor);
+        produto.Quantidade.Should().Be(criarRequest.Quantidade);
+        produto.CategoriaId.Should().Be(categoriaId);
 
         var listarResponse = await _client.GetAsync("/api/v1/produtos");
         listarResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -47,7 +52,8 @@ public class InventarioEndpointsIntegrationTests : IClassFixture<WebAplicationFa
         var atualizarRequest = new AtualizarProdutoRequest
         {
             Descricao = "Filtro de oleo premium",
-            Valor = 60
+            Valor = 60,
+            Quantidade = 7
         };
         var atualizarResponse = await _client.PutAsJsonAsync($"/api/v1/produtos/{produtoId}", atualizarRequest);
         atualizarResponse.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -56,6 +62,7 @@ public class InventarioEndpointsIntegrationTests : IClassFixture<WebAplicationFa
         atualizado.Should().NotBeNull();
         atualizado.Descricao.Should().Be(atualizarRequest.Descricao);
         atualizado.Valor.Should().Be(atualizarRequest.Valor);
+        atualizado.Quantidade.Should().Be(atualizarRequest.Quantidade);
 
         var excluirResponse = await _client.DeleteAsync($"/api/v1/produtos/{produtoId}");
         excluirResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
@@ -76,5 +83,17 @@ public class InventarioEndpointsIntegrationTests : IClassFixture<WebAplicationFa
         var response = await _client.PostAsJsonAsync("/api/v1/produtos", request);
 
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    private async Task<Guid> CriarCategoriaProdutoAsync(string descricao)
+    {
+        var response = await _client.PostAsJsonAsync("/api/v1/categoriaproduto", new CriarCategoriaProdutoRequest
+        {
+            Descricao = descricao
+        });
+
+        var body = await response.Content.ReadAsStringAsync();
+        response.StatusCode.Should().Be(HttpStatusCode.Created, body);
+        return await response.Content.ReadFromJsonAsync<Guid>();
     }
 }

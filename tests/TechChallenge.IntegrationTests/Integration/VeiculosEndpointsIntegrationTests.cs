@@ -78,7 +78,8 @@ public class VeiculosEndpointsIntegrationTests : IClassFixture<WebAplicationFact
             JsonTestOptions.Web);
         atualizado.Should().NotBeNull();
         atualizado.Placa.Should().Be(atualizarRequest.Placa);
-        atualizado.Tipo.Should().Be(TipoVeiculo.Moto);
+        atualizado.Modelo.Should().Be(atualizarRequest.Modelo);
+        atualizado.CategoriaId.Should().Be(categoriaId);
 
         var excluirResponse = await _client.DeleteAsync($"/api/v1/veiculos/{veiculoId}");
         excluirResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
