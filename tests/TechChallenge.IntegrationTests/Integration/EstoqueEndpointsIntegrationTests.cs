@@ -39,6 +39,11 @@ public class EstoqueEndpointsIntegrationTests : IClassFixture<WebAplicationFacto
         consultado.Should().NotBeNull();
         consultado.Quantidade.Should().Be(15);
 
+        var listarResponse = await _client.GetAsync("/api/v1/estoque");
+        listarResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        var estoques = await listarResponse.Content.ReadFromJsonAsync<List<EstoqueResponse>>();
+        estoques.Should().Contain(estoque => estoque.ProdutoId == produtoId && estoque.Quantidade == 15);
+
         var baixaResponse = await _client.PutAsJsonAsync("/api/v1/estoque", new BaixarEstoqueRequest
         {
             ProdutoId = produtoId,

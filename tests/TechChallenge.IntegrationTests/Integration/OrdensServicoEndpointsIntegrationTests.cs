@@ -105,6 +105,44 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
+    [Fact]
+    public async Task DeveListarEExecutarFluxosAlternativosDaOrdemDeServico()
+    {
+        var dados = await CriarDadosBaseAsync();
+        var osId = await CriarOrdemServicoAsync(dados);
+
+        var listagem = await _client.GetFromJsonAsync<List<OrdemServicoResponse>>("/api/v1/ordens-servico", JsonTestOptions.Web);
+        listagem.Should().Contain(os => os.Id == osId);
+
+        await PatchAsync($"/api/v1/ordens-servico/{osId}/atribuir", "Mecanico",
+            new AtribuirOrdemServicoRequest { MecanicoId = dados.FuncionarioId });
+
+        var oficina = await _client.GetFromJsonAsync<List<ListarOSOficinaResponse>>(
+            "/api/v1/ordens-servico/oficina", JsonTestOptions.Web);
+        oficina.Should().NotBeNull();
+        oficina.Should().Contain(os => os.Id == osId);
+
+        await PatchAsync($"/api/v1/ordens-servico/{osId}/diagnostico", "Mecanico",
+            new RegistrarDiagnosticoRequest
+            {
+                Servicos = [new ItemDiagnosticoRequest { Id = dados.ServicoId, Quantidade = 1 }],
+                Produtos = [new ItemDiagnosticoRequest { Id = dados.ProdutoId, Quantidade = 1 }]
+            });
+        await PatchAsync($"/api/v1/ordens-servico/{osId}/orcamento/enviar", "Mecanico");
+        await PatchAsync($"/api/v1/ordens-servico/{osId}/reprovar", "Administrador");
+        await PatchAsync($"/api/v1/ordens-servico/{osId}/retornar-para-diagnostico", "Mecanico");
+        await PatchAsync($"/api/v1/ordens-servico/{osId}/cancelar", "Administrador");
+
+        var cancelar = await _client.GetFromJsonAsync<OrdemServicoResponse>(
+            $"/api/v1/ordens-servico/{osId}", JsonTestOptions.Web);
+        cancelar!.Status.Should().Be(StatusOS.Cancelada);
+
+        using var excluir = new HttpRequestMessage(HttpMethod.Delete, $"/api/v1/ordens-servico/{osId}");
+        excluir.Headers.Add(TestAuthHandler.RoleHeader, "Administrador");
+        var excluirResponse = await _client.SendAsync(excluir);
+        excluirResponse.StatusCode.Should().Be(HttpStatusCode.NoContent);
+    }
+
     private async Task<DadosBase> CriarDadosBaseAsync()
     {
         var sequencia = Interlocked.Increment(ref _sequencia);
@@ -258,5 +296,10 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
         public int QuantidadeOrdensFinalizadas { get; set; }
         public double TempoMedioMinutos { get; set; }
         public double TempoMedioHoras { get; set; }
+    }
+
+    private sealed class ListarOSOficinaResponse
+    {
+        public Guid Id { get; set; }
     }
 }

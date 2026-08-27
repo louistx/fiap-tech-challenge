@@ -25,10 +25,12 @@ public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         var role = Request.Headers[RoleHeader].FirstOrDefault() ?? "Administrador";
+        var userId = Request.Headers.Authorization.FirstOrDefault()?.Split(' ', 2).LastOrDefault()
+                     ?? Guid.NewGuid().ToString();
 
         var claims = new[]
         {
-            new Claim("sub", Guid.NewGuid().ToString()),
+            new Claim("sub", userId),
             new Claim("role", role),
             new Claim("funcionarioId", Guid.NewGuid().ToString())
         };

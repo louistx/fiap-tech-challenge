@@ -83,10 +83,10 @@ public static class CategoriaProdutoEndpoints
         return Results.NoContent();
     }
 
-    private static IResult ObterCategoriaProdutoAsync(Guid id, ObterCategoriaProdutoService service)
+    private static async Task<IResult> ObterCategoriaProdutoAsync(Guid id, ObterCategoriaProdutoService service)
     {
-        var categoria = service.ObterCategoriaProduto(new ObterCategoriaProdutoQuery { Id = id });
-        return Results.Ok(MapearCategoriaProdutoResponse(categoria.Result));
+        var categoria = await service.ObterCategoriaProduto(new ObterCategoriaProdutoQuery { Id = id });
+        return Results.Ok(MapearCategoriaProdutoResponse(categoria));
     }
 
     private static IResult ListarCategoriasProdutoAsync(ListarCategoriasProdutosService service)
