@@ -262,8 +262,8 @@ A arquitetura-alvo da Fase 2, incluindo componentes, infraestrutura provisionada
 ├── .github/
 │   └── workflows/                     # Automações do GitHub Actions
 ├── docker-compose/                    # Orquestração dos containers
-├── k8s/                               # Manifests parciais e overlays Kustomize
-├── infra/                             # Pendente: Terraform para cluster e banco
+├── k8s/                               # Manifests Kustomize (base + overlay docker-local)
+├── infra/                             # Terraform: cluster kind + PostgreSQL
 ├── docs/
 │   ├── assets/                        # Diagramas e imagens
 │   ├── arquitetura-fase-2.md           # Aplicação, infraestrutura e deploy propostos
@@ -645,42 +645,38 @@ Essa configuração usa o banco embutido do SonarQube e é indicada apenas para 
 
 ## Kubernetes
 
-O repositório já contém uma base Kustomize em `/k8s`, mas ela ainda não representa um deploy funcional. Nesta auditoria:
-
-- `kubectl kustomize k8s/base` renderizou Deployment e Service;
-- o selector do Service não corresponde aos labels dos pods;
-- o overlay local falhou porque `namespace.yaml` não existe;
-- não foram encontrados ConfigMap, Secret, HPA, banco, probes ou requests/limits.
-
-Depois de corrigir esses itens, o fluxo esperado será:
+`/k8s` contém a base Kustomize (`base/`) e o overlay `overlays/docker-local/`.
+Instruções em [`k8s/README.md`](k8s/README.md).
 
 ```bash
+cp k8s/overlays/docker-local/secrets.env.example k8s/overlays/docker-local/secrets.env
 kubectl apply -k k8s/overlays/docker-local
-kubectl rollout status deployment/fiap-tech-challenge-api-local
-kubectl get pods,service,hpa -n techchallenge
+kubectl rollout status deployment/fiap-tech-challenge-api -n techchallenge
+kubectl get pods,svc,hpa -n techchallenge
 ```
-
-Os comandos são documentação do procedimento-alvo; os manifests atuais ainda não permitem executá-lo até o fim. Consulte [Arquitetura Proposta - Fase 2](docs/arquitetura-fase-2.md).
 
 ## Terraform
 
-O diretório `/infra` e os scripts Terraform ainda não foram implementados. A Fase 2 exige provisionamento do cluster Kubernetes e do banco, além da descrição dos recursos e de como aplicar.
+`/infra` provisiona o cluster kind e o PostgreSQL. Instruções em
+[`infra/README.md`](infra/README.md).
 
-A estrutura, decisões pendentes e comandos futuros de `init`, `validate`, `plan` e `apply` estão documentados em [Arquitetura Proposta - Fase 2](docs/arquitetura-fase-2.md). Esses comandos só serão executáveis depois que provedor, módulos, ambientes, variáveis e backend de estado forem definidos.
+```bash
+cd infra/environments/dev
+terraform init
+terraform apply -target=module.kubernetes -auto-approve
+terraform apply -auto-approve
+terraform output
+```
 
 ## CI/CD
-
-O estado atual é:
 
 | Workflow | Gatilho | Cobertura |
 | --- | --- | --- |
 | `build.yml` | push em `main` e manual | restore e build |
 | `unit-tests.yml` | manual | testes unitários |
 | `integration-tests.yml` | manual | testes de integração |
-| `docker-image.yml` | manual | build e push para GHCR |
+| `docker-image.yml` | push em `main` e manual | build, testes, build/push da imagem, deploy em cluster kind, rollout e smoke test |
 | `discord-notifications.yml` | push/PR | notificação de eventos do repositório |
-
-Os testes agora são gates automáticos da publicação da imagem. Ainda faltam jobs para Terraform, banco, aplicação dos manifests, rollout e smoke test; nenhum deploy deve ser promovido antes de esses gates de infraestrutura existirem.
 
 ## Banco de dados
 

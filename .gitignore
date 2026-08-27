@@ -6,6 +6,25 @@
 # dotenv files
 .env
 
+# Kubernetes local secrets (real values, never commit)
+k8s/overlays/*/secrets.env
+
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+*.tfvars
+!*.tfvars.example
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+infra/environments/*/kind-kubeconfig.yaml
+
 # User-specific files
 *.rsuser
 *.suo

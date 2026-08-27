@@ -43,6 +43,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 });
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddAuth(builder.Configuration);
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
@@ -57,6 +58,8 @@ if (!app.Environment.IsEnvironment("Testing"))
 }
 
 app.UseMiddleware<ExceptionMiddleware>();
+
+app.MapHealthChecks("/health").AllowAnonymous();
 
 app.MapOpenApi().AllowAnonymous();
 
