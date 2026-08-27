@@ -11,8 +11,9 @@ Manifests em `base/` (recursos comuns) e `overlays/docker-local/` (ambiente loca
 
 ```bash
 cp k8s/overlays/docker-local/secrets.env.example k8s/overlays/docker-local/secrets.env
-# editar k8s/overlays/docker-local/secrets.env com os valores reais
 ```
+
+Editar `k8s/overlays/docker-local/secrets.env` com os valores reais.
 
 ## Aplicar
 

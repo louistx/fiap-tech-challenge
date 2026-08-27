@@ -11,7 +11,6 @@ module "kubernetes" {
   install_metrics_server = var.install_metrics_server
 }
 
-# 1a aplicação: terraform apply -target=module.kubernetes antes do apply completo.
 provider "kubernetes" {
   host                   = module.kubernetes.host
   cluster_ca_certificate = module.kubernetes.cluster_ca_certificate
