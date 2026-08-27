@@ -10,5 +10,10 @@
             Id = id;
             Descricao = descricao;
         }
+
+        public void AtualizarDescricao(string descricao)
+        {
+            Descricao = descricao;
+        }
     }
 }

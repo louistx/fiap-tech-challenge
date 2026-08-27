@@ -23,10 +23,7 @@ public class AtualizarCategoriaProdutoService
         if (categoriaProduto is null)
             throw new KeyNotFoundException($"Categoria de Produto com Id {command.Id} não encontrada.");
         
-        categoriaProduto = new Domain.Entities.CategoriaProduto(
-            categoriaProduto.Id,
-            command.Descricao
-        );
+        categoriaProduto.AtualizarDescricao(command.Descricao);
 
         _categoriaProdutoRepository.UpdateAsync(categoriaProduto).GetAwaiter().GetResult();
         return true;

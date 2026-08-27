@@ -25,10 +25,7 @@ public class AtualizarCategoriaVeiculoService
         if (categoriaVeiculo is null)
             throw new KeyNotFoundException($"Categoria de Veículo com Id {command.Id} não encontrada.");
 
-        categoriaVeiculo = new Domain.Entities.CategoriaVeiculo(
-            categoriaVeiculo.Id,
-            command.Descricao
-        );
+        categoriaVeiculo.AtualizarDescricao(command.Descricao);
 
         _categoriaVeiculoRepository.UpdateAsync(categoriaVeiculo).GetAwaiter().GetResult();
         return true;

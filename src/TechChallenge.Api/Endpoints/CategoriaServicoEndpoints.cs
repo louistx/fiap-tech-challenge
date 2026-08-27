@@ -62,7 +62,7 @@ public static class CategoriaServicoEndpoints
         };
 
         var id = service.CriarCategoriaServico(command);
-        return Results.Created($"/api/v1/categoriaServico/{id}", id);
+        return Results.Created($"/api/v1/categoriaservico/{id}", id);
     }
 
     private static IResult AtualizarCategoriaServicoAsync(Guid id, AtualizarCategoriaServicoRequest request, AtualizarCategoriaServicoService service)
