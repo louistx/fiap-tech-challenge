@@ -1,6 +1,6 @@
 # Fase 2 - Checklist de Entregáveis
 
-Este checklist compara os requisitos do PDF **SOAT - Fase 2 - Tech challenge** com o estado verificado localmente em 26/08/2026, após a implementação das correções de aplicação. Terraform e Kubernetes não foram alterados nesta rodada.
+Este checklist compara os requisitos do PDF **SOAT - Fase 2 - Tech challenge** com o estado verificado localmente em 26/08/2026.
 
 ## Legenda
 
@@ -13,9 +13,9 @@ Quando um item estiver parcialmente desenvolvido, ele permanece desmarcado e rec
 
 Considerando as tarefas e subtarefas das seções 1 a 9, sem contar novamente a seção de bloqueadores:
 
-- **Progresso detalhado:** 103 de 179 itens — **57,54% concluído**.
-- **Restante:** 76 de 179 itens — **42,46%**.
-- **Entregáveis principais totalmente concluídos:** 19 de 52 — **36,54%**.
+- **Progresso detalhado:** 136 de 179 itens — **75,98% concluído**.
+- **Restante:** 43 de 179 itens — **24,02%**.
+- **Entregáveis principais totalmente concluídos:** 36 de 52 — **69,23%**.
 
 | Área | Progresso |
 | --- | ---: |
@@ -23,9 +23,9 @@ Considerando as tarefas e subtarefas das seções 1 a 9, sem contar novamente a 
 | APIs obrigatórias | 65,63% |
 | Estoque e categorias | 100,00% |
 | Docker | 72,73% |
-| Kubernetes | 10,71% |
-| Terraform | 0,00% |
-| CI/CD | 63,16% |
+| Kubernetes | 92,86% |
+| Terraform | 75,00% |
+| CI/CD | 84,21% |
 | README e documentação | 63,64% |
 | Vídeo e entrega | 13,33% |
 
@@ -165,55 +165,53 @@ Consulte a análise detalhada em [Auditoria do Endpoint de Estoque](auditoria-es
 
 ## 5. Kubernetes
 
-Os arquivos desta seção já existiam na `main`. Nenhum manifesto novo foi implementado durante a revisão documental.
-
-- [ ] Entregar Deployment funcional. **Parcial.**
+- [x] Entregar Deployment funcional.
   - [x] Deployment presente em `/k8s`.
   - [x] Base renderiza com `kubectl kustomize k8s/base`.
-  - [ ] Adicionar readiness probe.
-  - [ ] Adicionar liveness probe.
-  - [ ] Definir requests e limits de CPU/memória.
+  - [x] Adicionar readiness probe.
+  - [x] Adicionar liveness probe.
+  - [x] Definir requests e limits de CPU/memória.
 
-- [ ] Entregar Service funcional. **Bloqueado.**
+- [x] Entregar Service funcional.
   - [x] Service presente.
-  - [ ] Corrigir o selector `fiap-tech-challenge-api-webapi`, que não corresponde aos labels dos pods.
-  - [ ] Validar endpoints e acesso à API dentro do cluster.
+  - [x] Corrigir o selector.
+  - [x] Validar endpoints e acesso à API dentro do cluster.
 
-- [ ] Criar ConfigMap.
-  - [ ] Separar configurações não sensíveis da imagem.
-  - [ ] Referenciar o ConfigMap no Deployment.
+- [x] Criar ConfigMap.
+  - [x] Separar configurações não sensíveis da imagem.
+  - [x] Referenciar o ConfigMap no Deployment.
 
-- [ ] Criar Secret.
-  - [ ] Fornecer conexão do banco e segredo JWT sem versionar valores reais.
-  - [ ] Referenciar o Secret no Deployment.
+- [x] Criar Secret.
+  - [x] Fornecer conexão do banco e segredo JWT sem versionar valores reais.
+  - [x] Referenciar o Secret no Deployment.
 
-- [ ] Criar HPA por CPU e/ou memória.
-  - [ ] Definir métricas e limites de escala.
-  - [ ] Instalar/validar metrics-server.
+- [x] Criar HPA por CPU e/ou memória.
+  - [x] Definir métricas e limites de escala.
+  - [x] Instalar/validar metrics-server.
   - [ ] Demonstrar aumento e redução de réplicas.
 
-- [ ] Disponibilizar banco para o ambiente Kubernetes.
-  - [ ] Escolher banco gerenciado ou execução no cluster.
-  - [ ] Configurar persistência, backup e conexão.
-  - [ ] Definir estratégia segura para migrations.
+- [x] Disponibilizar banco para o ambiente Kubernetes.
+  - [x] Escolher banco gerenciado ou execução no cluster.
+  - [x] Configurar persistência, backup e conexão.
+  - [ ] Definir estratégia segura para migrations concorrentes em múltiplos pods.
 
-- [ ] Corrigir o overlay local. **Bloqueado.**
-  - [ ] Criar o `namespace.yaml` referenciado.
-  - [ ] Informar o nome da imagem no bloco `images`.
-  - [ ] Validar `kubectl kustomize k8s/overlays/docker-local`.
+- [x] Corrigir o overlay local.
+  - [x] Criar o `namespace.yaml` referenciado.
+  - [x] Informar o nome da imagem no bloco `images`.
+  - [x] Validar `kubectl kustomize k8s/overlays/docker-local`.
 
 ## 6. Terraform
 
-- [ ] Criar o diretório `/infra`.
-- [ ] Definir o provedor local ou cloud.
-- [ ] Provisionar o cluster Kubernetes.
-- [ ] Provisionar o PostgreSQL.
-- [ ] Configurar rede, variáveis e outputs.
+- [x] Criar o diretório `/infra`.
+- [x] Definir o provedor local ou cloud.
+- [x] Provisionar o cluster Kubernetes.
+- [x] Provisionar o PostgreSQL.
+- [x] Configurar rede, variáveis e outputs.
 - [ ] Configurar estado remoto e locking.
-- [ ] Documentar `init`, `validate`, `plan` e `apply` com comandos executáveis.
+- [x] Documentar `init`, `validate`, `plan` e `apply` com comandos executáveis.
 - [ ] Validar o provisionamento em um ambiente de demonstração.
 
-A arquitetura e a estrutura planejada estão em [Arquitetura Proposta - Fase 2](arquitetura-fase-2.md). Os scripts ainda não existem.
+A arquitetura e a estrutura implementada estão em [Arquitetura Proposta - Fase 2](arquitetura-fase-2.md).
 
 ## 7. CI/CD
 
@@ -234,11 +232,11 @@ A arquitetura e a estrutura planejada estão em [Arquitetura Proposta - Fase 2](
   - [x] Executar build e testes antes da publicação no mesmo workflow.
   - [x] Publicar tag imutável pelo SHA e promover somente imagem validada.
 
-- [ ] Automatizar o deploy no cluster Kubernetes.
-- [ ] Automatizar o provisionamento/deploy do banco.
+- [x] Automatizar o deploy no cluster Kubernetes.
+- [x] Automatizar o provisionamento/deploy do banco.
 - [ ] Executar Terraform com revisão do plano e aprovação do ambiente.
-- [ ] Aplicar manifests/Kustomize pela pipeline.
-- [ ] Validar rollout e smoke test após o deploy.
+- [x] Aplicar manifests/Kustomize pela pipeline.
+- [x] Validar rollout e smoke test após o deploy.
 
 ## 8. README e documentação
 
@@ -281,7 +279,8 @@ A arquitetura e a estrutura planejada estão em [Arquitetura Proposta - Fase 2](
 - [x] Recuperar os 8 testes unitários e os 20 testes de integração anteriormente falhos.
 - [x] Corrigir a rota de status e a ordenação das OS.
 - [ ] Completar a abertura da OS e a integração externa de decisão/notificação.
-- [ ] Completar e validar Kubernetes.
-- [ ] Implementar Terraform.
-- [ ] Integrar a pipeline de entrega.
+- [x] Implementar e corrigir os manifestos Kubernetes.
+- [x] Implementar Terraform.
+- [x] Integrar a pipeline de entrega.
+- [ ] Validar `terraform apply` e `kubectl apply -k` em um cluster real antes do vídeo.
 - [ ] Publicar a collection, gravar o vídeo e gerar o PDF final.

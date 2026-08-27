@@ -109,70 +109,48 @@ sequenceDiagram
 
 Gates mínimos: nenhum deploy quando build/testes falharem; `terraform plan` revisado antes de `apply`; segredos fora do Git; imagem identificada pelo SHA; rollout validado antes de promover o ambiente.
 
-## Estado atual dos manifestos Kubernetes
-
-A base pode ser renderizada com:
+## Manifestos Kubernetes
 
 ```bash
 kubectl kustomize k8s/base
-```
-
-Isso confirma apenas a sintaxe e a composição. O Service atual possui selector diferente dos labels do Deployment, portanto não encaminhará tráfego aos pods.
-
-O overlay local ainda não é aplicável:
-
-```bash
 kubectl kustomize k8s/overlays/docker-local
 ```
 
-Ele referencia `namespace.yaml`, que não existe, e deve ser completado antes do uso. ConfigMap, Secret, HPA, banco, probes e recursos de CPU/memória também não existem.
-
-Quando essas pendências forem corrigidas, a sequência esperada será:
-
 ```bash
 kubectl apply -k k8s/overlays/docker-local
-kubectl rollout status deployment/fiap-tech-challenge-api-local
+kubectl rollout status deployment/fiap-tech-challenge-api -n techchallenge
 kubectl get pods,service,hpa -n techchallenge
 ```
 
-Os nomes e o namespace acima precisam ser alinhados aos manifests finais; os comandos representam o procedimento-alvo, não uma implantação atualmente funcional.
+Detalhes em [`k8s/README.md`](../k8s/README.md).
 
-## Provisionamento futuro com Terraform
-
-O diretório `/infra` ainda não existe. Uma estrutura mínima recomendada é:
+## Provisionamento com Terraform
 
 ```text
 infra/
 ├── modules/
-│   ├── network/
 │   ├── kubernetes/
 │   └── database/
 ├── environments/
-│   ├── dev/
-│   └── prod/
-├── versions.tf
+│   └── dev/
 └── README.md
 ```
-
-Quando implementado, o fluxo documentado deverá ser:
 
 ```bash
 terraform -chdir=infra/environments/dev init
 terraform -chdir=infra/environments/dev fmt -check
 terraform -chdir=infra/environments/dev validate
-terraform -chdir=infra/environments/dev plan -out=tfplan
-terraform -chdir=infra/environments/dev apply tfplan
+terraform -chdir=infra/environments/dev apply -target=module.kubernetes -auto-approve
+terraform -chdir=infra/environments/dev apply -auto-approve
 ```
 
-Antes de aplicar, é obrigatório definir o provedor e a estratégia de cluster local/cloud, banco, rede, estado remoto, locking, credenciais e política de destruição. Nenhum desses comandos funcionará até que os arquivos Terraform sejam criados.
+Detalhes em [`infra/README.md`](../infra/README.md).
 
 ## Decisões pendentes
 
-- provedor do cluster e do PostgreSQL;
 - Ingress e terminação TLS;
-- gerenciamento de segredos;
+- gerenciamento de segredos além do local;
 - estratégia de migration sem execução concorrente em múltiplos pods;
-- métricas e limites que alimentarão o HPA;
 - ambientes, aprovações e política de promoção;
 - canal externo para decisão do orçamento e notificação de status;
 - recuperação, backup e observabilidade.

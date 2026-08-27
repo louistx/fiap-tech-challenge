@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: fiap-tech-challenge-api-config
+data:
+  ASPNETCORE_ENVIRONMENT: "Production"
+  ASPNETCORE_HTTP_PORTS: "8080"
+  Jwt__Issuer: "techchallenge-api"
+  Jwt__Audience: "techchallenge-clients"
+  Jwt__AccessTokenMinutes: "15"
+  Jwt__RefreshTokenDays: "7"
+  Seed__FakeData: "false"
+  Seed__DemoData: "false"
+  Seed__AdminLogin: "admin"

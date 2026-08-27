@@ -6,6 +6,8 @@ metadata:
 resources:
   - deployment.yaml
   - service.yaml
+  - configmap.yaml
+  - hpa.yaml
 
 images: 
   - name: ghcr.io/louistx/fiap-tech-challenge

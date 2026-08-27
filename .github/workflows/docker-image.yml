@@ -54,12 +54,107 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build and push
         uses: docker/build-push-action@v7
         with:
           context: .
           file: src/TechChallenge.Api/Dockerfile
           push: true
+          platforms: linux/amd64,linux/arm64
           tags: |
             ${{ env.IMAGE_NAME }}:latest
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+  deploy:
+    name: Deploy (cluster kind efêmero + Terraform + Kubernetes)
+    needs: publish
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/environments/dev
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: "1.9.8"
+          terraform_wrapper: false
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v5
+
+      - name: Setup kustomize
+        uses: imranismail/setup-kustomize@v3
+
+      - name: Terraform init
+        run: terraform init
+
+      - name: Terraform apply (cluster)
+        run: terraform apply -auto-approve -target=module.kubernetes
+
+      - name: Terraform apply (banco de dados)
+        run: terraform apply -auto-approve
+
+      - name: Exportar KUBECONFIG para os próximos passos
+        run: echo "KUBECONFIG=$(pwd)/$(terraform output -raw kubeconfig_path)" >> "$GITHUB_ENV"
+
+      - name: Criar Secret da aplicação
+        env:
+          JWT_SECRET_KEY: ${{ secrets.CI_JWT_SECRET_KEY || 'ci-demo-secret-nao-usar-em-producao-0000' }}
+        run: |
+          CONNECTION_STRING="$(terraform output -raw postgres_connection_string)"
+
+          kubectl create secret generic fiap-tech-challenge-api-secrets \
+            -n techchallenge \
+            --from-literal=ConnectionStrings__DefaultConnection="$CONNECTION_STRING" \
+            --from-literal=Jwt__SecretKey="$JWT_SECRET_KEY" \
+            --from-literal=Seed__AdminPassword="admin" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Garantir pull da imagem privada do GHCR (se aplicável)
+        run: |
+          kubectl create secret docker-registry ghcr-pull-secret \
+            -n techchallenge \
+            --docker-server=ghcr.io \
+            --docker-username=${{ github.actor }} \
+            --docker-password=${{ secrets.GITHUB_TOKEN }} \
+            --dry-run=client -o yaml | kubectl apply -f -
+          kubectl patch serviceaccount default -n techchallenge \
+            -p '{"imagePullSecrets": [{"name": "ghcr-pull-secret"}]}'
+
+      - name: Aplicar manifests Kubernetes (imagem desta build)
+        working-directory: k8s/overlays/docker-local
+        run: |
+          kustomize edit set image ghcr.io/louistx/fiap-tech-challenge=${{ env.IMAGE_NAME }}:${{ github.sha }}
+          kubectl apply -k .
+
+      - name: Validar rollout
+        run: |
+          kubectl rollout status deployment/fiap-tech-challenge-api -n techchallenge --timeout=180s
+          kubectl get pods,svc,hpa -n techchallenge
+
+      - name: Smoke test (consumo da API)
+        run: |
+          for i in $(seq 1 10); do
+            if curl --fail -s http://localhost:8080/health; then
+              echo "API respondendo em /health"
+              exit 0
+            fi
+            echo "Tentativa $i falhou, aguardando..."
+            sleep 5
+          done
+          echo "Smoke test falhou: API não respondeu em /health"
+          exit 1
+
+      - name: Destruir cluster efêmero
+        if: always()
+        run: terraform destroy -auto-approve
