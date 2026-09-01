@@ -151,7 +151,7 @@ Consulte a análise detalhada em [Auditoria do Endpoint de Estoque](auditoria-es
   - [x] Dockerfile multi-stage existente.
   - [x] Imagem final configurada com usuário não-root.
   - [x] Copiar `TechChallenge.Infrastructure.Auth.csproj` antes do `dotnet restore` da imagem.
-  - [x] Executar build completo da imagem ARM64 no Docker Desktop.
+  - [x] Executar build completo da imagem no Docker Desktop.
   - [x] Executar smoke test da imagem no Kubernetes: saúde, Swagger e autenticação.
 
 - [x] Manter Docker Compose para desenvolvimento local.

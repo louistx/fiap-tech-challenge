@@ -1,4 +1,4 @@
-# Validação da infraestrutura local — 27/08/2026
+# Validação da infraestrutura local — 01/09/2026
 
 ## Ambiente
 
@@ -8,7 +8,8 @@
 - Terraform 1.15.8; providers Kubernetes 3.2.1, Helm 3.2.0 e Random 3.9.0.
 - PostgreSQL `17.11-bookworm`, PVC de 2 GiB na StorageClass `standard`.
 - Metrics Server 0.9.0, chart 3.14.0.
-- Imagem local testada: `techchallenge-api:local-20260827120402`.
+- Imagem publicada testada: `ghcr.io/louistx/fiap-tech-challenge:eee8e1a69833`
+  (`linux/amd64`, executada por emulação no nó ARM64).
 
 O cluster não foi recriado. Terraform administra as dependências; Kustomize
 administra a API, que agora aplica migrations na inicialização. Por definição do
@@ -28,7 +29,7 @@ local inicial. A revisão simplificada do startup está validada separadamente a
 | `terraform fmt` / `validate` | Aprovados |
 | Testes Terraform com providers mockados | 4 aprovados |
 | Renderização Kustomize | Base, overlay local único e carga válidos |
-| Build da imagem Docker | Concluído em ARM64 |
+| Build da imagem Docker | Publicação `linux/amd64` concluída no GHCR |
 | Terraform aplicado | 10 recursos no state, incluindo release Helm e geradores de senha |
 | Plano após provisionamento | `No changes`, exit code 0 |
 | Migrations no fluxo anterior | Job concluiu com exit code 0; substituído posteriormente por migrations no startup |
@@ -104,31 +105,32 @@ Validação desta revisão:
 O banco de validação e seu port-forward temporário foram removidos. O Job antigo,
 já concluído, também foi removido; nenhum banco da aplicação foi apagado.
 
-O padrão do overlay passou a ser `ghcr.io/louistx/fiap-tech-challenge:latest`,
-com `imagePullPolicy: Always` na API. Na consulta de 27/08, o registry informou:
+O overlay fixa a tag imutável
+`ghcr.io/louistx/fiap-tech-challenge:eee8e1a69833`, com
+`imagePullPolicy: Always` na API. Na validação de 01/09, o registry e o cluster
+informaram:
 
-- Digest: `sha256:4f1bfe7fe690911f215b262279e5c6df61319b2e06550feb1c7e34bedf204b27`.
-- Imagem criada em 26/08/2026, plataforma `linux/amd64`.
-- O workflow revisado publica `latest` e os 12 primeiros caracteres do SHA do
-  commit; o SHA completo fica no rótulo OCI. O build agora declara
-  `linux/amd64` e `linux/arm64`, mas essa revisão ainda precisa ser executada.
+- Manifesto OCI: `application/vnd.oci.image.manifest.v1+json`.
+- Digest: `sha256:926f9bd2ea981e39717c49e2742d9fbe12d1c22d24eb63eedc902dd234e79c2f`.
+- Plataforma publicada: `linux/amd64`.
+- Nó do Docker Desktop: `arm64`.
+- Rollout: uma réplica pronta, com zero reinícios.
+- `/health/live`, `/health/ready`, OpenAPI e Swagger: HTTP 200.
 
-A imagem publicada é anterior às mudanças locais dos endpoints de saúde.
-É necessário publicar uma imagem com essas mudanças e conferir o novo manifesto
-multi-arquitetura antes de validar a execução via GHCR.
-Nenhuma imagem foi publicada e esta revisão **não foi aplicada** sobre a API saudável.
-O pod existente continua usando `techchallenge-api:local-20260827120402`, com zero
-reinícios; os testes HTTP continuaram passando. Os resultados de execução acima
-referem-se à imagem local anterior ou ao processo .NET compilado, conforme indicado,
-não a uma execução da nova configuração GHCR.
+O workflow publica `latest` e os 12 primeiros caracteres do SHA do commit; o
+SHA completo fica no rótulo OCI. A publicação foi simplificada para uma única
+arquitetura e o job de build e push caiu de 11min32s para 56s. A atestação do
+Buildx foi desativada porque ela transformava a tag em um índice OCI sem entrada
+ARM64; o containerd do cluster não resolvia esse índice. A tag agora aponta
+diretamente para o manifesto AMD64, que o Docker Desktop executou por emulação.
 
 ## Limites desta validação
 
 - Não comprova alta disponibilidade: há um único nó e uma réplica do banco.
 - Não cria cluster ou recursos de nuvem.
 - Não publica API na internet: o acesso é por port-forward local.
-- Ainda não valida a nova imagem multi-arquitetura publicada no GHCR; a imagem
-  testada foi construída localmente.
+- A imagem publicada é `linux/amd64`; a validação em Apple Silicon comprova a
+  execução por emulação, não uma imagem ARM64 nativa.
 - Não possui backend remoto, rotação automática de segredos ou backup agendado; esses recursos só seriam necessários em um ambiente compartilhado ou produtivo.
 - O teste de carga demonstra o HPA, sem pretender medir capacidade de produção.
 
