@@ -97,9 +97,9 @@ tenta novamente. Não há Job, script de deploy ou build local obrigatório.
 Terraform não aplica os manifests da aplicação.
 
 A imagem publicada precisa incluir os endpoints de saúde usados nas probes;
-alterar o YAML não atualiza o código da imagem. O workflow publica um manifesto
-multi-arquitetura para `linux/amd64` e `linux/arm64`, incluindo Macs com Apple
-Silicon.
+alterar o YAML não atualiza o código da imagem. O workflow publica a imagem para
+`linux/amd64`; no Docker Desktop em Macs com Apple Silicon, ela é executada por
+emulação.
 
 Se o pacote no GHCR for privado, configure `imagePullSecrets` com um Secret
 gerenciado pelo Terraform. As credenciais do Docker no host não configuram a

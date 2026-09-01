@@ -71,7 +71,7 @@ flowchart LR
     Infrastructure[Persistência e autenticação] --> Contracts
     Infrastructure --> Database[(PostgreSQL)]
 
-    Actions[GitHub Actions] --> GHCR[GHCR multi-arquitetura]
+    Actions[GitHub Actions] --> GHCR[GHCR com imagem versionada]
     GHCR --> Deployment[Kubernetes Deployment]
     Terraform[Terraform] --> Dependencies[Namespace, banco, Secrets e Metrics Server]
     Kustomize[Kustomize] --> Deployment
@@ -180,8 +180,9 @@ docker compose \
 ```
 
 O Dockerfile usa múltiplos estágios e usuário não-root. O workflow publica a
-imagem para `linux/amd64` e `linux/arm64`, com `latest`, uma tag formada pelos 12
-primeiros caracteres do SHA e o SHA completo no rótulo OCI.
+imagem para `linux/amd64`, com `latest`, uma tag formada pelos 12 primeiros
+caracteres do SHA e o SHA completo no rótulo OCI. No Docker Desktop em Apple
+Silicon, essa imagem é executada por emulação.
 
 ## Testes
 
@@ -197,7 +198,7 @@ terraform -chdir=infra/environments/local test
 - 29 testes de integração aprovados;
 - 4 testes Terraform aprovados;
 - build sem erros ou avisos;
-- imagem Docker `amd64`/`arm64` gerada localmente.
+- imagem Docker `linux/amd64` publicada e validada localmente.
 
 Estratégia, cenários e limitações: [docs/testes.md](docs/testes.md).
 
@@ -244,7 +245,7 @@ Instruções de credenciais, persistência, backup, teste de carga e recuperaç�
 | `build.yml` | Restore e build |
 | `unit-tests.yml` | Testes unitários |
 | `integration-tests.yml` | Testes de integração |
-| `docker-image.yml` | Gate de build/testes e publicação multi-arquitetura no GHCR |
+| `docker-image.yml` | Gate de build/testes e publicação `linux/amd64` no GHCR |
 
 O workflow da imagem só publica depois que build e as duas suítes são aprovados.
 A entrega contínua do ambiente acadêmico é concluída no cluster Kubernetes local:

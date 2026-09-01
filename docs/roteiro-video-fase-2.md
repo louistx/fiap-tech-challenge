@@ -118,7 +118,7 @@ docker compose \
 
 1. SHA do Commit A.
 2. Job de validação com restore, build, 111 testes unitários e 29 testes de integração.
-3. Job `Build and push image` concluído para `linux/amd64` e `linux/arm64`.
+3. Job `Build and push image` concluído para `linux/amd64`.
 4. Tag do GHCR igual aos 12 primeiros caracteres do SHA do Commit A.
 5. Commit B alterando `newTag` para essa tag imutável.
 
@@ -127,11 +127,11 @@ docker compose \
 > A cada push na main, a pipeline restaura e compila a solução, executa os
 > testes e somente depois libera a publicação. A imagem recebe `latest` e uma
 > tag imutável formada pelos 12 primeiros caracteres do SHA. O SHA completo fica
-> preservado nos metadados OCI. O build gera um manifesto para AMD64 e ARM64, o
-> que permite usar a mesma tag no runner do GitHub e no Docker Desktop em Apple
-> Silicon. O commit seguinte promove essa imagem no overlay Kubernetes. O
-> cluster local não é acessado pelo runner do GitHub; a aplicação da
-> infraestrutura é demonstrada a seguir.
+> preservado nos metadados OCI. Para reduzir o tempo e a complexidade de uma
+> entrega acadêmica local, o build gera apenas a imagem AMD64; o Docker Desktop
+> no Apple Silicon a executa por emulação. O commit seguinte promove essa imagem
+> no overlay Kubernetes. O cluster local não é acessado pelo runner do GitHub;
+> a aplicação da infraestrutura é demonstrada a seguir.
 
 ### 3:10-5:15 - Terraform e deploy com um único apply
 

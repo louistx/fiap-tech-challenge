@@ -70,8 +70,9 @@ são [Deployments](https://kubernetes.io/docs/concepts/workloads/controllers/dep
 e [ConfigMaps](https://kubernetes.io/docs/concepts/configuration/configmap/#mounted-configmaps-are-updated-automatically).
 
 A imagem publicada deve conter os endpoints de saúde usados nas probes. O
-workflow gera `linux/amd64` e `linux/arm64`. Se o pacote no GHCR for privado, configure
-`imagePullSecrets` com um Secret gerenciado pelo Terraform; não versionar tokens.
+workflow gera `linux/amd64`, que o Docker Desktop em Apple Silicon executa por
+emulação. Se o pacote no GHCR for privado, configure `imagePullSecrets` com um
+Secret gerenciado pelo Terraform; não versionar tokens.
 
 ## Validar sem aplicar
 
