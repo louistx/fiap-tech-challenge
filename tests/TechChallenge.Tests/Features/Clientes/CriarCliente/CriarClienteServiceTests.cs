@@ -30,6 +30,7 @@ public class CriarClienteServiceTests
         clienteCriado.Should().NotBeNull();
         clienteCriado.Id.Should().Be(clienteId);
         clienteCriado.Nome.Should().Be(command.Nome);
+        clienteCriado.Email.Should().Be(command.Email);
         clienteCriado.TipoDocumento.Should().Be(TipoDocumento.Cpf);
         clienteCriado.Documento.Should().Be(cpfFormatado);
         clienteCriado.Endereco.Cidade.Should().Be(command.Cidade);
@@ -44,7 +45,13 @@ public class CriarClienteServiceTests
         const string cpfFormatado = "529.982.247-25";
         var repository = new Mock<IClienteRepository>();
         repository.Setup(repo => repo.GetByDocumentAsync(cpfFormatado))
-            .ReturnsAsync(new Cliente(Guid.NewGuid(), string.Empty, TipoDocumento.Cpf, cpfFormatado, Guid.NewGuid()));
+            .ReturnsAsync(new Cliente(
+                Guid.NewGuid(),
+                string.Empty,
+                "cliente@teste.local",
+                TipoDocumento.Cpf,
+                cpfFormatado,
+                Guid.NewGuid()));
         var service = new CriarClienteService(repository.Object, new CriarClienteCommandValidator());
 
         var act = () => service.CriarCliente(command);
@@ -84,6 +91,7 @@ public class CriarClienteServiceTests
         return new CriarClienteCommand
         {
             Nome = "Maria Cliente",
+            Email = "maria.cliente@teste.local",
             TipoDocumento = TipoDocumento.Cpf,
             Documento = "52998224725",
             Logradouro = "Rua Teste",

@@ -22,7 +22,7 @@ public class OrdemServicoRepositoryIntegrationTests
         await context.Database.EnsureCreatedAsync();
 
         var endereco = new Endereco(Guid.NewGuid(), "Rua", "Casa", "1", "Centro", "Sao Paulo", "SP", "01001000");
-        var cliente = new Cliente(Guid.NewGuid(), "Cliente", TipoDocumento.Cpf, "529.982.247-25", endereco.Id);
+        var cliente = new Cliente(Guid.NewGuid(), "Cliente", "cliente@teste.local", TipoDocumento.Cpf, "529.982.247-25", endereco.Id);
         cliente.AtribuirEndereco(endereco);
         var funcionario = new Funcionario(Guid.NewGuid(), "Mecanico", "529.982.247-25", "123456789", TipoFuncionario.Mecanico, endereco.Id);
         funcionario.AtribuirEndereco(endereco);

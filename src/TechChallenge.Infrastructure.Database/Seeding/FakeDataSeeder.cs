@@ -25,6 +25,7 @@ namespace TechChallenge.Infrastructure.Database.Seeding
             await AddClientesIfMissingAsync(context);
             await AddFuncionariosIfMissingAsync(context);
             await AddUsuariosIfMissingAsync(context, hasher);
+            await AddRangeIfMissingAsync(context, context.CategoriaVeiculo, CategoriaVeiculos());
             await AddVeiculosIfMissingAsync(context);
             await AddRangeIfMissingAsync(context, context.CategoriaServico, CategoriaServicos());
             await AddRangeIfMissingAsync(context, context.CategoriaProduto, CategoriaProdutos());
@@ -43,7 +44,7 @@ namespace TechChallenge.Infrastructure.Database.Seeding
 
         private static IReadOnlyCollection<Cliente> Clientes() =>
         [
-            new(ClienteExemploId, "Cliente Fake", TipoDocumento.Rg, "000000000", EnderecoClienteExemploId)
+            new(ClienteExemploId, "Cliente Fake", "cliente.fake@oficina.local", TipoDocumento.Rg, "000000000", EnderecoClienteExemploId)
         ];
 
         private static IReadOnlyCollection<Funcionario> Funcionarios() =>
@@ -58,7 +59,9 @@ namespace TechChallenge.Infrastructure.Database.Seeding
 
         private static IReadOnlyCollection<CategoriaServico> CategoriaServicos() => [];
 
-        private static IReadOnlyCollection<CategoriaProduto> CategoriaProdutos() => 
+        private static IReadOnlyCollection<CategoriaProduto> CategoriaProdutos() => [];
+
+        private static IReadOnlyCollection<CategoriaVeiculo> CategoriaVeiculos() =>
         [
             new(CategoriaVeiculoId, "Categoria Fake")
         ];

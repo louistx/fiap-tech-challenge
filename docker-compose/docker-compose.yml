@@ -3,9 +3,20 @@ services:
     image: ${DOCKER_REGISTRY-}techchallengeapi
     environment:
       ConnectionStrings__DefaultConnection: "Host=db;Port=5432;Database=TechChallenge;Username=postgres;Password=Dev@123456"
+      IntegracaoExterna__ApiKey: "${EXTERNAL_INTEGRATION_API_KEY:-demo-integration-key-change-me}"
+      Notifications__Enabled: "true"
+      Notifications__IntervalSeconds: "2"
+      Smtp__Host: "mailpit"
+      Smtp__Port: "1025"
+      Smtp__UseSsl: "false"
+      Smtp__AllowInsecureConnection: "true"
+      Smtp__FromAddress: "nao-responda@oficina.local"
+      Smtp__FromName: "Oficina Tech Challenge"
     depends_on:
-      db: 
+      db:
         condition: service_healthy
+      mailpit:
+        condition: service_started
     build:
       context: ..
       dockerfile: src/TechChallenge.Api/Dockerfile
@@ -21,6 +32,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  mailpit:
+    image: axllent/mailpit:v1.31.0
+    restart: unless-stopped
 
   sonarqube:
     image: sonarqube:community

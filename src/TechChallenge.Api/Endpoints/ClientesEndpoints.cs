@@ -61,6 +61,7 @@ public static class ClientesEndpoints
         var command = new CriarClienteCommand
         {
             Nome = request.Nome ?? string.Empty,
+            Email = request.Email ?? string.Empty,
             TipoDocumento = request.TipoDocumento,
             Documento = request.Documento ?? string.Empty,
             Logradouro = endereco.Logradouro ?? string.Empty,
@@ -84,6 +85,7 @@ public static class ClientesEndpoints
         {
             Id = id,
             Nome = request.Nome ?? string.Empty,
+            Email = request.Email ?? string.Empty,
             TipoDocumento = request.TipoDocumento,
             Documento = request.Documento ?? string.Empty,
             Logradouro = endereco.Logradouro ?? string.Empty,
@@ -123,6 +125,7 @@ public static class ClientesEndpoints
         {
             Id = cliente.Id,
             Nome = cliente.Nome,
+            Email = cliente.Email,
             TipoDocumento = cliente.TipoDocumento,
             Documento = cliente.Documento,
             Endereco = new EnderecoResponse

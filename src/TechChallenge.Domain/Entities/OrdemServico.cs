@@ -1,9 +1,13 @@
 using TechChallenge.Domain.Enums;
+using TechChallenge.Domain.Events;
+using TechChallenge.Domain.Exceptions;
 
 namespace TechChallenge.Domain.Entities;
 
 public class OrdemServico
 {
+    private readonly List<StatusOrdemServicoAlteradoEvent> _eventosDominio = [];
+
     private static readonly Dictionary<StatusOS, StatusOS[]> Transicoes = new()
     {
         [StatusOS.Recebida] = [StatusOS.EmDiagnostico, StatusOS.Cancelada],
@@ -28,6 +32,8 @@ public class OrdemServico
     public Veiculo Veiculo { get; private set; } = null!;
     public ICollection<OrdemServicoServicos> Servicos { get; private set; } = new List<OrdemServicoServicos>();
     public ICollection<OrdemServicoProdutos> Produtos { get; private set; } = new List<OrdemServicoProdutos>();
+    public ICollection<DecisaoOrcamentoExterna> DecisoesExternas { get; private set; } = new List<DecisaoOrcamentoExterna>();
+    public IReadOnlyCollection<StatusOrdemServicoAlteradoEvent> EventosDominio => _eventosDominio.AsReadOnly();
     public DateTime DataCriacao { get; private set; }
     public DateTime? DataAtualizacao { get; private set; }
     public DateTime? DataFinalizacao { get; private set; }
@@ -57,12 +63,72 @@ public class OrdemServico
         if (!Transicoes.TryGetValue(Status, out var permitidos) || !permitidos.Contains(novoStatus))
             throw new InvalidOperationException($"Transição inválida: {Status} -> {novoStatus}.");
 
+        var statusAnterior = Status;
+        var agora = DateTime.UtcNow;
+
         Status = novoStatus;
-        DataAtualizacao = DateTime.UtcNow;
+        DataAtualizacao = agora;
+
+        _eventosDominio.Add(new StatusOrdemServicoAlteradoEvent(
+            Guid.NewGuid(),
+            Id,
+            ClienteResponsavelId,
+            CodigoAcompanhamento,
+            statusAnterior,
+            novoStatus,
+            agora));
 
         if (novoStatus == StatusOS.Finalizada)
-            DataFinalizacao = DateTime.UtcNow;
+            DataFinalizacao = agora;
     }
+
+    public bool ReceberDecisaoExterna(
+        string eventoId,
+        DecisaoOrcamento decisao,
+        string? motivo,
+        DateTime ocorridoEm,
+        DateTime recebidoEm)
+    {
+        var eventoNormalizado = eventoId.Trim();
+        var existente = DecisoesExternas.FirstOrDefault(item =>
+            string.Equals(item.EventoId, eventoNormalizado, StringComparison.Ordinal));
+
+        if (existente is not null)
+        {
+            if (existente.CorrespondeA(decisao, motivo, ocorridoEm))
+                return false;
+
+            throw new DomainConflictException(
+                $"O evento externo {eventoNormalizado} já foi registrado com outro conteúdo.");
+        }
+
+        if (Status != StatusOS.AguardandoAprovacao)
+        {
+            throw new DomainConflictException(
+                $"A OS {Id} não aguarda decisão de orçamento. Status atual: {Status}.");
+        }
+
+        var novoStatus = decisao switch
+        {
+            DecisaoOrcamento.Aprovado => StatusOS.EmExecucao,
+            DecisaoOrcamento.Recusado => StatusOS.Reprovada,
+            _ => throw new ArgumentOutOfRangeException(nameof(decisao), decisao, "Decisão inválida.")
+        };
+
+        DecisoesExternas.Add(new DecisaoOrcamentoExterna(
+            Guid.NewGuid(),
+            Id,
+            eventoNormalizado,
+            decisao,
+            DecisaoOrcamentoExterna.NormalizarMotivo(motivo),
+            ocorridoEm,
+            recebidoEm));
+
+        TransicionarPara(novoStatus);
+        return true;
+    }
+
+    public void LimparEventosDominio() => _eventosDominio.Clear();
 
     public void AtribuirFuncionario(Guid id)
     {

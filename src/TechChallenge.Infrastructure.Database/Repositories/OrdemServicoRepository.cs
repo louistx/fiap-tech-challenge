@@ -32,6 +32,7 @@ namespace TechChallenge.Infrastructure.Database.Repositories
                 .ThenInclude(oss => oss.Servico)
                 .Include(os => os.Produtos)
                 .ThenInclude(osp => osp.Produto)
+                .Include(os => os.DecisoesExternas)
                 .FirstOrDefaultAsync(os => os.Id == id);
         }
 
@@ -51,6 +52,17 @@ namespace TechChallenge.Infrastructure.Database.Repositories
                     os.Status == StatusOS.EmDiagnostico ? 2 : 3)
                 .ThenBy(os => os.DataCriacao)
                 .ToListAsync();
+        }
+
+        public override async Task<OrdemServico> UpdateAsync(OrdemServico entity)
+        {
+            foreach (var decisao in entity.DecisoesExternas)
+            {
+                if (_context.Entry(decisao).State == EntityState.Detached)
+                    await _context.DecisaoOrcamentoExterna.AddAsync(decisao);
+            }
+
+            return await base.UpdateAsync(entity);
         }
 
         public async Task<List<OrdemServico>> GetByStatusAsync(StatusOS status)
@@ -102,6 +114,13 @@ namespace TechChallenge.Infrastructure.Database.Repositories
                 .Include(os => os.Produtos)
                 .ThenInclude(osp => osp.Produto)
                 .FirstOrDefaultAsync(os => os.CodigoAcompanhamento == codigoAcompanhamento);
+        }
+
+        public async Task<DecisaoOrcamentoExterna?> GetDecisaoExternaPorEventoIdAsync(string eventoId)
+        {
+            return await _context.DecisaoOrcamentoExterna
+                .AsNoTracking()
+                .FirstOrDefaultAsync(decisao => decisao.EventoId == eventoId);
         }
 
         public async Task<List<OrdemServico>> GetFinalizadasComDataFinalizacaoAsync()

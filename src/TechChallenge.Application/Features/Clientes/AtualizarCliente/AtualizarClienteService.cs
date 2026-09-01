@@ -25,7 +25,7 @@ public class AtualizarClienteService
         if (cliente is null)
             throw new KeyNotFoundException($"Cliente com Id {command.Id} não encontrado.");
 
-        cliente.Atualizar(command.Nome, command.TipoDocumento, documento);
+        cliente.Atualizar(command.Nome, command.Email.Trim(), command.TipoDocumento, documento);
         cliente.Endereco.Atualizar(
             command.Logradouro,
             command.Complemento,

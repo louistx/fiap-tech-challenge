@@ -81,6 +81,11 @@ namespace TechChallenge.Infrastructure.Database.Migrations
                         .HasMaxLength(18)
                         .HasColumnType("character varying(18)");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)");
+
                     b.Property<Guid>("EnderecoId")
                         .HasColumnType("uuid");
 
@@ -100,6 +105,43 @@ namespace TechChallenge.Infrastructure.Database.Migrations
                     b.HasIndex("EnderecoId");
 
                     b.ToTable("Cliente");
+                });
+
+            modelBuilder.Entity("TechChallenge.Domain.Entities.DecisaoOrcamentoExterna", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Decisao")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("EventoId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Motivo")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTime>("OcorridoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("OrdemServicoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("RecebidoEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventoId")
+                        .IsUnique();
+
+                    b.HasIndex("OrdemServicoId");
+
+                    b.ToTable("DecisaoOrcamentoExterna");
                 });
 
             modelBuilder.Entity("TechChallenge.Domain.Entities.Endereco", b =>
@@ -207,6 +249,67 @@ namespace TechChallenge.Infrastructure.Database.Migrations
                     b.HasIndex("EnderecoId");
 
                     b.ToTable("Funcionario");
+                });
+
+            modelBuilder.Entity("TechChallenge.Domain.Entities.NotificacaoStatusOutbox", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime?>("BloqueadaAte")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("ClienteId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CodigoAcompanhamento")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)");
+
+                    b.Property<DateTime>("CriadaEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("EnviadaEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("EventoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("OrdemServicoId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("ProximaTentativaEm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("StatusAnterior")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("StatusAtual")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("Tentativas")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("UltimoErro")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("Versao")
+                        .IsConcurrencyToken()
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClienteId");
+
+                    b.HasIndex("EventoId")
+                        .IsUnique();
+
+                    b.HasIndex("EnviadaEm", "ProximaTentativaEm", "BloqueadaAte");
+
+                    b.ToTable("NotificacaoStatusOutbox");
                 });
 
             modelBuilder.Entity("TechChallenge.Domain.Entities.OrdemServico", b =>
@@ -519,6 +622,15 @@ namespace TechChallenge.Infrastructure.Database.Migrations
                     b.Navigation("Endereco");
                 });
 
+            modelBuilder.Entity("TechChallenge.Domain.Entities.DecisaoOrcamentoExterna", b =>
+                {
+                    b.HasOne("TechChallenge.Domain.Entities.OrdemServico", null)
+                        .WithMany("DecisoesExternas")
+                        .HasForeignKey("OrdemServicoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("TechChallenge.Domain.Entities.Estoque", b =>
                 {
                     b.HasOne("TechChallenge.Domain.Entities.Produto", "Produto")
@@ -539,6 +651,17 @@ namespace TechChallenge.Infrastructure.Database.Migrations
                         .IsRequired();
 
                     b.Navigation("Endereco");
+                });
+
+            modelBuilder.Entity("TechChallenge.Domain.Entities.NotificacaoStatusOutbox", b =>
+                {
+                    b.HasOne("TechChallenge.Domain.Entities.Cliente", "Cliente")
+                        .WithMany()
+                        .HasForeignKey("ClienteId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Cliente");
                 });
 
             modelBuilder.Entity("TechChallenge.Domain.Entities.OrdemServico", b =>
@@ -669,6 +792,8 @@ namespace TechChallenge.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("TechChallenge.Domain.Entities.OrdemServico", b =>
                 {
+                    b.Navigation("DecisoesExternas");
+
                     b.Navigation("Produtos");
 
                     b.Navigation("Servicos");

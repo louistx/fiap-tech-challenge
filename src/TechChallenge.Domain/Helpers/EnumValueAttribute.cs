@@ -1,5 +1,6 @@
 ﻿namespace TechChallenge.Domain.Helpers
 {
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = false)]
     public class EnumValueAttribute : Attribute
     {
         public string Value { get; }

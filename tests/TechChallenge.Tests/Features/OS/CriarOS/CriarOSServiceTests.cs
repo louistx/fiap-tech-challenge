@@ -25,7 +25,7 @@ public class CriarOSServiceTests
         var estoqueRepository = new Mock<IEstoqueRepository>();
         var notificationService = new Mock<INotificationService>();
         clienteRepository.Setup(repo => repo.GetByIdAsync(clienteId))
-            .ReturnsAsync(new Cliente(clienteId, string.Empty, TipoDocumento.Cpf, string.Empty, Guid.NewGuid()));
+            .ReturnsAsync(new Cliente(clienteId, string.Empty, "cliente@teste.local", TipoDocumento.Cpf, string.Empty, Guid.NewGuid()));
         funcionarioRepository.Setup(repo => repo.GetByIdAsync(funcionarioId))
             .ReturnsAsync(new Funcionario(funcionarioId, string.Empty, string.Empty, string.Empty, TipoFuncionario.Mecanico, Guid.NewGuid()));
         veiculoRepository.Setup(repo => repo.GetByIdAsync(veiculoId))

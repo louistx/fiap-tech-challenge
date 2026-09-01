@@ -22,7 +22,9 @@ public class WebAplicationFactory<TProgram> : WebApplicationFactory<TProgram> wh
             {
                 ["Jwt:SecretKey"] = "test-secret-key-com-mais-de-32-caracteres-1234567890",
                 ["Jwt:Issuer"] = "techchallenge-api",
-                ["Jwt:Audience"] = "techchallenge-clients"
+                ["Jwt:Audience"] = "techchallenge-clients",
+                ["IntegracaoExterna:ApiKey"] = "integration-test-key",
+                ["Notifications:Enabled"] = "false"
             });
         });
 

@@ -19,6 +19,7 @@ COPY ["src/TechChallenge.Domain/TechChallenge.Domain.csproj", "src/TechChallenge
 COPY ["src/TechChallenge.Infrastructure.Auth/TechChallenge.Infrastructure.Auth.csproj", "src/TechChallenge.Infrastructure.Auth/"]
 COPY ["src/TechChallenge.Infrastructure.Database/TechChallenge.Infrastructure.Database.csproj", "src/TechChallenge.Infrastructure.Database/"]
 COPY ["src/TechChallenge.Infrastructure.IoC/TechChallenge.Infrastructure.IoC.csproj", "src/TechChallenge.Infrastructure.IoC/"]
+COPY ["src/TechChallenge.Infrastructure.Notifications/TechChallenge.Infrastructure.Notifications.csproj", "src/TechChallenge.Infrastructure.Notifications/"]
 RUN dotnet restore "./src/TechChallenge.Api/TechChallenge.Api.csproj"
 COPY ["src/TechChallenge.Api/", "src/TechChallenge.Api/"]
 COPY ["src/TechChallenge.Application/", "src/TechChallenge.Application/"]
@@ -27,6 +28,7 @@ COPY ["src/TechChallenge.Domain/", "src/TechChallenge.Domain/"]
 COPY ["src/TechChallenge.Infrastructure.Auth/", "src/TechChallenge.Infrastructure.Auth/"]
 COPY ["src/TechChallenge.Infrastructure.Database/", "src/TechChallenge.Infrastructure.Database/"]
 COPY ["src/TechChallenge.Infrastructure.IoC/", "src/TechChallenge.Infrastructure.IoC/"]
+COPY ["src/TechChallenge.Infrastructure.Notifications/", "src/TechChallenge.Infrastructure.Notifications/"]
 WORKDIR "/src/src/TechChallenge.Api"
 RUN dotnet build "./TechChallenge.Api.csproj" -c $BUILD_CONFIGURATION -o /app/build
 

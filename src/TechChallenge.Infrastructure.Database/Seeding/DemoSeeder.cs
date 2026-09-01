@@ -58,7 +58,13 @@ internal static class DemoSeeder
         new(EnderecoMecanicoId, "Rua Demo Oficina", "Box 3", "200", "Oficinas", "Sao Paulo", "SP", "02002000")
     ];
 
-    private static Cliente Cliente() => new(ClienteId, "Cliente Demo", TipoDocumento.Cpf, "12345678909", EnderecoClienteId);
+    private static Cliente Cliente() => new(
+        ClienteId,
+        "Cliente Demo",
+        "cliente.demo@oficina.local",
+        TipoDocumento.Cpf,
+        "12345678909",
+        EnderecoClienteId);
 
     private static IReadOnlyCollection<Funcionario> Funcionarios() =>
     [
@@ -150,10 +156,13 @@ internal static class DemoSeeder
     private static async Task AddClienteIfMissingAsync(ApplicationDbContext context)
     {
         var cliente = Cliente();
-        var exists = await context.Cliente.AnyAsync(c => c.Id == cliente.Id || c.Documento == cliente.Documento);
+        var existente = await context.Cliente.FirstOrDefaultAsync(c =>
+            c.Id == cliente.Id || c.Documento == cliente.Documento);
 
-        if (!exists)
+        if (existente is null)
             context.Cliente.Add(cliente);
+        else if (!string.Equals(existente.Email, cliente.Email, StringComparison.OrdinalIgnoreCase))
+            existente.AtualizarEmail(cliente.Email);
     }
 
     private static async Task AddUsuariosIfMissingAsync(ApplicationDbContext context, IPasswordHasher hasher)

@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using System.Text.Json.Serialization;
 using TechChallenge.Api.Endpoints;
+using TechChallenge.Api.Configuration;
+using TechChallenge.Api.Filters;
 using TechChallenge.Api.HealthChecks;
 using TechChallenge.Api.Middleware;
 using TechChallenge.Infrastructure.Auth;
@@ -43,6 +45,9 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
+builder.Services.Configure<IntegracaoExternaOptions>(
+    builder.Configuration.GetSection(IntegracaoExternaOptions.SectionName));
+builder.Services.AddScoped<IntegrationApiKeyFilter>();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddAuth(builder.Configuration);
 builder.Services.AddHealthChecks()
@@ -101,6 +106,7 @@ app.MapCategoriaServicoEndpoints();
 app.MapCategoriaProdutoEndpoints();
 app.MapCategoriaVeiculoEndpoints();
 app.MapEstoqueEndpoints();
+app.MapIntegracoesEndpoints();
 
 await app.RunAsync();
 

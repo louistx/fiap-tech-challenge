@@ -12,6 +12,7 @@ namespace TechChallenge.Application.Abstractions.Repositories
         Task<bool> ExistePorFuncionarioAsync(Guid funcionarioId);
         Task<bool> ExistePorVeiculoAsync(Guid veiculoId);
         Task<OrdemServico?> GetByCodigoAcompanhamentoAsync(string codigoAcompanhamento);
+        Task<DecisaoOrcamentoExterna?> GetDecisaoExternaPorEventoIdAsync(string eventoId);
         Task<List<OrdemServico>> GetFinalizadasComDataFinalizacaoAsync();
     }
 }

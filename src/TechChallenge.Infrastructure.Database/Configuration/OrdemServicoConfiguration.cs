@@ -10,6 +10,8 @@ namespace TechChallenge.Infrastructure.Database.Configuration
         {
             builder.HasKey(os => os.Id);
 
+            builder.Ignore(os => os.EventosDominio);
+
             builder.Property(o => o.Descricao)
                 .HasMaxLength(500);
 
@@ -37,6 +39,12 @@ namespace TechChallenge.Infrastructure.Database.Configuration
                 .HasForeignKey(os => os.VeiculoId)
                 .IsRequired()
                 .OnDelete(DeleteBehavior.Restrict);
+
+            builder.HasMany(os => os.DecisoesExternas)
+                .WithOne()
+                .HasForeignKey(item => item.OrdemServicoId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Cascade);
 
             builder.Property(os => os.Status)
                 .IsRequired();

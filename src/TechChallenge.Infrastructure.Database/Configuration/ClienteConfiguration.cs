@@ -14,6 +14,10 @@ namespace TechChallenge.Infrastructure.Database.Configuration
                 .HasMaxLength(100)
                 .IsRequired();
 
+            builder.Property(c => c.Email)
+                .HasMaxLength(254)
+                .IsRequired();
+
             builder.Property(c => c.TipoDocumento)
                 .IsRequired();
 

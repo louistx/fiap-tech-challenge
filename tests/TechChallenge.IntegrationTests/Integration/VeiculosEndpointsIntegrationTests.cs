@@ -112,6 +112,7 @@ public class VeiculosEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         var request = new CriarClienteRequest
         {
             Nome = "Cliente Veiculo",
+            Email = $"cliente.veiculo.{sequencia}@teste.local",
             TipoDocumento = TipoDocumento.Cpf,
             Documento = GerarCpf(sequencia),
             Endereco = new EnderecoRequest

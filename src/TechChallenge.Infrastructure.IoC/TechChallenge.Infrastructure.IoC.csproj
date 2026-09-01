@@ -17,6 +17,7 @@
     <ProjectReference Include="..\TechChallenge.Application.Abstractions\TechChallenge.Application.Abstractions.csproj" />
     <ProjectReference Include="..\TechChallenge.Application\TechChallenge.Application.csproj" />
     <ProjectReference Include="..\TechChallenge.Infrastructure.Database\TechChallenge.Infrastructure.Database.csproj" />
+    <ProjectReference Include="..\TechChallenge.Infrastructure.Notifications\TechChallenge.Infrastructure.Notifications.csproj" />
   </ItemGroup>
 
 </Project>

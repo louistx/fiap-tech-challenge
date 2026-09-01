@@ -36,6 +36,7 @@ public class ClientesEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         var cliente = await obterResponse.Content.ReadFromJsonAsync<ClienteResponse>(JsonTestOptions.Web);
         cliente.Should().NotBeNull();
         cliente.Nome.Should().Be(criarRequest.Nome);
+        cliente.Email.Should().Be(criarRequest.Email);
         cliente.TipoDocumento.Should().Be(TipoDocumento.Cpf);
         cliente.Documento.Should().Be("529.982.247-25");
         cliente.Endereco.Should().NotBeNull();
@@ -55,6 +56,7 @@ public class ClientesEndpointsIntegrationTests : IClassFixture<WebAplicationFact
             JsonTestOptions.Web);
         clienteAtualizado.Should().NotBeNull();
         clienteAtualizado.Nome.Should().Be(atualizarRequest.Nome);
+        clienteAtualizado.Email.Should().Be(atualizarRequest.Email);
         clienteAtualizado.TipoDocumento.Should().Be(TipoDocumento.Cpf);
         clienteAtualizado.Documento.Should().Be("390.533.447-05");
         clienteAtualizado.Endereco!.Cidade.Should().Be(atualizarRequest.Endereco!.Cidade);
@@ -99,6 +101,7 @@ public class ClientesEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         var request = new
         {
             Nome = "Oficina Cliente LTDA",
+            Email = "oficina.cliente@teste.local",
             TipoDocumento = "Cnpj",
             Documento = "11222333000181",
             Endereco = CriarEnderecoRequest("Sao Paulo")
@@ -149,6 +152,7 @@ public class ClientesEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         return new CriarClienteRequest
         {
             Nome = "Maria Cliente",
+            Email = "maria.cliente@teste.local",
             TipoDocumento = TipoDocumento.Cpf,
             Documento = cpf,
             Endereco = CriarEnderecoRequest("Sao Paulo")
@@ -160,6 +164,7 @@ public class ClientesEndpointsIntegrationTests : IClassFixture<WebAplicationFact
         return new AtualizarClienteRequest
         {
             Nome = "Maria Cliente Atualizada",
+            Email = "maria.atualizada@teste.local",
             TipoDocumento = TipoDocumento.Cpf,
             Documento = cpf,
             Endereco = CriarEnderecoRequest("Curitiba")

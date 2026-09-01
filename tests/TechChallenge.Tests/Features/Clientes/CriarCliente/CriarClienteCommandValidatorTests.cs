@@ -87,6 +87,7 @@ public class CriarClienteCommandValidatorTests
         return new CriarClienteCommand
         {
             Nome = "Maria Cliente",
+            Email = "maria.cliente@teste.local",
             TipoDocumento = TipoDocumento.Cpf,
             Documento = "52998224725",
             Logradouro = "Rua Teste",

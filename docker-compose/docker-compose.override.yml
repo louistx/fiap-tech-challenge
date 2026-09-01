@@ -8,6 +8,9 @@ services:
   db:
     ports:
       - "5432:5432"
+  mailpit:
+    ports:
+      - "8025:8025"
   sonarqube:
     ports:
       - "9000:9000"

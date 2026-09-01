@@ -15,6 +15,11 @@ public class AtualizarClienteCommandValidator : AbstractValidator<AtualizarClien
             .NotEmpty()
             .MaximumLength(100);
 
+        RuleFor(command => command.Email)
+            .NotEmpty()
+            .EmailAddress()
+            .MaximumLength(254);
+
         RuleFor(command => command.TipoDocumento)
             .IsInEnum();
 

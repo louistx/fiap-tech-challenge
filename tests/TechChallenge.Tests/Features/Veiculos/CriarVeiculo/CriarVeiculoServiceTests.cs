@@ -21,7 +21,7 @@ public class CriarVeiculoServiceTests
         veiculoRepository.Setup(repo => repo.GetByPlacaAsync(placaFormatada))
             .ReturnsAsync((Veiculo?)null);
         clienteRepository.Setup(repo => repo.GetByIdAsync(command.ClienteId))
-            .ReturnsAsync(new Cliente(command.ClienteId, "Maria Cliente", TipoDocumento.Cpf, string.Empty, Guid.NewGuid()));
+            .ReturnsAsync(new Cliente(command.ClienteId, "Maria Cliente", "maria@teste.local", TipoDocumento.Cpf, string.Empty, Guid.NewGuid()));
         veiculoRepository.Setup(repo => repo.AddAsync(It.IsAny<Veiculo>()))
             .Callback<Veiculo>(veiculo => veiculoCriado = veiculo)
             .Returns<Veiculo>(veiculo => Task.FromResult(veiculo));
@@ -52,7 +52,7 @@ public class CriarVeiculoServiceTests
         veiculoRepository.Setup(repo => repo.GetByPlacaAsync("ABC1D23"))
             .ReturnsAsync((Veiculo?)null);
         clienteRepository.Setup(repo => repo.GetByIdAsync(command.ClienteId))
-            .ReturnsAsync(new Cliente(command.ClienteId, "Maria Cliente", TipoDocumento.Cpf, string.Empty, Guid.NewGuid()));
+            .ReturnsAsync(new Cliente(command.ClienteId, "Maria Cliente", "maria@teste.local", TipoDocumento.Cpf, string.Empty, Guid.NewGuid()));
         veiculoRepository.Setup(repo => repo.AddAsync(It.IsAny<Veiculo>()))
             .Callback<Veiculo>(veiculo => veiculoCriado = veiculo)
             .Returns<Veiculo>(veiculo => Task.FromResult(veiculo));

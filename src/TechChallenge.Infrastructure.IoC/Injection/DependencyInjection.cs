@@ -52,6 +52,7 @@ using TechChallenge.Application.Features.OS.ObterOS;
 using TechChallenge.Application.Features.OS.ObterOSAcompanhamento;
 using TechChallenge.Application.Features.OS.ObterTempoMedioExecucao;
 using TechChallenge.Application.Features.OS.RegistrarDiagnostico;
+using TechChallenge.Application.Features.OS.ReceberDecisaoOrcamentoExterna;
 using TechChallenge.Application.Features.OS.ReprovarOrcamento;
 using TechChallenge.Application.Features.OS.RetornarParaDiagnostico;
 using TechChallenge.Application.Features.Servicos.AtualizarServico;
@@ -67,6 +68,7 @@ using TechChallenge.Application.Features.Veiculos.ObterVeiculo;
 using TechChallenge.Application.Notifications;
 using TechChallenge.Infrastructure.Database.Context;
 using TechChallenge.Infrastructure.Database.Repositories;
+using TechChallenge.Infrastructure.Notifications;
 
 namespace TechChallenge.Infrastructure.IoC.Injection
 {
@@ -74,6 +76,8 @@ namespace TechChallenge.Infrastructure.IoC.Injection
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
+            services.AddNotificationInfrastructure(configuration);
+
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"),
@@ -93,6 +97,7 @@ namespace TechChallenge.Infrastructure.IoC.Injection
             services.AddScoped<ICategoriaServicoRepository, CategoriaServicoRepository>();
             services.AddScoped<ICategoriaVeiculoRepository, CategoriaVeiculoRepository>();
             services.AddScoped<IEstoqueRepository, EstoqueRepository>();
+            services.AddScoped<INotificacaoStatusOutboxRepository, NotificacaoStatusOutboxRepository>();
 
             services.AddScoped<INotificationService, LoggerNotificationService>();
 
@@ -105,6 +110,7 @@ namespace TechChallenge.Infrastructure.IoC.Injection
             services.AddScoped<ListarOSService>();
             services.AddScoped<AtribuirOSService>();
             services.AddScoped<RegistrarDiagnosticoService>();
+            services.AddScoped<ReceberDecisaoOrcamentoExternaService>();
             services.AddScoped<EnviarOrcamentoService>();
             services.AddScoped<AprovarOrcamentoService>();
             services.AddScoped<ReprovarOrcamentoService>();

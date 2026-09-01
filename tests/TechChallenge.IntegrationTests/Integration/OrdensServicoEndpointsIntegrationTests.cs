@@ -1,20 +1,26 @@
 using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using TechChallenge.Api.Models.Request;
 using TechChallenge.Api.Models.Response;
+using TechChallenge.Application.Abstractions.Repositories;
 using TechChallenge.Domain.Enums;
 using TechChallenge.IntegrationTests.Integration.Factories;
+using TechChallenge.Infrastructure.Database.Context;
 
 namespace TechChallenge.IntegrationTests.Integration;
 
 public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicationFactory<Program>>
 {
     private static int _sequencia;
+    private readonly WebAplicationFactory<Program> _factory;
     private readonly HttpClient _client;
 
     public OrdensServicoEndpointsIntegrationTests(WebAplicationFactory<Program> factory)
     {
+        _factory = factory;
         _client = factory.CreateClient();
     }
 
@@ -105,6 +111,87 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
         response.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
+    [Fact]
+    public async Task DeveReceberAprovacaoExternaDeFormaIdempotenteEGerarOutbox()
+    {
+        var dados = await CriarDadosBaseAsync();
+        var osId = await CriarOrdemServicoAsync(dados);
+
+        await PatchAsync($"/api/v1/ordens-servico/{osId}/atribuir", "Mecanico",
+            new AtribuirOrdemServicoRequest { MecanicoId = dados.FuncionarioId });
+        await PatchAsync($"/api/v1/ordens-servico/{osId}/diagnostico", "Mecanico",
+            new RegistrarDiagnosticoRequest
+            {
+                Servicos = [new ItemDiagnosticoRequest { Id = dados.ServicoId, Quantidade = 1 }]
+            });
+        await PatchAsync($"/api/v1/ordens-servico/{osId}/orcamento/enviar", "Mecanico");
+
+        var eventoId = $"teste-{Guid.NewGuid():N}";
+        var payload = new ReceberDecisaoOrcamentoExternaRequest
+        {
+            EventoId = eventoId,
+            OrdemServicoId = osId,
+            Decisao = DecisaoOrcamento.Aprovado,
+            OcorridoEm = DateTimeOffset.UtcNow
+        };
+
+        var semChave = await _client.PostAsJsonAsync(
+            "/api/v1/integracoes/orcamentos/respostas",
+            payload);
+        semChave.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+
+        var primeiraResposta = await EnviarDecisaoExternaAsync(payload);
+        var corpoPrimeiraResposta = await primeiraResposta.Content.ReadAsStringAsync();
+        primeiraResposta.StatusCode.Should().Be(HttpStatusCode.OK, corpoPrimeiraResposta);
+        var primeiraDecisao = await primeiraResposta.Content
+            .ReadFromJsonAsync<ReceberDecisaoOrcamentoExternaResponse>(JsonTestOptions.Web);
+        primeiraDecisao.Should().NotBeNull();
+        primeiraDecisao.Processado.Should().BeTrue();
+        primeiraDecisao.Duplicado.Should().BeFalse();
+        primeiraDecisao.Status.Should().Be(StatusOS.EmExecucao);
+
+        var respostaDuplicada = await EnviarDecisaoExternaAsync(payload);
+        respostaDuplicada.StatusCode.Should().Be(HttpStatusCode.OK);
+        var decisaoDuplicada = await respostaDuplicada.Content
+            .ReadFromJsonAsync<ReceberDecisaoOrcamentoExternaResponse>(JsonTestOptions.Web);
+        decisaoDuplicada.Should().NotBeNull();
+        decisaoDuplicada.Processado.Should().BeFalse();
+        decisaoDuplicada.Duplicado.Should().BeTrue();
+
+        var respostaConflitante = await EnviarDecisaoExternaAsync(new ReceberDecisaoOrcamentoExternaRequest
+        {
+            EventoId = eventoId,
+            OrdemServicoId = osId,
+            Decisao = DecisaoOrcamento.Recusado,
+            Motivo = "Cliente recusou o orçamento",
+            OcorridoEm = payload.OcorridoEm
+        });
+        respostaConflitante.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        using var scope = _factory.Services.CreateScope();
+        var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        (await context.DecisaoOrcamentoExterna.CountAsync(item => item.OrdemServicoId == osId))
+            .Should().Be(1);
+        (await context.NotificacaoStatusOutbox.AnyAsync(item =>
+            item.OrdemServicoId == osId &&
+            item.StatusAnterior == StatusOS.AguardandoAprovacao &&
+            item.StatusAtual == StatusOS.EmExecucao)).Should().BeTrue();
+
+        var outboxRepository = scope.ServiceProvider
+            .GetRequiredService<INotificacaoStatusOutboxRepository>();
+        var reservadas = await outboxRepository.ReservarPendentesAsync(
+            DateTime.UtcNow.AddSeconds(1),
+            100,
+            TimeSpan.FromSeconds(30));
+        var notificacaoDaAprovacao = reservadas.Single(item =>
+            item.OrdemServicoId == osId && item.StatusAtual == StatusOS.EmExecucao);
+        notificacaoDaAprovacao.BloqueadaAte.Should().NotBeNull();
+
+        notificacaoDaAprovacao.MarcarComoEnviada(DateTime.UtcNow);
+        await outboxRepository.SalvarAsync();
+        notificacaoDaAprovacao.EnviadaEm.Should().NotBeNull();
+    }
+
     private async Task<DadosBase> CriarDadosBaseAsync()
     {
         var sequencia = Interlocked.Increment(ref _sequencia);
@@ -112,6 +199,7 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
         var clienteId = await CriarAsync("/api/v1/clientes", new CriarClienteRequest
         {
             Nome = "Maria Cliente OS",
+            Email = $"maria.os.{sequencia}@teste.local",
             TipoDocumento = TipoDocumento.Cpf,
             Documento = GerarCpf(sequencia * 2),
             Endereco = CriarEnderecoRequest()
@@ -202,6 +290,19 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
         var response = await _client.SendAsync(request);
         var responseBody = await response.Content.ReadAsStringAsync();
         response.StatusCode.Should().Be(HttpStatusCode.OK, responseBody);
+    }
+
+    private async Task<HttpResponseMessage> EnviarDecisaoExternaAsync(
+        ReceberDecisaoOrcamentoExternaRequest payload)
+    {
+        var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            "/api/v1/integracoes/orcamentos/respostas")
+        {
+            Content = JsonContent.Create(payload)
+        };
+        request.Headers.Add("X-Integration-Key", "integration-test-key");
+        return await _client.SendAsync(request);
     }
 
     private static EnderecoRequest CriarEnderecoRequest()

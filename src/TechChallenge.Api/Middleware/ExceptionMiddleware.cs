@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using TechChallenge.Infrastructure.IoC.Exceptions;
+using TechChallenge.Domain.Exceptions;
 
 namespace TechChallenge.Api.Middleware
 {
@@ -46,6 +47,7 @@ namespace TechChallenge.Api.Middleware
                     KeyNotFoundException => StatusCodes.Status404NotFound,
                     InvalidOperationException => StatusCodes.Status400BadRequest,
                     DbUpdateConcurrencyException => StatusCodes.Status409Conflict,
+                    DomainConflictException => StatusCodes.Status409Conflict,
                     _ => StatusCodes.Status500InternalServerError
                 };
 
@@ -67,7 +69,9 @@ namespace TechChallenge.Api.Middleware
                     };
                     problemDetails.Extensions["traceId"] = httpContext.TraceIdentifier;
 
-                    await httpContext.Response.WriteAsJsonAsync(problemDetails);
+                    await httpContext.Response.WriteAsJsonAsync(
+                        problemDetails,
+                        httpContext.RequestAborted);
                     return;
                 }
 
@@ -81,7 +85,9 @@ namespace TechChallenge.Api.Middleware
                 };
                 problem.Extensions["traceId"] = httpContext.TraceIdentifier;
 
-                await httpContext.Response.WriteAsJsonAsync(problem);
+                await httpContext.Response.WriteAsJsonAsync(
+                    problem,
+                    httpContext.RequestAborted);
             }
         }
 
@@ -103,6 +109,7 @@ namespace TechChallenge.Api.Middleware
             KeyNotFoundException => true,
             InvalidOperationException => true,
             DbUpdateConcurrencyException => true,
+            DomainConflictException => true,
             _ => false
         };
 
