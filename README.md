@@ -68,12 +68,18 @@ flowchart LR
     Infrastructure[Persistência, autenticação e notificações] --> Contracts
     Infrastructure --> Database[(PostgreSQL)]
     Infrastructure --> Mailpit[SMTP / Mailpit local]
+```
 
-    Actions[GitHub Actions] --> GHCR[GHCR com imagem versionada]
-    GHCR --> Deployment[Kubernetes Deployment]
-    Terraform[Terraform] --> Dependencies[Namespace, banco, Secrets e Metrics Server]
-    Kustomize[Kustomize] --> Deployment
-    Kustomize --> Service[Service, ConfigMap e HPA]
+### Fluxo de entrega local
+
+```mermaid
+flowchart LR
+    Actions[GitHub Actions] -->|publica| GHCR[GHCR]
+    Actions -->|promove a tag| Overlay[Overlay Kustomize]
+    Terraform[Terraform] -->|cria| Dependencies[Namespace, Secrets, PostgreSQL e Metrics Server]
+    Overlay -->|kubectl apply local| Kubernetes[Deployment, Service, ConfigMap e HPA]
+    GHCR --> Kubernetes
+    Dependencies --> Kubernetes
 ```
 
 | Projeto | Responsabilidade |
