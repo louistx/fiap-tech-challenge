@@ -25,4 +25,4 @@
 
 ## Estado da revisão
 
-A documentação funcional foi revisada em 01/09/2026. Terraform e o deploy Kubernetes foram implementados e validados no cluster do Docker Desktop, que é o ambiente de entrega do trabalho. O GitHub Actions publica a imagem no GHCR e a etapa local de CD usa Terraform e Kustomize.
+A documentação funcional foi revisada em 01/09/2026. Terraform e o deploy Kubernetes foram implementados e validados no cluster do Docker Desktop, que é o ambiente de entrega do trabalho. O GitHub Actions publica a imagem no GHCR, promove sua tag no overlay e a etapa local de CD usa Terraform e Kustomize.

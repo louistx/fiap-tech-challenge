@@ -70,9 +70,9 @@ O banco permaneceu com uma réplica durante todo o teste.
 
 1. **Certificado do kubelet local:** o primeiro apply não concluiu a instalação do
    Metrics Server porque o certificado não contém IP SAN. A release foi removida
-   automaticamente pelo Helm (`atomic`). A opção local documentada
-   `metrics_server_insecure_tls=true` permitiu concluir o segundo apply. A
-   verificação TLS dos providers permaneceu ativa.
+   automaticamente pelo Helm (`atomic`). O argumento `--kubelet-insecure-tls`,
+   fixo neste ambiente exclusivo do Docker Desktop, permitiu concluir o segundo
+   apply. A verificação TLS dos providers permaneceu ativa.
 2. **Pod antigo no Lens:** `default/fiap-tech-challenge-api-5d8c7b49c-q6j6h`, criado
    em 20/08, estava em CrashLoopBackOff com 350 reinícios. Seu Deployment usava a
    imagem GHCR `latest` e não fornecia a connection string. O Deployment antigo foi
@@ -91,10 +91,15 @@ O ConfigMap comum recebe os valores por patch; os Secrets continuam no Terraform
 Um único `kubectl apply -k k8s/overlays/docker-local` aplica a configuração da API.
 Não são necessários filtros por componente ou espera de um Job externo.
 
+O Terraform também foi reduzido ao único ambiente apresentado: contexto
+`docker-desktop`, PostgreSQL 17.11, PVC de 2 GiB e Metrics Server obrigatório.
+As variáveis e outputs que não participavam da demonstração foram removidos; não
+é necessário criar `terraform.tfvars`.
+
 Validação desta revisão:
 
 - Build Release: sem erros ou avisos.
-- 118 testes unitários e 30 testes de integração aprovados.
+- 123 testes unitários e 31 testes de integração aprovados.
 - `terraform fmt`, `validate` e quatro testes com providers mockados aprovados.
 - Quatro recursos aceitos juntos pelo API server em dry-run, sem aplicar a nova imagem.
 - API compilada executada contra um banco PostgreSQL temporário vazio: HTTP 200

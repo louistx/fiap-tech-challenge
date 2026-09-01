@@ -39,10 +39,12 @@ somente para a demonstração e deve ser sobrescrita pela variável
 ## Ordem sugerida
 
 1. Execute `00-auth.http` para salvar os tokens.
-2. Execute `01-aprovacao-externa.http` do início ao fim.
-3. Abra o Mailpit e mostre os e-mails das mudanças de status.
-4. Execute `02-recusa-externa.http` para demonstrar o caminho alternativo.
-5. Use `03-metricas-e-acompanhamento.http` para fechar a demonstração.
+2. Execute `01-aprovacao-por-email.http` até o envio do orçamento.
+3. Abra o Mailpit, pressione **Aprovar orçamento** e confirme na página aberta.
+4. Termine `01-aprovacao-por-email.http` para finalizar e entregar a OS.
+5. Use `01-aprovacao-externa.http` se quiser mostrar também a aprovação pelo webhook.
+6. Execute `02-recusa-externa.http` para demonstrar a recusa externa e o conflito idempotente.
+7. Use `03-metricas-e-acompanhamento.http` para fechar a demonstração.
 
 Os arquivos usam scripts compatíveis com o cliente HTTP da JetBrains para
 guardar tokens, IDs e identificadores de evento. Em outro cliente, copie os
@@ -51,6 +53,10 @@ valores retornados para as variáveis no topo de cada arquivo.
 ## O que destacar no vídeo
 
 - o webhook não usa o JWT interno; ele exige `X-Integration-Key`;
+- o e-mail de orçamento possui links assinados, válidos por 48 horas, sem expor
+  a API key do integrador;
+- o e-mail apresenta os serviços, produtos e valor total antes da decisão;
+- o primeiro clique abre uma confirmação e somente o `POST` altera a OS;
 - repetir o mesmo evento retorna sucesso com `duplicado: true` e não muda a OS;
 - reutilizar o identificador com outro conteúdo retorna `409 Conflict`;
 - a decisão, a mudança da OS e a mensagem de outbox são persistidas juntas;

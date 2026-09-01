@@ -4,7 +4,7 @@
 
 A análise estática do projeto foi executada localmente com o **SonarQube Community Build** e o **SonarScanner for .NET**. O processo considera o código da aplicação, métricas de segurança, confiabilidade, manutenibilidade, duplicação e a cobertura produzida pelos testes automatizados.
 
-> **Escopo temporal:** os resultados abaixo correspondem à análise local executada em 01/09/2026, depois da implementação da aprovação/recusa externa, do outbox de notificações e da coleção de demonstração da Fase 2.
+> **Escopo temporal:** os resultados abaixo correspondem à análise local executada em 01/09/2026, depois da implementação da aprovação/recusa externa, da outbox de notificações, dos links assinados no e-mail e da coleção de demonstração da Fase 2.
 
 ## Resultado da análise
 
@@ -13,14 +13,14 @@ O painel registrou aprovação no Quality Gate e apresentou os seguintes resulta
 | Métrica | Resultado |
 | --- | --- |
 | Quality Gate | Aprovado (`Passed`) |
-| Linhas de código analisadas | 10.582 |
+| Linhas de código analisadas | 11.053 |
 | Problemas de segurança abertos | 0 |
 | Security Hotspots | 0 — classificação A |
 | Problemas de confiabilidade | 0 |
 | Code Smells | 77 |
 | Problemas aceitos | 1, restrito ao SMTP sem TLS do Mailpit local |
-| Cobertura de testes | 80,5% |
-| Duplicação | 3,0% |
+| Cobertura de testes | 80,2% |
+| Duplicação | 2,9% |
 
 ![Evidência histórica do painel do SonarQube](assets/sonarQube.png)
 
@@ -166,12 +166,12 @@ Essas verificações complementam o SonarQube ao analisar dependências e a imag
 Nesta execução foram validados:
 
 1. build da solução sem erros ou avisos;
-2. 118 testes unitários e 30 testes de integração aprovados;
-3. cobertura de 80,5% e Quality Gate aprovado;
+2. 123 testes unitários e 31 testes de integração aprovados;
+3. cobertura de 80,2% e Quality Gate aprovado;
 4. ausência de bugs, vulnerabilidades abertas e Security Hotspots;
 5. ausência de vulnerabilidades conhecidas nos pacotes NuGet;
 6. decisão documentada para o SMTP sem TLS usado somente pelo Mailpit local.
 
 ## Conclusão
 
-A execução atual foi aprovada no Quality Gate, não deixou bugs, vulnerabilidades abertas nem Security Hotspots e atingiu 80,5% de cobertura. O único risco aceito está limitado ao servidor SMTP local de demonstração e protegido por configuração explícita. A captura existente permanece identificada como evidência histórica; os números atuais podem ser consultados no painel local enquanto o container do SonarQube estiver em execução.
+A execução atual foi aprovada no Quality Gate, não deixou bugs, vulnerabilidades abertas nem Security Hotspots e atingiu 80,2% de cobertura. O único risco aceito está limitado ao servidor SMTP local de demonstração e protegido por configuração explícita. A captura existente permanece identificada como evidência histórica; os números atuais podem ser consultados no painel local enquanto o container do SonarQube estiver em execução.

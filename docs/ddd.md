@@ -207,6 +207,6 @@ Essa separação é uma proposta inicial. Os limites devem ser refinados conform
 | Tempo médio de execução | Implementado para OS finalizadas ou entregues |
 | Finalização, entrega e cancelamento da OS | Implementados |
 
-Portanto, o diagrama documenta o **fluxo de negócio desejado** e o ciclo principal está operacionalmente validado por 118 testes unitários e 30 de integração. Permanecem como evoluções a reserva antecipada de estoque, pagamento, recibo, aprovação parcial e retrabalho.
+Portanto, o diagrama documenta o **fluxo de negócio desejado** e o ciclo principal está operacionalmente validado por 123 testes unitários e 31 de integração. Permanecem como evoluções a reserva antecipada de estoque, pagamento, recibo, aprovação parcial e retrabalho.
 
 Consulte também a [Auditoria do Estoque](auditoria-estoque.md) e o [Checklist de Entregáveis da Fase 2](fase-2-entregaveis.md).

@@ -9,16 +9,12 @@ resource "kubernetes_persistent_volume_claim_v1" "postgres" {
   wait_until_bound = false
 
   spec {
-    access_modes       = ["ReadWriteOnce"]
-    storage_class_name = var.storage_class_name
+    access_modes = ["ReadWriteOnce"]
     resources {
-      requests = { storage = var.postgres_storage_size }
+      requests = { storage = "2Gi" }
     }
   }
 
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 resource "kubernetes_service_v1" "postgres" {
@@ -66,7 +62,7 @@ resource "kubernetes_stateful_set_v1" "postgres" {
         }
         container {
           name  = "postgres"
-          image = var.postgres_image
+          image = "postgres:17.11-bookworm"
           port {
             name           = "postgres"
             container_port = 5432

@@ -24,19 +24,16 @@ para respostas lentas e troca de telas.
 
 O workflow publica a imagem com `latest` e com os 12 primeiros caracteres do SHA
 do commit. O SHA completo continua registrado no rótulo OCI
-`org.opencontainers.image.revision`. Como um
-commit não consegue referenciar o próprio SHA dentro de seu conteúdo, a promoção
-usa dois commits:
+`org.opencontainers.image.revision`. Depois da publicação, o próprio workflow
+atualiza `images[].newTag` no overlay e cria o commit de promoção:
 
 1. Commit A: contém a versão final do código, Terraform, Kubernetes e documentação.
 2. Faça push/merge do Commit A na `main` e aguarde o workflow **Publish Docker image** ficar verde.
-3. Copie a tag de 12 caracteres do Commit A publicada no GHCR.
-4. Commit B: altere somente `newTag` em
-   `k8s/overlays/docker-local/kustomization.yaml` para a tag curta do Commit A.
-5. Faça push/merge do Commit B. Grave somente com todos os workflows verdes.
+3. Confirme o passo **Promote image in Kubernetes overlay**.
+4. Confirme o commit automático `chore(k8s): promove imagem <tag> [skip ci]`.
 
-O Commit B é o commit de promoção. O manifesto versionado nele aponta para a
-imagem imutável construída a partir do Commit A.
+O commit automático altera somente o `newTag` e não inicia outra execução da
+pipeline. O manifesto versionado aponta para a imagem imutável do Commit A.
 
 ### 2. Validar o ambiente
 
@@ -48,13 +45,13 @@ dotnet test TechChallenge.slnx --configuration Release
 terraform -chdir=infra/environments/local fmt -check -recursive
 terraform -chdir=infra/environments/local validate
 terraform -chdir=infra/environments/local test
-terraform -chdir=infra/environments/local plan
 kubectl kustomize k8s/overlays/docker-local > /dev/null
+kubectl kustomize k8s/tests > /dev/null
 kubectl --context=docker-desktop get nodes
 ```
 
-O último `terraform plan` deve exibir `No changes`. Não mostre `tfvars`, state,
-Secrets, senhas, tokens ou connection strings na gravação.
+O `terraform init` pode ser executado antes da gravação, pois ele apenas prepara
+providers. Não mostre state, Secrets, senhas, tokens ou connection strings.
 
 ### 3. Preparar as telas
 
@@ -100,7 +97,7 @@ docker compose \
 - PostgreSQL em StatefulSet com PVC;
 - Terraform responsável por namespace, banco, Secrets e Metrics Server;
 - Kustomize responsável por ConfigMap, Deployment, Service e HPA;
-- GitHub Actions responsável por build, testes e publicação no GHCR.
+- GitHub Actions responsável por build, testes, publicação no GHCR e promoção da tag no overlay.
 
 **Fala sugerida:**
 
@@ -118,10 +115,10 @@ docker compose \
 **Mostrar:**
 
 1. SHA do Commit A.
-2. Job de validação com restore, build, 118 testes unitários e 30 testes de integração.
+2. Job de validação com restore, build, 123 testes unitários e 31 testes de integração.
 3. Job `Build and push image` concluído para `linux/amd64`.
 4. Tag do GHCR igual aos 12 primeiros caracteres do SHA do Commit A.
-5. Commit B alterando `newTag` para essa tag imutável.
+5. Commit automático alterando `newTag` para essa tag imutável.
 
 **Fala sugerida:**
 
@@ -130,21 +127,32 @@ docker compose \
 > tag imutável formada pelos 12 primeiros caracteres do SHA. O SHA completo fica
 > preservado nos metadados OCI. Para reduzir o tempo e a complexidade de uma
 > entrega acadêmica local, o build gera apenas a imagem AMD64; o Docker Desktop
-> no Apple Silicon a executa por emulação. O commit seguinte promove essa imagem
-> no overlay Kubernetes. O cluster local não é acessado pelo runner do GitHub;
+> no Apple Silicon a executa por emulação. Depois do push ao GHCR, a própria
+> pipeline promove a tag no overlay Kubernetes com um commit automático que não
+> dispara outra execução. O cluster local não é acessado pelo runner do GitHub;
 > a aplicação da infraestrutura é demonstrada a seguir.
 
-### 3:10-5:15 - Terraform e deploy com um único apply
+### 3:10-5:15 - Fundação Terraform e deploy Kustomize
 
 **Tela:** terminal e, depois, Lens ou outro terminal.
 
 **Comandos:**
 
 ```bash
-terraform -chdir=infra/environments/local plan
+kubectl --context=docker-desktop get namespace techchallenge
 
-kubectl --context=docker-desktop apply \
-  -k k8s/overlays/docker-local
+kubectl --context=docker-desktop apply -k k8s/overlays/docker-local
+
+terraform -chdir=infra/environments/local init
+terraform -chdir=infra/environments/local fmt -check
+terraform -chdir=infra/environments/local validate
+terraform -chdir=infra/environments/local test
+terraform -chdir=infra/environments/local plan -out=local.tfplan
+terraform -chdir=infra/environments/local apply local.tfplan
+
+kubectl --context=docker-desktop -n techchallenge get pods,svc,pvc
+
+kubectl --context=docker-desktop apply -k k8s/overlays/docker-local
 
 kubectl --context=docker-desktop -n techchallenge rollout status \
   deployment/fiap-tech-challenge-api --timeout=300s
@@ -154,12 +162,14 @@ kubectl --context=docker-desktop -n techchallenge get pods,svc,pvc,hpa
 
 **Fala sugerida:**
 
-> O plano mostra que as dez dependências gerenciadas pelo Terraform já estão
-> consistentes com o código. Agora executamos um único apply do overlay. Ele
-> atualiza ConfigMap, Deployment, Service e HPA, usando a imagem imutável que foi
-> promovida no Git. O rollout termina com o pod pronto; o PostgreSQL mantém uma
-> réplica e seu volume persistente, enquanto a API pode variar entre uma e três
-> réplicas.
+> O namespace da aplicação ainda não existe. Por isso, a primeira tentativa de
+> aplicar o overlay falha de forma esperada e demonstra a separação de
+> responsabilidades. Depois de validar os arquivos e testes, o plano mostra as
+> dependências que o Terraform criará: namespace, Secrets, PostgreSQL persistente
+> e Metrics Server. Em seguida, um único apply do overlay cria ConfigMap,
+> Deployment, Service e HPA, usando a imagem imutável promovida no Git. O rollout
+> termina com o pod pronto; o PostgreSQL mantém uma réplica, enquanto a API pode
+> variar entre uma e três.
 
 Se houver tempo, abra um port-forward e mostre os endpoints de saúde:
 
@@ -182,13 +192,14 @@ tokens de administrador, vendedor e mecânico.
 
 #### Abertura completa e identificação única
 
-Execute o passo 1 de `01-aprovacao-externa.http`.
+Execute o passo 1 de `01-aprovacao-por-email.http`.
 
 **Fala sugerida:**
 
-> A abertura recebe referências do cliente e do veículo, além dos serviços e
-> produtos necessários. A resposta é `201 Created` e contém o identificador
-> único da nova ordem de serviço.
+> A abertura vincula o cliente, o veículo e o funcionário responsável. A
+> resposta é `201 Created` e contém o identificador único da nova ordem de
+> serviço. Os serviços e produtos necessários são registrados depois, durante
+> o diagnóstico.
 
 Mostre rapidamente `GET /api/v1/ordens-servico/{id}/status` com o estado
 `Recebida`.
@@ -200,21 +211,24 @@ Execute, sem ler todo o JSON:
 1. atribuição ao mecânico;
 2. registro do diagnóstico;
 3. envio do orçamento;
-4. aprovação pelo webhook externo;
-5. finalização;
-6. entrega;
-7. consulta final e saldo do produto.
+4. abertura do e-mail no Mailpit;
+5. aprovação pelo link assinado e confirmação no navegador;
+6. consulta do novo status;
+7. finalização e entrega.
 
 **Fala sugerida:**
 
 > A máquina de estados protege a sequência da OS. O diagnóstico registra os
-> itens e o orçamento aguarda decisão. A aprovação chega por um endpoint
-> externo protegido por API key. O evento é correlacionado e idempotente: uma
-> repetição idêntica não executa a transição novamente. A finalização baixa o
-> estoque e, depois da entrega, o registro permanece no histórico.
+> itens e o orçamento aguarda decisão. O cliente recebe um e-mail com links
+> assinados, válidos por 48 horas e sem exposição da chave do integrador. Antes
+> de decidir, ele visualiza os serviços, produtos e o valor total. O primeiro
+> clique abre uma confirmação e somente o envio do formulário altera a OS. A
+> finalização baixa o estoque e, depois da entrega, o registro permanece no
+> histórico.
 
-Repita o mesmo webhook e mostre `duplicado: true`. Em seguida, abra o Mailpit e
-mostre os e-mails das mudanças de status.
+Em seguida, execute o fluxo de recusa em `02-recusa-externa.http` para mostrar o
+webhook protegido por API key. Reutilize o identificador com outro conteúdo e
+mostre o `409 Conflict` da idempotência.
 
 **Fala sugerida:**
 
@@ -287,10 +301,12 @@ do tempo ocioso, deixe isso claro e mostre depois o retorno para uma réplica.
 
 - SHA do código e tag imutável da imagem;
 - workflows verdes e quantidade de testes;
-- `terraform plan` sem mudanças;
+- criação da fundação pelo `terraform apply` no cluster vazio;
 - resultado do único `kubectl apply -k` e rollout saudável;
 - pod, Service, PVC e HPA no namespace `techchallenge`;
 - abertura da OS com cliente, veículo, serviços e produtos;
+- e-mail de aprovação com resumo do orçamento e botões de decisão;
+- recusa pelo webhook e proteção idempotente retornando `409 Conflict`;
 - consulta de status, fluxo da OS, priorização e baixa de estoque;
 - aumento real do número de réplicas durante a carga;
 - ausência de segredos e dados pessoais reais na tela.

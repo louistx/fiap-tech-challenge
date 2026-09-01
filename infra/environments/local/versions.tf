@@ -16,6 +16,5 @@ terraform {
     }
   }
 
-  # Cada desenvolvedor tem seu próprio cluster e estado; não compartilhar este state.
   backend "local" {}
 }

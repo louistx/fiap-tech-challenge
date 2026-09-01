@@ -107,6 +107,7 @@ app.MapCategoriaProdutoEndpoints();
 app.MapCategoriaVeiculoEndpoints();
 app.MapEstoqueEndpoints();
 app.MapIntegracoesEndpoints();
+app.MapDecisoesOrcamentoEmailEndpoints();
 
 await app.RunAsync();
 

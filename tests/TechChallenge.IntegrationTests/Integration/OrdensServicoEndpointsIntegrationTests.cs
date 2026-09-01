@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using TechChallenge.Api.Models.Request;
 using TechChallenge.Api.Models.Response;
+using TechChallenge.Application.Abstractions.Notifications;
 using TechChallenge.Application.Abstractions.Repositories;
 using TechChallenge.Domain.Enums;
 using TechChallenge.IntegrationTests.Integration.Factories;
@@ -192,6 +193,67 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
         notificacaoDaAprovacao.EnviadaEm.Should().NotBeNull();
     }
 
+    [Fact]
+    public async Task DeveConfirmarAprovacaoPeloLinkAssinadoDoEmail()
+    {
+        var dados = await CriarDadosBaseAsync();
+        var osId = await CriarOrdemServicoAsync(dados);
+
+        await PatchAsync($"/api/v1/ordens-servico/{osId}/atribuir", "Mecanico",
+            new AtribuirOrdemServicoRequest { MecanicoId = dados.FuncionarioId });
+        await PatchAsync($"/api/v1/ordens-servico/{osId}/diagnostico", "Mecanico",
+            new RegistrarDiagnosticoRequest
+            {
+                Servicos = [new ItemDiagnosticoRequest { Id = dados.ServicoId, Quantidade = 1 }]
+            });
+        await PatchAsync($"/api/v1/ordens-servico/{osId}/orcamento/enviar", "Mecanico");
+
+        string token;
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var notificacao = await context.NotificacaoStatusOutbox.SingleAsync(item =>
+                item.OrdemServicoId == osId &&
+                item.StatusAtual == StatusOS.AguardandoAprovacao);
+            var tokenService = scope.ServiceProvider
+                .GetRequiredService<IDecisaoOrcamentoTokenService>();
+            var criadaEmUtc = DateTime.SpecifyKind(notificacao.CriadaEm, DateTimeKind.Utc);
+
+            token = tokenService.Gerar(
+                notificacao.EventoId,
+                notificacao.OrdemServicoId,
+                new DateTimeOffset(criadaEmUtc),
+                TimeSpan.FromHours(48));
+        }
+
+        var confirmacao = await _client.GetAsync(
+            $"/orcamentos/decisao?token={Uri.EscapeDataString(token)}&decisao=Aprovado");
+        var paginaConfirmacao = await confirmacao.Content.ReadAsStringAsync();
+        confirmacao.StatusCode.Should().Be(HttpStatusCode.OK, paginaConfirmacao);
+        paginaConfirmacao.Should().Contain("Confirmar aprovação");
+
+        var primeiraResposta = await EnviarDecisaoEmailAsync(token, "Aprovado");
+        var primeiraPagina = await primeiraResposta.Content.ReadAsStringAsync();
+        primeiraResposta.StatusCode.Should().Be(HttpStatusCode.OK, primeiraPagina);
+        WebUtility.HtmlDecode(primeiraPagina).Should().Contain("Orçamento aprovado");
+
+        var consulta = await _client.GetAsync($"/api/v1/ordens-servico/{osId}");
+        var ordemServico = await consulta.Content
+            .ReadFromJsonAsync<OrdemServicoResponse>(JsonTestOptions.Web);
+        ordemServico.Should().NotBeNull();
+        ordemServico!.Status.Should().Be(StatusOS.EmExecucao);
+
+        var repeticao = await EnviarDecisaoEmailAsync(token, "Aprovado");
+        var paginaRepeticao = await repeticao.Content.ReadAsStringAsync();
+        repeticao.StatusCode.Should().Be(HttpStatusCode.OK, paginaRepeticao);
+        WebUtility.HtmlDecode(paginaRepeticao).Should().Contain("Decisão já registrada");
+
+        var conflito = await EnviarDecisaoEmailAsync(token, "Recusado");
+        var paginaConflito = await conflito.Content.ReadAsStringAsync();
+        conflito.StatusCode.Should().Be(HttpStatusCode.Conflict, paginaConflito);
+        WebUtility.HtmlDecode(paginaConflito).Should().Contain("Decisão não realizada");
+    }
+
     private async Task<DadosBase> CriarDadosBaseAsync()
     {
         var sequencia = Interlocked.Increment(ref _sequencia);
@@ -303,6 +365,17 @@ public class OrdensServicoEndpointsIntegrationTests : IClassFixture<WebAplicatio
         };
         request.Headers.Add("X-Integration-Key", "integration-test-key");
         return await _client.SendAsync(request);
+    }
+
+    private Task<HttpResponseMessage> EnviarDecisaoEmailAsync(string token, string decisao)
+    {
+        return _client.PostAsync(
+            "/orcamentos/decisao",
+            new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["token"] = token,
+                ["decisao"] = decisao
+            }));
     }
 
     private static EnderecoRequest CriarEnderecoRequest()

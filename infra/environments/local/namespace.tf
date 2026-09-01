@@ -13,9 +13,4 @@ resource "kubernetes_namespace_v1" "techchallenge" {
     name   = local.namespace
     labels = local.labels
   }
-
-  # A remoção de um namespace também remove recursos criados pelo Kustomize.
-  lifecycle {
-    prevent_destroy = true
-  }
 }

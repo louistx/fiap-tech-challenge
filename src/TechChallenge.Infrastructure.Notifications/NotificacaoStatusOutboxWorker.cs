@@ -5,7 +5,7 @@ using Microsoft.Extensions.Options;
 using TechChallenge.Application.Abstractions.Notifications;
 using TechChallenge.Application.Abstractions.Repositories;
 using TechChallenge.Domain.Entities;
-using TechChallenge.Domain.Helpers;
+using TechChallenge.Domain.Enums;
 
 namespace TechChallenge.Infrastructure.Notifications;
 
@@ -13,15 +13,18 @@ public class NotificacaoStatusOutboxWorker : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly NotificationWorkerOptions _options;
+    private readonly NotificacaoStatusEmailFactory _emailFactory;
     private readonly ILogger<NotificacaoStatusOutboxWorker> _logger;
 
     public NotificacaoStatusOutboxWorker(
         IServiceScopeFactory scopeFactory,
         IOptions<NotificationWorkerOptions> options,
+        NotificacaoStatusEmailFactory emailFactory,
         ILogger<NotificacaoStatusOutboxWorker> logger)
     {
         _scopeFactory = scopeFactory;
         _options = options.Value;
+        _emailFactory = emailFactory;
         _logger = logger;
     }
 
@@ -50,6 +53,7 @@ public class NotificacaoStatusOutboxWorker : BackgroundService
     {
         using var scope = _scopeFactory.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<INotificacaoStatusOutboxRepository>();
+        var ordemServicoRepository = scope.ServiceProvider.GetRequiredService<IOrdemServicoRepository>();
         var emailSender = scope.ServiceProvider.GetRequiredService<IEmailSender>();
         var agora = DateTime.UtcNow;
 
@@ -60,28 +64,39 @@ public class NotificacaoStatusOutboxWorker : BackgroundService
             cancellationToken);
 
         foreach (var notificacao in notificacoes)
-            await ProcessarNotificacaoAsync(notificacao, repository, emailSender, cancellationToken);
+        {
+            await ProcessarNotificacaoAsync(
+                notificacao,
+                repository,
+                ordemServicoRepository,
+                emailSender,
+                cancellationToken);
+        }
     }
 
     private async Task ProcessarNotificacaoAsync(
         NotificacaoStatusOutbox notificacao,
         INotificacaoStatusOutboxRepository repository,
+        IOrdemServicoRepository ordemServicoRepository,
         IEmailSender emailSender,
         CancellationToken cancellationToken)
     {
         try
         {
-            var statusAnterior = SystemHelper.GetStatusDescription(notificacao.StatusAnterior);
-            var statusAtual = SystemHelper.GetStatusDescription(notificacao.StatusAtual);
+            var orcamento = await ObterResumoOrcamentoAsync(
+                notificacao,
+                ordemServicoRepository);
+            var email = _emailFactory.Criar(
+                notificacao,
+                notificacao.Cliente.Nome,
+                orcamento);
 
             await emailSender.EnviarAsync(
                 notificacao.Cliente.Email,
-                $"OS {notificacao.CodigoAcompanhamento}: status atualizado",
-                $"Olá, {notificacao.Cliente.Nome}.\n\n" +
-                $"A ordem de serviço {notificacao.CodigoAcompanhamento} mudou de " +
-                $"{statusAnterior} para {statusAtual}.\n\n" +
-                "Consulte o acompanhamento da OS para mais detalhes.",
-                cancellationToken);
+                email.Assunto,
+                email.ConteudoHtml,
+                isHtml: true,
+                cancellationToken: cancellationToken);
 
             notificacao.MarcarComoEnviada(DateTime.UtcNow);
             await repository.SalvarAsync(cancellationToken);
@@ -106,5 +121,37 @@ public class NotificacaoStatusOutboxWorker : BackgroundService
                 notificacao.Tentativas,
                 notificacao.Id);
         }
+    }
+
+    private static async Task<OrcamentoEmailResumo?> ObterResumoOrcamentoAsync(
+        NotificacaoStatusOutbox notificacao,
+        IOrdemServicoRepository repository)
+    {
+        if (notificacao.StatusAtual != StatusOS.AguardandoAprovacao)
+            return null;
+
+        var ordemServico = await repository.GetByIdAsync(notificacao.OrdemServicoId)
+            ?? throw new KeyNotFoundException(
+                $"OS {notificacao.OrdemServicoId} não encontrada para montar o orçamento.");
+
+        var servicos = ordemServico.Servicos
+            .Select(item => new OrcamentoEmailItem(
+                item.Servico.Descricao,
+                item.Quantidade,
+                (item.Valor * item.Quantidade) + item.Acrescimo - item.Desconto))
+            .ToList();
+        var produtos = ordemServico.Produtos
+            .Select(item => new OrcamentoEmailItem(
+                item.Produto.Descricao,
+                item.Quantidade,
+                (item.Valor * item.Quantidade) + item.Acrescimo - item.Desconto))
+            .ToList();
+
+        return new OrcamentoEmailResumo(
+            servicos,
+            produtos,
+            ordemServico.Acrescimo,
+            ordemServico.Desconto,
+            ordemServico.Valor);
     }
 }

@@ -51,9 +51,9 @@ As evidências de infraestrutura e entrega estão em [Validação da infraestrut
 - [x] Manter testes automatizados verdes para os fluxos críticos.
   - [x] Projeto de testes unitários existente.
   - [x] Projeto de testes de integração existente.
-  - [x] 118 testes unitários aprovados em 01/09/2026.
+  - [x] 123 testes unitários aprovados em 01/09/2026.
   - [x] Corrigir os 8 testes unitários anteriormente falhos.
-  - [x] Corrigir os 20 testes de integração anteriormente falhos; a suíte agora possui 30 testes verdes, incluindo o webhook e a outbox.
+  - [x] Corrigir os testes de integração anteriormente falhos; a suíte agora possui 31 testes verdes, incluindo webhook, outbox e decisão pelo e-mail.
 
 ## 2. APIs obrigatórias
 
@@ -103,6 +103,7 @@ As evidências de infraestrutura e entrega estão em [Validação da infraestrut
   - [x] Implementar envio SMTP e caixa de entrada local com Mailpit.
   - [x] Implementar retentativa com espera progressiva e tratamento de falha.
   - [x] Evitar perda de notificação com outbox persistida na mesma transação da OS.
+  - [x] Incluir resumo, valor total e links assinados de decisão no e-mail de orçamento.
 
 ## 3. Estoque e categorias
 
@@ -206,10 +207,10 @@ Manifests reorganizados em base da API e overlay local. Namespace, Secrets e ban
 - [x] Definir providers Kubernetes, Helm e Random, com lockfile versionável.
 - [x] Usar explicitamente o cluster existente `docker-desktop`, conforme o escopo local acordado.
 - [x] Provisionar o PostgreSQL.
-- [x] Usar a rede do cluster, criar Service interno e definir variáveis/outputs.
+- [x] Usar a rede do cluster, criar Service interno e manter somente o output do namespace.
 - [x] Definir state local por desenvolvedor, fora do Git; estado remoto fica para um futuro ambiente compartilhado.
-- [x] Documentar `init`, `validate`, `plan` e `apply` com comandos executáveis.
-- [x] Validar apply real, plano posterior sem mudanças e proteção contra destruição.
+- [x] Documentar `init`, `validate`, `test` e `apply`; o plano é revisado na confirmação do `apply`.
+- [x] Validar apply real e plano posterior sem mudanças.
 
 A arquitetura e as limitações estão em [Arquitetura Proposta - Fase 2](arquitetura-fase-2.md). Quatro testes Terraform mockados cobrem os contratos básicos, mas não substituem as validações reais no cluster.
 
@@ -224,13 +225,14 @@ A arquitetura e as limitações estão em [Arquitetura Proposta - Fase 2](arquit
   - [x] Workflow de testes de integração presente.
   - [x] Executar os testes automaticamente em pull request/push.
   - [x] Impedir a publicação da imagem quando qualquer teste falhar.
-  - [x] Recuperar e ampliar a suíte: 118 unitários e 30 integrações aprovados.
+  - [x] Recuperar e ampliar a suíte: 123 unitários e 31 integrações aprovados.
 
 - [x] Automatizar build e publicação da imagem.
   - [x] Workflow `docker-image.yml` presente.
   - [x] Publicação no GHCR configurada.
   - [x] Executar build e testes antes da publicação no mesmo workflow.
   - [x] Publicar tag imutável com 12 caracteres do SHA e promover somente imagem validada.
+  - [x] Atualizar automaticamente o `newTag` do overlay sem disparar outra pipeline.
 
 - [x] Executar o deploy no cluster Kubernetes local.
 - [x] Provisionar o banco e as dependências locais com Terraform.

@@ -4,11 +4,16 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - k8s/overlays/docker-local/kustomization.yaml
   workflow_dispatch:
 
 permissions:
   contents: read
-  packages: write
+
+concurrency:
+  group: publish-docker-image-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   IMAGE_NAME: ghcr.io/${{ github.repository }}
@@ -42,10 +47,15 @@ jobs:
     name: Build and push image
     needs: validate
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Generate short image tag
         id: image_tag
@@ -75,3 +85,45 @@ jobs:
             ${{ env.IMAGE_NAME }}:${{ steps.image_tag.outputs.value }}
           labels: |
             org.opencontainers.image.revision=${{ github.sha }}
+
+      - name: Promote image in Kubernetes overlay
+        env:
+          IMAGE_TAG: ${{ steps.image_tag.outputs.value }}
+          OVERLAY_FILE: k8s/overlays/docker-local/kustomization.yaml
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git fetch origin main
+          if [ "$(git rev-parse origin/main)" != "$GITHUB_SHA" ]; then
+            echo "main advanced during the image build; the newer workflow will promote its own image."
+            exit 0
+          fi
+
+          git checkout -B main origin/main
+          perl -0pi -e 's/^([ \t]*newTag:).*$/$1 $ENV{IMAGE_TAG}/m' "$OVERLAY_FILE"
+
+          if [ "$(awk '$1 == "newTag:" { print $2 }' "$OVERLAY_FILE")" != "$IMAGE_TAG" ]; then
+            echo "Unable to update images[].newTag in $OVERLAY_FILE."
+            exit 1
+          fi
+
+          if git diff --quiet -- "$OVERLAY_FILE"; then
+            echo "The overlay already references image $IMAGE_TAG."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$OVERLAY_FILE"
+          git commit -m "chore(k8s): promove imagem ${IMAGE_TAG} [skip ci]"
+          if ! git push origin HEAD:main; then
+            git fetch origin main
+            if [ "$(git rev-parse origin/main)" != "$GITHUB_SHA" ]; then
+              echo "main advanced before the promotion push; the newer workflow will promote its own image."
+              exit 0
+            fi
+
+            echo "Unable to push the image promotion commit."
+            exit 1
+          fi

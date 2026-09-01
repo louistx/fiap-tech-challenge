@@ -13,3 +13,5 @@ data:
   Jwt__Audience: "techchallenge-clients"
   Jwt__AccessTokenMinutes: "15"
   Jwt__RefreshTokenDays: "7"
+  ApprovalLinks__BaseUrl: "http://localhost:18080"
+  ApprovalLinks__ExpirationHours: "48"

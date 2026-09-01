@@ -6,6 +6,8 @@ services:
       IntegracaoExterna__ApiKey: "${EXTERNAL_INTEGRATION_API_KEY:-demo-integration-key-change-me}"
       Notifications__Enabled: "true"
       Notifications__IntervalSeconds: "2"
+      ApprovalLinks__BaseUrl: "${APPROVAL_LINK_BASE_URL:-http://localhost:8080}"
+      ApprovalLinks__ExpirationHours: "48"
       Smtp__Host: "mailpit"
       Smtp__Port: "1025"
       Smtp__UseSsl: "false"

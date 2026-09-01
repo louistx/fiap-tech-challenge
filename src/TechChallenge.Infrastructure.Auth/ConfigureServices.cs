@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using TechChallenge.Application.Abstractions.Auth;
+using TechChallenge.Application.Abstractions.Notifications;
 using TechChallenge.Application.Abstractions.Repositories;
 using TechChallenge.Application.Features.Auth.Login;
 using TechChallenge.Application.Features.Auth.Logout;
@@ -38,6 +39,8 @@ namespace TechChallenge.Infrastructure.Auth
 
             services.AddSingleton<IAuthSettings, AuthSettings>();
             services.AddSingleton<ITokenService, TokenService>();
+            services.AddSingleton<TimeProvider>(TimeProvider.System);
+            services.AddSingleton<IDecisaoOrcamentoTokenService, DecisaoOrcamentoTokenService>();
             services.AddScoped<IPasswordHasher, Pbkdf2PasswordHasher>();
             services.AddScoped<ICurrentUser, CurrentUser>();
 

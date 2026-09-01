@@ -18,6 +18,7 @@ public class SmtpEmailSender : IEmailSender
         string destinatario,
         string assunto,
         string conteudo,
+        bool isHtml = false,
         CancellationToken cancellationToken = default)
     {
         if (!_options.UseSsl && !_options.AllowInsecureConnection)
@@ -31,7 +32,7 @@ public class SmtpEmailSender : IEmailSender
             From = new MailAddress(_options.FromAddress, _options.FromName),
             Subject = assunto,
             Body = conteudo,
-            IsBodyHtml = false
+            IsBodyHtml = isHtml
         };
         mensagem.To.Add(destinatario);
 

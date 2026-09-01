@@ -50,7 +50,7 @@ A descrição completa de componentes, recursos e fluxo de deploy está em [Arqu
 
 A solução mantém o monólito modular da Fase 1 e separa API, aplicação, domínio, contratos e infraestrutura. PostgreSQL é usado para persistência; Docker e Docker Compose suportam o desenvolvimento local. A Fase 2 propõe execução em Kubernetes, escalabilidade via HPA, infraestrutura Terraform e entrega por GitHub Actions.
 
-Em 01/09/2026, o build está sem avisos, com 118 testes unitários, 30 integrações e quatro testes Terraform aprovados. O webhook externo e a notificação por e-mail foram validados no Docker Compose com PostgreSQL e Mailpit. A infraestrutura e o CD foram validados no cluster do Docker Desktop, que é o ambiente de execução deste trabalho acadêmico. O GitHub Actions publica a imagem validada no GHCR; Terraform e Kustomize concluem a entrega localmente. Somente vídeo, link e PDF final ainda precisam ser produzidos. O guia local está em [Infraestrutura](../infra/README.md).
+Em 01/09/2026, o build está sem avisos, com 123 testes unitários, 31 integrações e quatro testes Terraform aprovados. O webhook externo e a notificação por e-mail, incluindo os links assinados de decisão, foram validados no Docker Compose com PostgreSQL e Mailpit. A infraestrutura e o CD foram validados no cluster do Docker Desktop, que é o ambiente de execução deste trabalho acadêmico. O GitHub Actions publica a imagem validada no GHCR e promove sua tag no overlay; Terraform e Kustomize concluem a entrega localmente. Somente vídeo, link e PDF final ainda precisam ser produzidos. O guia local está em [Infraestrutura](../infra/README.md).
 
 ## Checklist antes de exportar o PDF
 

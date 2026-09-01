@@ -7,11 +7,6 @@ ciclo de vida das Ordens de Serviço (OS).
 A Fase 2 concentra-se em evolução da arquitetura, APIs operacionais, controle de
 estoque, testes automatizados, conteinerização, Kubernetes, Terraform e CI/CD.
 
-> **Status verificado em 01/09/2026:** build sem erros ou avisos, 118 testes
-> unitários, 30 testes de integração e 4 testes Terraform aprovados. Docker,
-> Kubernetes e Terraform foram validados no ambiente local. O acompanhamento
-> detalhado está no [checklist de entregáveis](docs/fase-2-entregaveis.md).
-
 ## Entregáveis da Fase 2
 
 | Área | Estado verificado |
@@ -23,14 +18,15 @@ estoque, testes automatizados, conteinerização, Kubernetes, Terraform e CI/CD.
 | Docker e Docker Compose | Concluído e validado |
 | Kubernetes local | Concluído e validado |
 | Terraform local | Concluído e validado sobre cluster Docker Desktop existente |
-| CI: build, testes e imagem | Concluído |
+| CI: build, testes, imagem e promoção da tag | Concluído |
 | CD para o cluster local | Concluído: Terraform e aplicação por Kustomize validados |
 | Vídeo e documento final | Pendente |
 
-No ambiente acadêmico adotado pelo grupo, o GitHub Actions termina com a
-publicação da imagem validada no GHCR e a etapa de entrega é executada no cluster
-local do Docker Desktop com Terraform e Kustomize. Não existe ambiente remoto de
-deploy. A decisão externa do orçamento é recebida por webhook autenticado e
+No ambiente acadêmico adotado pelo grupo, o GitHub Actions publica a imagem
+validada no GHCR e versiona sua tag no overlay Kubernetes. A aplicação do
+manifesto continua sendo executada no cluster local do Docker Desktop com
+Terraform e Kustomize. Não existe ambiente remoto de deploy. A decisão externa
+do orçamento é recebida por webhook autenticado e
 idempotente. As mudanças de status são persistidas em uma outbox e enviadas por
 SMTP; no ambiente acadêmico, o Mailpit recebe e exibe os e-mails sem exigir
 infraestrutura externa. Os únicos entregáveis materiais pendentes são a
@@ -44,7 +40,8 @@ gravação/publicação do vídeo, a inclusão do link e a geração do PDF fina
 - abertura da OS com cliente, veículo, serviços e produtos;
 - diagnóstico, orçamento, aprovação, execução, finalização e entrega;
 - aprovação ou recusa externa com API key, correlação e idempotência;
-- notificação de mudanças de status por e-mail com outbox e retentativa;
+- notificação de mudanças de status por e-mail com outbox, retentativa, resumo
+  do orçamento e botões assinados para aprovação ou recusa;
 - consulta exclusiva de status e acompanhamento público da OS;
 - fila operacional priorizada por estado e data;
 - entrada, consulta e baixa de estoque sem permitir saldo negativo;
@@ -188,8 +185,9 @@ docker compose \
 
 O Dockerfile usa múltiplos estágios e usuário não-root. O workflow publica a
 imagem para `linux/amd64`, com `latest`, uma tag formada pelos 12 primeiros
-caracteres do SHA e o SHA completo no rótulo OCI. No Docker Desktop em Apple
-Silicon, essa imagem é executada por emulação.
+caracteres do SHA e o SHA completo no rótulo OCI. Após a publicação, o workflow
+atualiza automaticamente a tag imutável do overlay Kubernetes. No Docker Desktop
+em Apple Silicon, essa imagem é executada por emulação.
 
 ## Testes
 
@@ -201,8 +199,8 @@ terraform -chdir=infra/environments/local test
 
 Última validação registrada:
 
-- 118 testes unitários aprovados;
-- 30 testes de integração aprovados;
+- 123 testes unitários aprovados;
+- 31 testes de integração aprovados;
 - 4 testes Terraform aprovados;
 - build sem erros ou avisos;
 - imagem Docker `linux/amd64` publicada e validada localmente.
@@ -216,18 +214,15 @@ cluster; ele administra o namespace `techchallenge`, PostgreSQL, Service interno
 PVC, Secrets e Metrics Server. O Kustomize administra ConfigMap, Deployment,
 Service e HPA da API.
 
-Prepare e valide a infraestrutura:
+Prepare e aplique a fundação local. O ambiente é fixo para o Docker Desktop e
+não exige `terraform.tfvars`:
 
 ```bash
-cp infra/environments/local/terraform.tfvars.example \
-  infra/environments/local/terraform.tfvars
-
 terraform -chdir=infra/environments/local init
 terraform -chdir=infra/environments/local fmt -check -recursive
 terraform -chdir=infra/environments/local validate
 terraform -chdir=infra/environments/local test
-terraform -chdir=infra/environments/local plan -out=local.tfplan
-terraform -chdir=infra/environments/local apply local.tfplan
+terraform -chdir=infra/environments/local apply
 ```
 
 Implante a aplicação com um único apply do overlay:
@@ -242,7 +237,13 @@ kubectl --context=docker-desktop -n techchallenge get pods,svc,pvc,hpa
 O HPA controla a API entre uma e três réplicas, com alvo de 70% de CPU. Os
 endpoints `/health/live` e `/health/ready` são utilizados pelas probes.
 
-Instruções de credenciais, persistência, backup, teste de carga e recuperação:
+O Job de carga é iniciado separadamente durante a demonstração:
+
+```bash
+kubectl --context=docker-desktop apply -f k8s/tests/hpa-load.yaml
+```
+
+Instruções de credenciais, persistência e teste de carga:
 [infra/README.md](infra/README.md) e [k8s/README.md](k8s/README.md).
 
 ## CI/CD
@@ -252,9 +253,12 @@ Instruções de credenciais, persistência, backup, teste de carga e recuperaç�
 | `build.yml` | Restore e build |
 | `unit-tests.yml` | Testes unitários |
 | `integration-tests.yml` | Testes de integração |
-| `docker-image.yml` | Gate de build/testes e publicação `linux/amd64` no GHCR |
+| `docker-image.yml` | Gate de build/testes, publicação no GHCR e promoção da tag no overlay Kubernetes |
 
 O workflow da imagem só publica depois que build e as duas suítes são aprovados.
+A publicação bem-sucedida atualiza `k8s/overlays/docker-local/kustomization.yaml`
+em um commit automático. Esse commit usa o `GITHUB_TOKEN`, altera somente o
+overlay e não dispara uma nova execução da pipeline.
 A entrega contínua do ambiente acadêmico é concluída no cluster Kubernetes local:
 o Terraform prepara banco e dependências, e um único `kubectl apply -k` aplica a
 API com a imagem publicada. O runner hospedado não precisa acessar a máquina do

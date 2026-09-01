@@ -4,7 +4,7 @@
 
 A Fase 2 mantém o back-end como um monólito modular, mas passa a exigir separação clara de responsabilidades, conteinerização reproduzível, execução em Kubernetes, infraestrutura provisionada por Terraform e entrega automatizada.
 
-O ambiente de entrega é o cluster local fornecido pelo Docker Desktop. O GitHub Actions valida e publica a imagem, enquanto Terraform e Kustomize concluem o CD na máquina que hospeda esse cluster. Não existe ambiente remoto neste trabalho acadêmico.
+O ambiente de entrega é o cluster local fornecido pelo Docker Desktop. O GitHub Actions valida, publica a imagem e promove sua tag no overlay versionado, enquanto Terraform e Kustomize concluem o CD na máquina que hospeda esse cluster. Não existe ambiente remoto neste trabalho acadêmico.
 
 ## Componentes da aplicação
 
@@ -52,6 +52,12 @@ reserva mensagens da outbox com concorrência otimista, envia por SMTP e registr
 sucesso ou nova tentativa. O Compose usa Mailpit; um ambiente compartilhado pode
 substituí-lo por outro servidor SMTP sem alterar aplicação ou domínio.
 
+Quando a OS entra em `AguardandoAprovacao`, o e-mail HTML apresenta serviços,
+produtos e valor total do orçamento, além dos botões de aprovação e recusa. Os
+links usam um token HMAC com propósito específico, validade de 48 horas e
+confirmação por `POST`. A mesma regra de domínio, auditoria e idempotência do
+webhook processa a decisão, sem expor a API key do integrador.
+
 ## Infraestrutura local
 
 ```mermaid
@@ -65,7 +71,8 @@ flowchart TB
     Cluster[Namespace techchallenge]
     Ingress[Port-forward / Service]
     Deploy[Deployment da API]
-    HPA[HPA CPU/memória]
+    HPA[HPA CPU]
+    Metrics[Metrics Server]
     Config[ConfigMap]
     Secrets[Secret]
     DB[(PostgreSQL 17\nStatefulSet + PVC)]
@@ -74,15 +81,17 @@ flowchart TB
     GitHub --> Actions
     Actions -->|build e testes| Actions
     Actions -->|push da imagem| Registry
-    Dev -->|plan/apply local| Terraform
+    Dev -->|apply local| Terraform
     Docker --> Cluster
     Terraform --> Cluster
     Terraform --> DB
     Terraform --> Secrets
+    Terraform --> Metrics
     Dev -->|Kustomize/kubectl| Cluster
     Registry --> Deploy
     Ingress --> Deploy
     HPA --> Deploy
+    Metrics --> HPA
     Config --> Deploy
     Secrets --> Deploy
     Deploy --> DB
@@ -97,7 +106,7 @@ flowchart TB
 | Dados | Terraform cria PostgreSQL em StatefulSet, Service interno e PVC; a API executa migrations no startup |
 | Rede | Rede fornecida pelo Docker Desktop; Service ClusterIP e acesso local por port-forward |
 | Observabilidade | logs, métricas para HPA e health checks |
-| IaC | Providers Kubernetes/Helm/Random, namespace, banco, Secrets, Metrics Server, variáveis, outputs e state local |
+| IaC | Providers Kubernetes/Helm/Random, namespace, banco, Secrets, Metrics Server e state local |
 
 Terraform e Kustomize não gerenciam o mesmo recurso. O namespace e os Secrets são
 referenciados pelos manifests, sem uma segunda definição em YAML. O guia executável
@@ -119,14 +128,19 @@ sequenceDiagram
     GH->>CI: dispara validação
     CI->>CI: restore, build e testes
     CI->>REG: build e push da imagem imutável
-    LOCAL->>TF: plan; apply das dependências locais
+    CI->>GH: commit automático promove newTag no overlay
+    LOCAL->>TF: apply da fundação local
     TF->>K8S: prepara dependências no cluster existente
     LOCAL->>K8S: aplica Kustomize com a tag do commit
     K8S->>K8S: rollout, probes e HPA
     LOCAL->>K8S: valida rollout e smoke test
 ```
 
-Gates do fluxo: nenhuma imagem é publicada quando build/testes falharem; `terraform plan` é revisado antes de `apply`; segredos ficam fora do Git; a imagem é identificada pelo SHA; e o rollout local é validado após o apply.
+Gates do fluxo: nenhuma imagem é publicada quando build/testes falharem; a
+promoção automática altera somente o overlay e não dispara outra pipeline; o
+`terraform apply` exibe o plano da fundação antes da criação; segredos ficam fora
+do Git; a imagem é identificada pelo SHA; e o rollout local é validado após o
+apply.
 
 Esse é o fluxo de CI/CD do projeto: CI automatizada até a publicação no GHCR e CD
 reproduzível no ambiente Kubernetes local. A separação é necessária porque o
@@ -172,14 +186,12 @@ O fluxo de provisionamento é:
 terraform -chdir=infra/environments/local init
 terraform -chdir=infra/environments/local validate
 terraform -chdir=infra/environments/local test
-terraform -chdir=infra/environments/local plan -out=local.tfplan
-terraform -chdir=infra/environments/local apply local.tfplan
+terraform -chdir=infra/environments/local apply
 ```
 
-Leia o [guia](../infra/README.md) antes de aplicar: ele explica a configuração do
-Metrics Server no Docker Desktop, o state local sensível, as credenciais geradas,
-backup e proteção de namespace/PVC contra destruição. Não há ambiente de nuvem,
-módulos de rede ou backend remoto nesta implementação.
+O [guia](../infra/README.md) documenta a sequência completa da demonstração.
+Não há `tfvars`, ambiente de nuvem, módulos de rede ou backend remoto nesta
+implementação.
 
 ## Evoluções para um eventual ambiente compartilhado
 

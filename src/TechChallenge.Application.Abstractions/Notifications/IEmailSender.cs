@@ -6,5 +6,6 @@ public interface IEmailSender
         string destinatario,
         string assunto,
         string conteudo,
+        bool isHtml = false,
         CancellationToken cancellationToken = default);
 }

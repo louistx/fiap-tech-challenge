@@ -4,9 +4,9 @@
 
 O projeto utiliza testes automatizados para validar as regras de domínio, os serviços de aplicação, a segurança e o comportamento HTTP da API. A suíte é dividida entre testes unitários e testes de integração.
 
-No levantamento atual, existem 118 testes unitários, 30 testes de integração e quatro testes Terraform.
+No levantamento atual, existem 123 testes unitários, 31 testes de integração e quatro testes Terraform.
 
-> **Resultado verificado em 01/09/2026:** o build concluiu sem avisos; os 118 testes unitários, 30 testes de integração e quatro testes Terraform passaram.
+> **Resultado verificado em 01/09/2026:** o build concluiu sem avisos; os 123 testes unitários, 31 testes de integração e quatro testes Terraform passaram.
 
 ## Organização
 
@@ -187,7 +187,7 @@ O repositório possui workflows separados para testes unitários e de integraç�
 - `.github/workflows/unit-tests.yml`;
 - `.github/workflows/integration-tests.yml`.
 
-Ambos executam em `push` e `pull_request` para a branch `main`, além do acionamento manual. O workflow de imagem executa restore, build e as duas suítes antes de publicar `latest` e uma tag imutável com os 12 primeiros caracteres do SHA no GHCR. O SHA completo permanece no rótulo OCI da imagem. No ambiente acadêmico, Terraform e Kustomize concluem o deploy no cluster local do Docker Desktop.
+Ambos executam em `push` e `pull_request` para a branch `main`, além do acionamento manual. O workflow de imagem executa restore, build e as duas suítes antes de publicar `latest` e uma tag imutável com os 12 primeiros caracteres do SHA no GHCR. O SHA completo permanece no rótulo OCI da imagem. Depois da publicação, o workflow promove essa tag em `k8s/overlays/docker-local/kustomization.yaml`; o commit automático não inicia outra execução. No ambiente acadêmico, Terraform e Kustomize concluem o deploy no cluster local do Docker Desktop.
 
 ## Regressões corrigidas na auditoria
 

@@ -98,7 +98,8 @@ Este documento reúne as regras funcionais da Fase 1 e as evoluções obrigatór
 - O sistema deve notificar os mecânicos quando uma nova OS entrar na fila.
 - Mudanças de estado devem gerar notificação para o funcionário responsável ou para administradores quando não houver responsável.
 - A falta de estoque deve notificar administradores e o mecânico responsável.
-- Nesta fase, as notificações são simuladas por logs da aplicação.
+- As notificações internas continuam registradas em log e as mudanças de status
+  do cliente são enviadas por SMTP através da outbox.
 
 ## Evoluções obrigatórias da Fase 2
 
@@ -133,7 +134,7 @@ Este documento reúne as regras funcionais da Fase 1 e as evoluções obrigatór
 
 - Mudanças de estado devem ser enviadas por e-mail ou ferramenta equivalente.
 - Falhas de envio não podem corromper a transação da OS; recomenda-se fila/outbox e retentativa.
-- **Situação atual:** implementada por SMTP com outbox PostgreSQL, reserva concorrente e retentativa progressiva. O ambiente local utiliza Mailpit.
+- **Situação atual:** implementada por SMTP com outbox PostgreSQL, reserva concorrente e retentativa progressiva. O ambiente local utiliza Mailpit. O e-mail apresenta os itens e o total do orçamento e inclui links assinados e temporários para aprovação ou recusa, com confirmação antes da mudança de estado.
 
 ### RF26 - Movimentação de estoque
 
