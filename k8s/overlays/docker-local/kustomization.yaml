@@ -8,4 +8,4 @@ patches:
   - path: configmap-patch.yaml
 images:
   - name: ghcr.io/louistx/fiap-tech-challenge
-    newTag: eee8e1a69833
+    newTag: ba10998c4a8d
