@@ -138,7 +138,15 @@ cd fiap-tech-challenge
 ```
 
 Configure conexão, JWT e senha do usuário inicial por User Secrets ou variáveis
-de ambiente. Depois, restaure, compile e execute:
+de ambiente. Exemplo para o terminal local:
+
+```bash
+export ConnectionStrings__DefaultConnection="Host=localhost;Port=5432;Database=TechChallenge;Username=postgres;Password=SUA_SENHA"
+export Jwt__SecretKey="troque-por-uma-chave-com-mais-de-32-caracteres"
+export Seed__AdminPassword="SenhaAdmin123"
+```
+
+Depois, restaure, compile e execute:
 
 ```bash
 dotnet restore TechChallenge.slnx
@@ -161,6 +169,15 @@ docker compose \
 ```
 
 A API ficará em `http://localhost:8080` e o PostgreSQL em `localhost:5432`.
+
+Para encerrar:
+
+```bash
+docker compose \
+  -f docker-compose/docker-compose.yml \
+  -f docker-compose/docker-compose.override.yml \
+  down
+```
 
 O Dockerfile usa múltiplos estágios e usuário não-root. O workflow publica a
 imagem para `linux/amd64` e `linux/arm64`, com `latest`, uma tag formada pelos 12
@@ -253,14 +270,15 @@ desenvolvedor, pois não existe um ambiente remoto neste trabalho.
 | [Checklist da Fase 2](docs/fase-2-entregaveis.md) | Progresso, evidências e pendências |
 | [Arquitetura da Fase 2](docs/arquitetura-fase-2.md) | Componentes, infraestrutura e deploy |
 | [Validação da infraestrutura](docs/validacao-infra-local.md) | Evidências de Terraform, Kubernetes, saúde, persistência e HPA |
+| [Auditoria do Estoque](docs/auditoria-estoque.md) | Contratos, regras, persistência e testes |
 | [DDD](docs/ddd.md) | Domínio e agregado de Ordem de Serviço |
 | [Event Storming](docs/event-storming.md) | Eventos, comandos e fluxos do negócio |
 | [Roteiro do vídeo](docs/roteiro-video-fase-2.md) | Demonstração cronometrada de até 15 minutos |
 | [Documento final](docs/entrega-fase-2.md) | Fonte da entrega no portal |
 
-Antes da entrega final ainda é necessário publicar o vídeo, inserir seu link,
-gerar e revisar o PDF e confirmar o compartilhamento do repositório com
-`soat-architecture`.
+Antes da entrega final ainda é necessário publicar o vídeo, inserir seu link e
+gerar e revisar o PDF. O repositório já está compartilhado com
+`soat-architecture` com permissão de escrita.
 
 ## Equipe
 

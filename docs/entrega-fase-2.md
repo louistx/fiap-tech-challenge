@@ -21,7 +21,7 @@
 | Arquitetura | [Arquitetura Proposta - Fase 2](arquitetura-fase-2.md) |
 | APIs | Swagger/OpenAPI em runtime, com URLs e cenários documentados no repositório |
 | Vídeo de até 15 minutos | **PENDENTE - inserir URL pública ou não listada do YouTube/Vimeo** |
-| Compartilhamento com `soat-architecture` | **PENDENTE - confirmar na configuração do GitHub** |
+| Compartilhamento com `soat-architecture` | Confirmado com permissão de escrita |
 
 ## Desenho resumido da arquitetura
 
@@ -58,7 +58,7 @@ Em 01/09/2026, o build está sem avisos, com 111 testes unitários, 29 integraç
 - [x] Terraform provisionou recursos e banco no cluster local existente, conforme o escopo documentado.
 - [x] CI/CD executou build, testes e imagem, seguido da entrega no Kubernetes local.
 - [ ] O vídeo foi publicado e o link substituiu o placeholder.
-- [ ] O repositório foi compartilhado com `soat-architecture`.
+- [x] O repositório foi compartilhado com `soat-architecture`.
 - [ ] O desenho final corresponde exatamente aos recursos utilizados.
 - [ ] O PDF foi revisado visualmente e todos os links foram testados.
 

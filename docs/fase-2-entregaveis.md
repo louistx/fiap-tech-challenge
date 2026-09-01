@@ -269,7 +269,7 @@ A arquitetura e as limitações estão em [Arquitetura Proposta - Fase 2](arquit
   - [ ] Inserir o link do vídeo.
   - [ ] Validar visualmente todas as páginas e links.
 
-- [ ] Confirmar que o repositório privado foi compartilhado com `soat-architecture`.
+- [x] Confirmar que o repositório privado foi compartilhado com `soat-architecture`.
 
 ## 10. Bloqueadores prioritários
 
