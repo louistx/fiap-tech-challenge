@@ -62,17 +62,18 @@ Secrets, senhas, tokens ou connection strings na gravação.
 - Diagrama de arquitetura aberto no README/documentação.
 - Terminal na raiz do repositório com fonte legível.
 - Lens ou um segundo terminal no namespace `techchallenge`.
-- Cliente HTTP com os arquivos de `src/TechChallenge.Api/demo/` preparados.
+- Cliente HTTP com os arquivos de `docs/demo/fase-2/` preparados.
+- Mailpit aberto em `http://localhost:8025`.
 - API de demonstração já iniciada pelo Docker Compose com dados fictícios.
 - Job de carga antigo removido antes de iniciar a gravação.
 
-Para subir somente a API e o PostgreSQL de demonstração, sem o SonarQube:
+Para subir a API, o PostgreSQL e o Mailpit de demonstração, sem o SonarQube:
 
 ```bash
 docker compose \
   -f docker-compose/docker-compose.yml \
   -f docker-compose/docker-compose.override.yml \
-  up -d --build db techchallenge.api
+  up -d --build db mailpit techchallenge.api
 ```
 
 ## Roteiro cronometrado
@@ -117,7 +118,7 @@ docker compose \
 **Mostrar:**
 
 1. SHA do Commit A.
-2. Job de validação com restore, build, 111 testes unitários e 29 testes de integração.
+2. Job de validação com restore, build, 118 testes unitários e 30 testes de integração.
 3. Job `Build and push image` concluído para `linux/amd64`.
 4. Tag do GHCR igual aos 12 primeiros caracteres do SHA do Commit A.
 5. Commit B alterando `newTag` para essa tag imutável.
@@ -176,12 +177,12 @@ kubectl --context=docker-desktop -n techchallenge port-forward \
 **Tela:** cliente HTTP e, ao lado, logs da API de demonstração.
 
 Use a instância Docker Compose em `http://localhost:8080`, que possui somente
-dados fictícios. Execute primeiro `00-auth.http` para obter tokens de
-administrador, vendedor e mecânico.
+dados fictícios. Execute primeiro `docs/demo/fase-2/00-auth.http` para obter
+tokens de administrador, vendedor e mecânico.
 
 #### Abertura completa e identificação única
 
-Execute o passo 1 de `02-os-fluxo-completo.http`.
+Execute o passo 1 de `01-aprovacao-externa.http`.
 
 **Fala sugerida:**
 
@@ -199,7 +200,7 @@ Execute, sem ler todo o JSON:
 1. atribuição ao mecânico;
 2. registro do diagnóstico;
 3. envio do orçamento;
-4. aprovação administrativa;
+4. aprovação pelo webhook externo;
 5. finalização;
 6. entrega;
 7. consulta final e saldo do produto.
@@ -207,9 +208,21 @@ Execute, sem ler todo o JSON:
 **Fala sugerida:**
 
 > A máquina de estados protege a sequência da OS. O diagnóstico registra os
-> itens, o orçamento aguarda decisão, a aprovação inicia a execução e a
-> finalização baixa o estoque. Depois da entrega, o registro continua no
-> histórico, mas não aparece na fila operacional.
+> itens e o orçamento aguarda decisão. A aprovação chega por um endpoint
+> externo protegido por API key. O evento é correlacionado e idempotente: uma
+> repetição idêntica não executa a transição novamente. A finalização baixa o
+> estoque e, depois da entrega, o registro permanece no histórico.
+
+Repita o mesmo webhook e mostre `duplicado: true`. Em seguida, abra o Mailpit e
+mostre os e-mails das mudanças de status.
+
+**Fala sugerida:**
+
+> Cada transição também cria uma mensagem na outbox dentro da mesma transação.
+> Um worker envia essas mensagens por SMTP e registra a entrega. Para a
+> demonstração usamos o Mailpit local, portanto não dependemos de infraestrutura
+> externa. Se o SMTP falhar, a mensagem permanece no banco e recebe novas
+> tentativas com espera progressiva.
 
 Mostre `GET /api/v1/ordens-servico/oficina` e destaque a priorização:
 `EmExecucao`, `AguardandoAprovacao`, `EmDiagnostico` e `Recebida`, com as mais
@@ -217,7 +230,8 @@ antigas primeiro e sem finalizadas ou entregues.
 
 #### Regra de estoque e acompanhamento
 
-Execute o passo de falta de estoque em `03-os-alerta-estoque.http`.
+Se houver tempo, use a coleção legada em `src/TechChallenge.Api/demo/` para
+demonstrar também a regra de falta de estoque.
 
 **Fala sugerida:**
 
@@ -226,11 +240,8 @@ Execute o passo de falta de estoque em `03-os-alerta-estoque.http`.
 > autenticação, o cliente utiliza o código único da OS. Também disponibilizamos
 > a métrica de tempo médio de execução.
 
-Mostre rapidamente as chamadas de acompanhamento e tempo médio em
-`04-metricas-e-acompanhamento.http`.
-
-> Observação: a aprovação externa por webhook e o envio real de e-mail não foram
-> implementados. A versão atual usa aprovação autenticada e notificações por log.
+Mostre rapidamente as chamadas de acompanhamento, fila e tempo médio em
+`03-metricas-e-acompanhamento.http`.
 
 ### 10:35-13:10 - Escalabilidade automática
 

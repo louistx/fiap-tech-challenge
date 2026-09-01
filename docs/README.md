@@ -21,7 +21,7 @@
 
 - [Testes automatizados e resultado da auditoria](testes.md)
 - [Relatório de análise de vulnerabilidades](relatorio-vulnerabilidades.md)
-- [Roteiro de demonstração da API](../src/TechChallenge.Api/demo/README.md)
+- [Demo executável da Fase 2](demo/fase-2/README.md)
 
 ## Estado da revisão
 

@@ -4,7 +4,7 @@
 
 A análise estática do projeto foi executada localmente com o **SonarQube Community Build** e o **SonarScanner for .NET**. O processo considera o código da aplicação, métricas de segurança, confiabilidade, manutenibilidade, duplicação e a cobertura produzida pelos testes automatizados.
 
-> **Escopo temporal:** os resultados abaixo são evidência histórica anterior às correções atuais. Em 26/08/2026, o build foi validado sem avisos e as suítes passaram com 111 testes unitários e 26 de integração. Mesmo assim, o Quality Gate e a cobertura de 84,1% só representarão o código atual depois de um novo scan do SonarQube.
+> **Escopo temporal:** os resultados abaixo correspondem à análise local executada em 01/09/2026, depois da implementação da aprovação/recusa externa, do outbox de notificações e da coleção de demonstração da Fase 2.
 
 ## Resultado da análise
 
@@ -13,18 +13,20 @@ O painel registrou aprovação no Quality Gate e apresentou os seguintes resulta
 | Métrica | Resultado |
 | --- | --- |
 | Quality Gate | Aprovado (`Passed`) |
-| Linhas de código analisadas | 7,3 mil |
-| Problemas de segurança abertos | 0 — classificação A |
+| Linhas de código analisadas | 10.582 |
+| Problemas de segurança abertos | 0 |
 | Security Hotspots | 0 — classificação A |
-| Problemas de confiabilidade | 0 — classificação A |
-| Problemas de manutenibilidade | 2 — classificação A |
-| Problemas aceitos | 0 |
-| Cobertura de testes | 84,1% sobre 3,7 mil linhas a cobrir |
-| Duplicação | 4,6% sobre 9 mil linhas |
+| Problemas de confiabilidade | 0 |
+| Code Smells | 77 |
+| Problemas aceitos | 1, restrito ao SMTP sem TLS do Mailpit local |
+| Cobertura de testes | 80,5% |
+| Duplicação | 3,0% |
 
-![Resultado da análise no SonarQube](assets/sonarQube.png)
+![Evidência histórica do painel do SonarQube](assets/sonarQube.png)
 
-O resultado atende à meta mínima de 80% de cobertura definida para os domínios críticos. Os dois apontamentos de manutenibilidade não impediram a aprovação do Quality Gate e devem ser avaliados na tela **Issues** antes da entrega definitiva.
+O resultado atual atende à meta mínima de 80% de cobertura definida para os domínios críticos. Os 77 apontamentos de manutenibilidade não impediram a aprovação do Quality Gate e são, em sua maioria, recomendações incrementais sobre código preexistente.
+
+O único apontamento de segurança foi classificado como **Accepted** no SonarQube. A regra `S5332` recomenda TLS para SMTP, mas o Mailpit da demonstração inicia deliberadamente sem criptografia dentro da rede local do Docker. A configuração padrão da aplicação mantém `UseSsl=true`; conexões sem TLS são bloqueadas, salvo quando `AllowInsecureConnection=true` é habilitado explicitamente no Docker Compose local. Ativar `EnableSsl` nessa porta faria o envio falhar por ausência de `STARTTLS`, mantendo a mensagem no outbox para nova tentativa.
 
 > A ausência de problemas de segurança e hotspots no SonarQube representa o resultado da análise estática registrada nessa execução. Ela não garante, isoladamente, que a aplicação esteja livre de vulnerabilidades em dependências, containers, configuração ou ambiente de execução.
 
@@ -136,10 +138,15 @@ http://localhost:9000/dashboard?id=fiap-tech-challenge
 Para verificar pacotes NuGet com vulnerabilidades conhecidas:
 
 ```bash
-dotnet list TechChallenge.slnx package \
-  --vulnerable \
-  --include-transitive
+while IFS= read -r project_file; do
+  dotnet list "$project_file" package --vulnerable --include-transitive
+done < <(rg --files -g '*.csproj')
 ```
+
+O comando é executado por projeto porque a solução também contém o projeto
+especial `.dcproj` do Docker Compose, que não usa `PackageReference`. Na
+validação de 01/09/2026, nenhum pacote vulnerável foi encontrado nas fontes
+NuGet configuradas.
 
 Para analisar a imagem da API com Trivy, primeiro construa os containers e depois execute:
 
@@ -154,16 +161,17 @@ trivy image techchallengeapi
 
 Essas verificações complementam o SonarQube ao analisar dependências e a imagem do container, superfícies que não são integralmente cobertas pela análise estática do código.
 
-## Revalidação exigida para a Fase 2
+## Revalidação realizada para a Fase 2
 
-Antes da entrega, deve ser registrada uma nova execução após:
+Nesta execução foram validados:
 
-1. corrigir a construção/migration de `Estoque` e recuperar os testes;
-2. incluir os novos endpoints de Estoque e Categorias na cobertura;
-3. analisar as rotas duplicadas, nulabilidade e atualizações concorrentes de saldo;
-4. executar análise de dependências e da imagem produzida pelo Dockerfile revisado;
-5. anexar a nova evidência, data, commit e decisão dos apontamentos.
+1. build da solução sem erros ou avisos;
+2. 118 testes unitários e 30 testes de integração aprovados;
+3. cobertura de 80,5% e Quality Gate aprovado;
+4. ausência de bugs, vulnerabilidades abertas e Security Hotspots;
+5. ausência de vulnerabilidades conhecidas nos pacotes NuGet;
+6. decisão documentada para o SMTP sem TLS usado somente pelo Mailpit local.
 
 ## Conclusão
 
-A execução histórica foi aprovada no Quality Gate, não identificou problemas de segurança nem Security Hotspots e atingiu 84,1% de cobertura. Ela comprova o estado anterior, não as correções atuais. O pré-requisito de build e testes verdes já foi recuperado; ainda falta executar e anexar um novo scan do SonarQube.
+A execução atual foi aprovada no Quality Gate, não deixou bugs, vulnerabilidades abertas nem Security Hotspots e atingiu 80,5% de cobertura. O único risco aceito está limitado ao servidor SMTP local de demonstração e protegido por configuração explícita. A captura existente permanece identificada como evidência histórica; os números atuais podem ser consultados no painel local enquanto o container do SonarQube estiver em execução.

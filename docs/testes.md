@@ -4,9 +4,9 @@
 
 O projeto utiliza testes automatizados para validar as regras de domínio, os serviços de aplicação, a segurança e o comportamento HTTP da API. A suíte é dividida entre testes unitários e testes de integração.
 
-No levantamento atual, existem 111 testes unitários, 29 testes de integração e quatro testes Terraform.
+No levantamento atual, existem 118 testes unitários, 30 testes de integração e quatro testes Terraform.
 
-> **Resultado verificado em 27/08/2026:** o build concluiu sem avisos; os 111 testes unitários, 29 testes de integração e quatro testes Terraform passaram.
+> **Resultado verificado em 01/09/2026:** o build concluiu sem avisos; os 118 testes unitários, 30 testes de integração e quatro testes Terraform passaram.
 
 ## Organização
 
@@ -100,6 +100,8 @@ Os fluxos atualmente cobertos incluem:
 - abertura da OS com serviços e produtos;
 - rota exclusiva de status;
 - ordenação da fila operacional por prioridade e antiguidade.
+- aprovação externa autenticada, idempotência, conflito e persistência da outbox;
+- reserva concorrente e confirmação de mensagens pendentes da outbox.
 
 > Os testes de integração validam a aplicação com Entity Framework e SQLite em memória. Eles não substituem testes específicos de compatibilidade e operação com uma instância real do PostgreSQL.
 
@@ -174,7 +176,9 @@ dotnet test tests/TechChallenge.IntegrationTests/TechChallenge.IntegrationTests.
   /p:CoverletOutput=../../.sonar/coverage/integration/
 ```
 
-A meta do projeto é manter pelo menos 80% de cobertura nos fluxos críticos. Esse patamar foi atingido em uma análise histórica do SonarQube; a métrica ainda deve ser coletada novamente para o código atual, mesmo com as suítes verdes.
+A meta do projeto é manter pelo menos 80% de cobertura nos fluxos críticos. A
+medição atual é registrada no
+[Relatório de Análise de Vulnerabilidades](relatorio-vulnerabilidades.md).
 
 ## Integração contínua
 
@@ -183,7 +187,7 @@ O repositório possui workflows separados para testes unitários e de integraç�
 - `.github/workflows/unit-tests.yml`;
 - `.github/workflows/integration-tests.yml`.
 
-Ambos executam em `push` e `pull_request` para a branch `main`, além do acionamento manual. O workflow de imagem executa restore, build e as duas suítes antes de publicar `latest` e uma tag imutável com os 12 primeiros caracteres do SHA no GHCR. O SHA completo permanece no rótulo OCI da imagem. O deploy no cluster ainda não está implementado.
+Ambos executam em `push` e `pull_request` para a branch `main`, além do acionamento manual. O workflow de imagem executa restore, build e as duas suítes antes de publicar `latest` e uma tag imutável com os 12 primeiros caracteres do SHA no GHCR. O SHA completo permanece no rótulo OCI da imagem. No ambiente acadêmico, Terraform e Kustomize concluem o deploy no cluster local do Docker Desktop.
 
 ## Regressões corrigidas na auditoria
 
@@ -212,5 +216,4 @@ A estrutura de testes está verde. A próxima ampliação deve cobrir:
 - estados alternativos da OS pela API, incluindo reprovação, retorno para diagnóstico e cancelamento;
 - autorização dos demais endpoints e perfis;
 - execução com PostgreSQL real;
-- fluxos futuros de reserva de estoque, notificações externas, pagamento e recibo.
-- callback externo de decisão do orçamento e notificação externa de status.
+- fluxos futuros de reserva antecipada de estoque, pagamento e recibo.

@@ -33,6 +33,9 @@ flowchart LR
     APP --> PORTS[Portas]
     DBADAPTER[EF Core/Repositórios] --> PORTS
     DBADAPTER --> PG[(PostgreSQL)]
+    NOTIFY[Worker de notificações] --> PORTS
+    PG --> NOTIFY
+    NOTIFY --> SMTP[SMTP / Mailpit local]
     CICD[GitHub Actions] --> REG[GHCR]
     DEV[Terminal local] --> TF[Terraform local]
     DEV --> K8S[Kubernetes Docker Desktop]
@@ -47,11 +50,11 @@ A descrição completa de componentes, recursos e fluxo de deploy está em [Arqu
 
 A solução mantém o monólito modular da Fase 1 e separa API, aplicação, domínio, contratos e infraestrutura. PostgreSQL é usado para persistência; Docker e Docker Compose suportam o desenvolvimento local. A Fase 2 propõe execução em Kubernetes, escalabilidade via HPA, infraestrutura Terraform e entrega por GitHub Actions.
 
-Em 01/09/2026, o build está sem avisos, com 111 testes unitários, 29 integrações e quatro testes Terraform aprovados. A infraestrutura e o CD foram validados no cluster do Docker Desktop, que é o ambiente de execução deste trabalho acadêmico. O GitHub Actions publica a imagem validada no GHCR; Terraform e Kustomize concluem a entrega localmente. Vídeo, link e PDF final ainda precisam ser produzidos. O guia local está em [Infraestrutura](../infra/README.md).
+Em 01/09/2026, o build está sem avisos, com 118 testes unitários, 30 integrações e quatro testes Terraform aprovados. O webhook externo e a notificação por e-mail foram validados no Docker Compose com PostgreSQL e Mailpit. A infraestrutura e o CD foram validados no cluster do Docker Desktop, que é o ambiente de execução deste trabalho acadêmico. O GitHub Actions publica a imagem validada no GHCR; Terraform e Kustomize concluem a entrega localmente. Somente vídeo, link e PDF final ainda precisam ser produzidos. O guia local está em [Infraestrutura](../infra/README.md).
 
 ## Checklist antes de exportar o PDF
 
-- [ ] Todos os bloqueadores do [Checklist de Entregáveis](fase-2-entregaveis.md) foram resolvidos.
+- [x] Todos os bloqueadores técnicos do [Checklist de Entregáveis](fase-2-entregaveis.md) foram resolvidos.
 - [x] Build, testes unitários e testes de integração estão verdes na validação local.
 - [x] Swagger/OpenAPI e os cenários HTTP das APIs foram documentados e validados localmente.
 - [x] Kubernetes e HPA foram validados localmente, com escala de 1 para 3 e retorno a 1 réplica.
@@ -59,7 +62,7 @@ Em 01/09/2026, o build está sem avisos, com 111 testes unitários, 29 integraç
 - [x] CI/CD executou build, testes e imagem, seguido da entrega no Kubernetes local.
 - [ ] O vídeo foi publicado e o link substituiu o placeholder.
 - [x] O repositório foi compartilhado com `soat-architecture`.
-- [ ] O desenho final corresponde exatamente aos recursos utilizados.
+- [x] O desenho final corresponde aos recursos utilizados.
 - [ ] O PDF foi revisado visualmente e todos os links foram testados.
 
 Consulte o [Roteiro do Vídeo](roteiro-video-fase-2.md) antes da gravação.

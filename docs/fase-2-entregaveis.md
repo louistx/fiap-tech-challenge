@@ -15,7 +15,7 @@ Quando um item estiver parcialmente desenvolvido, ele permanece desmarcado e rec
 | --- | --- |
 | Arquitetura em camadas e testes | Concluído para o escopo da fase |
 | Clean Code | Concluído: fluxo assíncrono propagado dos endpoints aos repositórios |
-| APIs obrigatórias da OS | Parcial: faltam decisão e notificação externas |
+| APIs obrigatórias da OS | Concluído, incluindo webhook e e-mail local |
 | Estoque e categorias | Concluído |
 | Docker e Docker Compose | Concluído e validado |
 | Kubernetes local | Concluído e validado |
@@ -51,9 +51,9 @@ As evidências de infraestrutura e entrega estão em [Validação da infraestrut
 - [x] Manter testes automatizados verdes para os fluxos críticos.
   - [x] Projeto de testes unitários existente.
   - [x] Projeto de testes de integração existente.
-  - [x] 111 testes unitários aprovados em 26/08/2026.
+  - [x] 118 testes unitários aprovados em 01/09/2026.
   - [x] Corrigir os 8 testes unitários anteriormente falhos.
-  - [x] Corrigir os 20 testes de integração anteriormente falhos; a suíte agora possui 29 testes verdes, incluindo três novos testes de saúde.
+  - [x] Corrigir os 20 testes de integração anteriormente falhos; a suíte agora possui 30 testes verdes, incluindo o webhook e a outbox.
 
 ## 2. APIs obrigatórias
 
@@ -77,13 +77,13 @@ As evidências de infraestrutura e entrega estão em [Validação da infraestrut
 
 ### Aprovação ou recusa externa
 
-- [ ] Criar endpoint para receber aprovação ou recusa de um sistema externo.
+- [x] Criar endpoint para receber aprovação ou recusa de um sistema externo.
   - [x] Aprovação administrativa interna existe.
   - [x] Reprovação administrativa interna existe.
-  - [ ] Criar callback/webhook externo.
-  - [ ] Definir autenticação do integrador.
-  - [ ] Implementar idempotência e correlação.
-  - [ ] Testar notificações repetidas, inválidas e fora de ordem.
+  - [x] Criar callback/webhook externo.
+  - [x] Definir autenticação do integrador por API key.
+  - [x] Implementar idempotência, correlação e auditoria da decisão.
+  - [x] Testar repetição idêntica, chave inválida, conteúdo conflitante e geração da outbox.
 
 ### Listagem priorizada
 
@@ -98,11 +98,11 @@ As evidências de infraestrutura e entrega estão em [Validação da infraestrut
 
 ### Notificação de mudança de status
 
-- [ ] Atualizar o cliente por e-mail ou ferramenta equivalente.
+- [x] Atualizar o cliente por e-mail ou ferramenta equivalente.
   - [x] Notificações internas por log existem.
-  - [ ] Implementar integração externa para mudanças de status.
-  - [ ] Implementar retentativa e tratamento de falha.
-  - [ ] Evitar perda de notificação com fila ou padrão outbox.
+  - [x] Implementar envio SMTP e caixa de entrada local com Mailpit.
+  - [x] Implementar retentativa com espera progressiva e tratamento de falha.
+  - [x] Evitar perda de notificação com outbox persistida na mesma transação da OS.
 
 ## 3. Estoque e categorias
 
@@ -157,8 +157,9 @@ Consulte a análise detalhada em [Auditoria do Endpoint de Estoque](auditoria-es
 - [x] Manter Docker Compose para desenvolvimento local.
   - [x] API configurada.
   - [x] PostgreSQL configurado.
+  - [x] Mailpit configurado para a demonstração de e-mail.
   - [x] SonarQube configurado.
-  - [x] `docker compose config --quiet` validado em 25/08/2026.
+  - [x] `docker compose config --quiet` validado em 01/09/2026.
 
 ## 5. Kubernetes
 
@@ -223,7 +224,7 @@ A arquitetura e as limitações estão em [Arquitetura Proposta - Fase 2](arquit
   - [x] Workflow de testes de integração presente.
   - [x] Executar os testes automaticamente em pull request/push.
   - [x] Impedir a publicação da imagem quando qualquer teste falhar.
-  - [x] Recuperar a suíte: 111 unitários e 29 integrações aprovados.
+  - [x] Recuperar e ampliar a suíte: 118 unitários e 30 integrações aprovados.
 
 - [x] Automatizar build e publicação da imagem.
   - [x] Workflow `docker-image.yml` presente.
@@ -250,6 +251,7 @@ A arquitetura e as limitações estão em [Arquitetura Proposta - Fase 2](arquit
   - [x] Swagger UI gerado em runtime.
   - [x] OpenAPI JSON gerado em runtime.
   - [x] Documentar as URLs locais para execução direta dos cenários.
+  - [x] Versionar a [coleção HTTP da demo](demo/fase-2/README.md).
 
 ## 9. Vídeo e entrega no portal
 
@@ -278,7 +280,7 @@ A arquitetura e as limitações estão em [Arquitetura Proposta - Fase 2](arquit
 - [x] Recuperar os 8 testes unitários e os 20 testes de integração anteriormente falhos.
 - [x] Corrigir a rota de status e a ordenação das OS.
 - [x] Completar a abertura da OS com serviços e produtos.
-- [ ] Implementar a integração externa de decisão e notificação.
+- [x] Implementar a integração externa de decisão e notificação.
 - [x] Completar e validar Kubernetes no ambiente local.
 - [x] Implementar Terraform para o escopo local.
 - [x] Concluir o fluxo de entrega da imagem do GHCR ao Kubernetes local.

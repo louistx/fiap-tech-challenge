@@ -7,8 +7,8 @@ ciclo de vida das Ordens de Serviço (OS).
 A Fase 2 concentra-se em evolução da arquitetura, APIs operacionais, controle de
 estoque, testes automatizados, conteinerização, Kubernetes, Terraform e CI/CD.
 
-> **Status verificado em 01/09/2026:** build sem erros ou avisos, 111 testes
-> unitários, 29 testes de integração e 4 testes Terraform aprovados. Docker,
+> **Status verificado em 01/09/2026:** build sem erros ou avisos, 118 testes
+> unitários, 30 testes de integração e 4 testes Terraform aprovados. Docker,
 > Kubernetes e Terraform foram validados no ambiente local. O acompanhamento
 > detalhado está no [checklist de entregáveis](docs/fase-2-entregaveis.md).
 
@@ -18,7 +18,7 @@ estoque, testes automatizados, conteinerização, Kubernetes, Terraform e CI/CD.
 | --- | --- |
 | Arquitetura em camadas e testes | Concluído para o escopo da fase |
 | Clean Code | Concluído: fluxo assíncrono propagado dos endpoints aos repositórios |
-| APIs obrigatórias da OS | Parcial: faltam decisão e notificação externas |
+| APIs obrigatórias da OS | Concluído, incluindo webhook e e-mail local |
 | Estoque e categorias | Concluído |
 | Docker e Docker Compose | Concluído e validado |
 | Kubernetes local | Concluído e validado |
@@ -30,13 +30,11 @@ estoque, testes automatizados, conteinerização, Kubernetes, Terraform e CI/CD.
 No ambiente acadêmico adotado pelo grupo, o GitHub Actions termina com a
 publicação da imagem validada no GHCR e a etapa de entrega é executada no cluster
 local do Docker Desktop com Terraform e Kustomize. Não existe ambiente remoto de
-deploy. Em relação às APIs, permanecem duas limitações documentadas:
-
-- aprovação/recusa externa por callback ou webhook;
-- envio externo das mudanças de status, hoje representado por logs;
-
-Os próximos entregáveis materiais são a gravação/publicação do vídeo, a inclusão
-do link e a geração do PDF final para o portal.
+deploy. A decisão externa do orçamento é recebida por webhook autenticado e
+idempotente. As mudanças de status são persistidas em uma outbox e enviadas por
+SMTP; no ambiente acadêmico, o Mailpit recebe e exibe os e-mails sem exigir
+infraestrutura externa. Os únicos entregáveis materiais pendentes são a
+gravação/publicação do vídeo, a inclusão do link e a geração do PDF final.
 
 ## Funcionalidades principais
 
@@ -45,6 +43,8 @@ do link e a geração do PDF final para o portal.
 - autenticação JWT, refresh token e autorização por perfil;
 - abertura da OS com cliente, veículo, serviços e produtos;
 - diagnóstico, orçamento, aprovação, execução, finalização e entrega;
+- aprovação ou recusa externa com API key, correlação e idempotência;
+- notificação de mudanças de status por e-mail com outbox e retentativa;
 - consulta exclusiva de status e acompanhamento público da OS;
 - fila operacional priorizada por estado e data;
 - entrada, consulta e baixa de estoque sem permitir saldo negativo;
@@ -68,8 +68,9 @@ flowchart LR
     API --> Application[Casos de uso]
     Application --> Domain[Domínio]
     Application --> Contracts[Abstrações]
-    Infrastructure[Persistência e autenticação] --> Contracts
+    Infrastructure[Persistência, autenticação e notificações] --> Contracts
     Infrastructure --> Database[(PostgreSQL)]
+    Infrastructure --> Mailpit[SMTP / Mailpit local]
 
     Actions[GitHub Actions] --> GHCR[GHCR com imagem versionada]
     GHCR --> Deployment[Kubernetes Deployment]
@@ -84,7 +85,7 @@ flowchart LR
 | `TechChallenge.Application` | Casos de uso, comandos e validações |
 | `TechChallenge.Application.Abstractions` | Interfaces e portas da aplicação |
 | `TechChallenge.Domain` | Entidades, estados e regras de negócio |
-| `TechChallenge.Infrastructure.*` | PostgreSQL, EF Core, autenticação e injeção de dependências |
+| `TechChallenge.Infrastructure.*` | PostgreSQL, EF Core, autenticação, SMTP/outbox e injeção de dependências |
 | `TechChallenge.Tests` | Testes unitários |
 | `TechChallenge.IntegrationTests` | Testes de integração HTTP |
 
@@ -113,6 +114,7 @@ Rotas centrais da Fase 2:
 | `GET` | `/api/v1/ordens-servico/{id}/status` | Consultar o status da OS |
 | `GET` | `/api/v1/ordens-servico/oficina` | Consultar a fila operacional priorizada |
 | `GET` | `/api/v1/ordens-servico/acompanhamento/{codigo}` | Acompanhamento público da OS |
+| `POST` | `/api/v1/integracoes/orcamentos/respostas` | Receber aprovação ou recusa externa idempotente |
 | `POST` | `/api/v1/estoque` | Adicionar quantidade ao estoque |
 | `GET` | `/api/v1/estoque/{produtoId}` | Consultar saldo por produto |
 | `PUT` | `/api/v1/estoque` | Efetuar baixa no estoque |
@@ -120,6 +122,8 @@ Rotas centrais da Fase 2:
 Os CRUDs de clientes, veículos, funcionários, serviços, produtos, categorias e
 usuários estão documentados no Swagger. Por padrão, as rotas exigem autenticação;
 login, refresh, OpenAPI, saúde e acompanhamento público são exceções explícitas.
+O webhook externo não usa o JWT interno: ele exige o cabeçalho
+`X-Integration-Key`.
 
 ## Execução local
 
@@ -159,7 +163,7 @@ inicialização, exceto no ambiente `Testing`.
 
 ## Docker
 
-Suba a API e o PostgreSQL:
+Suba a API, o PostgreSQL e o Mailpit:
 
 ```bash
 docker compose \
@@ -168,7 +172,10 @@ docker compose \
   up --build
 ```
 
-A API ficará em `http://localhost:8080` e o PostgreSQL em `localhost:5432`.
+A API ficará em `http://localhost:8080`, o Mailpit em
+`http://localhost:8025` e o PostgreSQL em `localhost:5432`. A coleção de
+requisições pronta para apresentação está em
+[docs/demo/fase-2](docs/demo/fase-2/README.md).
 
 Para encerrar:
 
@@ -194,8 +201,8 @@ terraform -chdir=infra/environments/local test
 
 Última validação registrada:
 
-- 111 testes unitários aprovados;
-- 29 testes de integração aprovados;
+- 118 testes unitários aprovados;
+- 30 testes de integração aprovados;
 - 4 testes Terraform aprovados;
 - build sem erros ou avisos;
 - imagem Docker `linux/amd64` publicada e validada localmente.
@@ -275,6 +282,7 @@ desenvolvedor, pois não existe um ambiente remoto neste trabalho.
 | [DDD](docs/ddd.md) | Domínio e agregado de Ordem de Serviço |
 | [Event Storming](docs/event-storming.md) | Eventos, comandos e fluxos do negócio |
 | [Roteiro do vídeo](docs/roteiro-video-fase-2.md) | Demonstração cronometrada de até 15 minutos |
+| [Demo executável](docs/demo/fase-2/README.md) | Requests HTTP do fluxo, webhook e Mailpit |
 | [Documento final](docs/entrega-fase-2.md) | Fonte da entrega no portal |
 
 Antes da entrega final ainda é necessário publicar o vídeo, inserir seu link e

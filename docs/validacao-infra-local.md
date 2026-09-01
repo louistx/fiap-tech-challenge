@@ -94,7 +94,7 @@ Não são necessários filtros por componente ou espera de um Job externo.
 Validação desta revisão:
 
 - Build Release: sem erros ou avisos.
-- 111 testes unitários e 29 testes de integração aprovados.
+- 118 testes unitários e 30 testes de integração aprovados.
 - `terraform fmt`, `validate` e quatro testes com providers mockados aprovados.
 - Quatro recursos aceitos juntos pelo API server em dry-run, sem aplicar a nova imagem.
 - API compilada executada contra um banco PostgreSQL temporário vazio: HTTP 200

@@ -104,7 +104,7 @@ As quantidades e os preços atuais de serviços e produtos são copiados para os
 
 ### 3. Envio para aprovação
 
-Depois do diagnóstico, o sistema soma serviços e produtos multiplicando valores pelas quantidades e considerando descontos e acréscimos dos itens e da OS. Havendo ao menos um item e estoque suficiente, a OS passa para **Aguardando aprovação**. A mudança de estado gera uma notificação interna; o envio externo ao cliente ainda está no roadmap.
+Depois do diagnóstico, o sistema soma serviços e produtos multiplicando valores pelas quantidades e considerando descontos e acréscimos dos itens e da OS. Havendo ao menos um item e estoque suficiente, a OS passa para **Aguardando aprovação**. A mudança gera a notificação interna e uma mensagem de outbox para envio por e-mail.
 
 **Comando de domínio:** `EnviarOrcamentoParaAprovacao`  
 **Eventos esperados:**
@@ -116,6 +116,10 @@ Depois do diagnóstico, o sistema soma serviços e produtos multiplicando valore
 ### 4. Decisão do orçamento
 
 O orçamento pode ser aprovado ou reprovado. A aprovação move a OS diretamente de **Aguardando aprovação** para **Em execução**; não há um estado intermediário `Aprovada`. A reprovação move a OS para **Reprovada**, de onde ela pode retornar para **Em diagnóstico** para revisão.
+
+A decisão também pode chegar pelo webhook externo. O agregado registra o
+identificador do evento e seu conteúdo; uma repetição idêntica não provoca nova
+transição, enquanto a reutilização divergente retorna conflito.
 
 **Comandos de aplicação:**
 
@@ -168,7 +172,7 @@ O caminho alternativo de revisão do orçamento é `Aguardando aprovação → R
 - somente uma OS `Em execução` pode ser finalizada;
 - somente uma OS `Finalizada` pode ser entregue.
 
-Cada transição executada pelos casos de uso gera uma notificação interna simulada por log. O código de acompanhamento permite consultar publicamente o estado atual e os itens da OS, enquanto a métrica administrativa calcula o tempo médio entre criação e finalização.
+Cada transição executada pelos casos de uso gera uma notificação interna por log e uma mensagem persistida na outbox. O worker envia a mensagem por SMTP e aplica retentativa em caso de falha. O código de acompanhamento permite consultar publicamente o estado atual e os itens da OS, enquanto a métrica administrativa calcula o tempo médio entre criação e finalização.
 
 ## Contextos do domínio
 
@@ -198,11 +202,11 @@ Essa separação é uma proposta inicial. Os limites devem ser refinados conform
 | Orçamento e decisão do cliente | Cálculo, envio, aprovação, reprovação e revisão implementados |
 | Verificação de estoque | Entidade/repositório próprios, rotas consistentes, saldo protegido e concorrência otimista |
 | Quantidades dos itens | Modeladas e consideradas no cálculo, validação e baixa de estoque |
-| Notificações | Simuladas via logger na criação, nas transições de estado e na falta de estoque |
+| Notificações | Logs internos e e-mail de mudança de status com outbox, SMTP e retentativa |
 | Acompanhamento público | Implementado por código único da OS |
 | Tempo médio de execução | Implementado para OS finalizadas ou entregues |
 | Finalização, entrega e cancelamento da OS | Implementados |
 
-Portanto, o diagrama documenta o **fluxo de negócio desejado** e o ciclo principal está operacionalmente validado por 111 testes unitários e 26 de integração. Permanecem pendentes reserva formal de estoque, notificações externas, callback externo de decisão, pagamento, recibo, aprovação parcial e retrabalho.
+Portanto, o diagrama documenta o **fluxo de negócio desejado** e o ciclo principal está operacionalmente validado por 118 testes unitários e 30 de integração. Permanecem como evoluções a reserva antecipada de estoque, pagamento, recibo, aprovação parcial e retrabalho.
 
 Consulte também a [Auditoria do Estoque](auditoria-estoque.md) e o [Checklist de Entregáveis da Fase 2](fase-2-entregaveis.md).

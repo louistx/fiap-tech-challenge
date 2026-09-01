@@ -4,7 +4,7 @@ Este documento reúne as regras funcionais da Fase 1 e as evoluções obrigatór
 
 ## RF01 - Cadastro do cliente
 - O sistema deve permitir que administradores e vendedores cadastrem, consultem, atualizem e excluam clientes.
-- O cadastro deve conter nome, tipo de documento, documento e endereço.
+- O cadastro deve conter nome, e-mail, tipo de documento, documento e endereço.
 - O tipo de documento deve aceitar CPF, CNPJ ou RG.
 - O documento deve ser validado, normalizado e único conforme o tipo informado.
 
@@ -113,13 +113,13 @@ Este documento reúne as regras funcionais da Fase 1 e as evoluções obrigatór
 
 - Deve existir uma rota não ambígua que retorne a situação atual da OS.
 - Os estados exigidos são `Recebida`, `EmDiagnostico`, `AguardandoAprovacao`, `EmExecucao`, `Finalizada` e `Entregue`.
-- **Situação atual:** implementada em `GET /ordens-servico/{id}/status`; falta ampliar o teste HTTP para cada estado obrigatório.
+- **Situação atual:** implementada em `GET /ordens-servico/{id}/status` e exercitada no fluxo HTTP principal.
 
 ### RF23 - Decisão externa do orçamento
 
 - A API deve receber de um sistema externo a aprovação ou recusa do cliente.
 - O contrato deve possuir autenticação do integrador, idempotência, correlação e tratamento de repetição.
-- **Situação atual:** não implementada; aprovação/reprovação são operações administrativas internas.
+- **Situação atual:** implementada em `POST /api/v1/integracoes/orcamentos/respostas`, com API key, identificador global do evento, auditoria, repetição idempotente e conflito para conteúdo divergente.
 
 ### RF24 - Priorização da listagem de OS
 
@@ -133,7 +133,7 @@ Este documento reúne as regras funcionais da Fase 1 e as evoluções obrigatór
 
 - Mudanças de estado devem ser enviadas por e-mail ou ferramenta equivalente.
 - Falhas de envio não podem corromper a transação da OS; recomenda-se fila/outbox e retentativa.
-- **Situação atual:** não implementada; somente logs internos.
+- **Situação atual:** implementada por SMTP com outbox PostgreSQL, reserva concorrente e retentativa progressiva. O ambiente local utiliza Mailpit.
 
 ### RF26 - Movimentação de estoque
 

@@ -17,8 +17,9 @@ flowchart LR
     Domain[TechChallenge.Domain\nentidades e regras]
     Auth[Infrastructure.Auth\nJWT e autorização]
     Database[Infrastructure.Database\nEF Core e repositórios]
+    Notifications[Infrastructure.Notifications\noutbox worker e SMTP]
     PG[(PostgreSQL)]
-    Notify[Notificação externa\npendente]
+    Mailpit[Mailpit\ncaixa de e-mail local]
 
     Consumer -->|HTTPS/JSON| API
     API --> App
@@ -28,7 +29,9 @@ flowchart LR
     Database --> Contracts
     Database --> Domain
     Database --> PG
-    App -.->|porta de notificação| Notify
+    Notifications --> Contracts
+    Notifications --> Mailpit
+    PG -->|mensagens pendentes| Notifications
 ```
 
 ### Regra de dependência
@@ -40,6 +43,14 @@ flowchart LR
 - `Api` transforma HTTP em comandos/consultas e compõe as dependências.
 
 O repositório segue esse desenho: identificação, materialização e helpers duplicados foram corrigidos, e o fluxo assíncrono é propagado dos endpoints aos repositórios sem bloqueios por `GetAwaiter().GetResult()`. A separação dos projetos mantém domínio e abstrações independentes dos detalhes de API, autenticação e persistência.
+
+O endpoint `POST /api/v1/integracoes/orcamentos/respostas` representa a porta de
+entrada do sistema externo. Uma API key independente do JWT protege o callback;
+o identificador do evento garante correlação e idempotência. A decisão, a
+transição da OS e a mensagem de notificação são gravadas atomicamente. Um worker
+reserva mensagens da outbox com concorrência otimista, envia por SMTP e registra
+sucesso ou nova tentativa. O Compose usa Mailpit; um ambiente compartilhado pode
+substituí-lo por outro servidor SMTP sem alterar aplicação ou domínio.
 
 ## Infraestrutura local
 
@@ -175,7 +186,7 @@ módulos de rede ou backend remoto nesta implementação.
 - backend remoto e locking, se houver ambiente compartilhado;
 - Ingress, TLS e credenciais adequadas, se houver exposição pública;
 - ambientes, aprovações e política de promoção;
-- canal externo para decisão do orçamento e notificação de status;
+- provedor SMTP gerenciado, TLS e rotação da API key, se houver exposição externa;
 - automatização de backup e observabilidade além dos testes locais documentados.
 
 O acompanhamento item a item está no [Checklist de Entregáveis](fase-2-entregaveis.md).
