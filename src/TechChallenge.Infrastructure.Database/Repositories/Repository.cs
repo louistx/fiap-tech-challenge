@@ -46,7 +46,21 @@ namespace TechChallenge.Infrastructure.Database.Repositories
         public virtual async Task<T> UpdateAsync(T entity)
         {
             if (_context.Entry(entity).State == EntityState.Detached)
-                _dbSet.Update(entity);
+            {
+                var entityEntry = _context.Entry(entity);
+                var primaryKey = entityEntry.Metadata.FindPrimaryKey();
+                var trackedEntry = primaryKey is null
+                    ? null
+                    : _context.ChangeTracker.Entries<T>().SingleOrDefault(entry =>
+                        primaryKey.Properties.All(property =>
+                            Equals(entry.Property(property.Name).CurrentValue,
+                                entityEntry.Property(property.Name).CurrentValue)));
+
+                if (trackedEntry is null)
+                    _dbSet.Update(entity);
+                else
+                    trackedEntry.CurrentValues.SetValues(entity);
+            }
 
             await _context.SaveChangesAsync();
             return entity;
