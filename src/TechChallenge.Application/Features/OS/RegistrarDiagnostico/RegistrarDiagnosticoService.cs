@@ -34,11 +34,11 @@ public class RegistrarDiagnosticoService
     }
 
     // RF11: registra serviços e produtos na OS
-    public bool RegistrarDiagnostico(RegistrarDiagnosticoCommand command)
+    public async Task<bool> RegistrarDiagnostico(RegistrarDiagnosticoCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var os = _ordemServicoRepository.GetByIdAsync(command.OrdemServicoId).GetAwaiter().GetResult();
+        var os = await _ordemServicoRepository.GetByIdAsync(command.OrdemServicoId);
         if (os is null)
             throw new KeyNotFoundException($"OS com Id {command.OrdemServicoId} não encontrada.");
 
@@ -47,7 +47,7 @@ public class RegistrarDiagnosticoService
 
         foreach (var item in command.Servicos)
         {
-            var servico = _servicoRepository.GetByIdAsync(item.Id).GetAwaiter().GetResult();
+            var servico = await _servicoRepository.GetByIdAsync(item.Id);
             if (servico is null)
                 throw new KeyNotFoundException($"Serviço com Id {item.Id} não encontrado.");
 
@@ -57,11 +57,11 @@ public class RegistrarDiagnosticoService
 
         foreach (var item in command.Produtos)
         {
-            var produto = _produtoRepository.GetByIdAsync(item.Id).GetAwaiter().GetResult();
+            var produto = await _produtoRepository.GetByIdAsync(item.Id);
             if (produto is null)
                 throw new KeyNotFoundException($"Produto com Id {item.Id} não encontrado.");
 
-            var estoque = _estoqueRepository.GetByIdProdutoAsync(item.Id).GetAwaiter().GetResult();
+            var estoque = await _estoqueRepository.GetByIdProdutoAsync(item.Id);
 
             if (estoque is null)
             {
@@ -80,7 +80,7 @@ public class RegistrarDiagnosticoService
 
         os.AtualizarData(DateTime.UtcNow);
 
-        _ordemServicoRepository.UpdateAsync(os).GetAwaiter().GetResult();
+        await _ordemServicoRepository.UpdateAsync(os);
         return true;
     }
 

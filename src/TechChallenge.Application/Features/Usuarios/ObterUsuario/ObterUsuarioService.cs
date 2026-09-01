@@ -12,9 +12,9 @@ public class ObterUsuarioService
         _usuarioRepository = usuarioRepository;
     }
 
-    public Usuario ObterUsuario(ObterUsuarioQuery query)
+    public async Task<Usuario> ObterUsuario(ObterUsuarioQuery query)
     {
-        var usuario = _usuarioRepository.GetByIdAsync(query.Id).GetAwaiter().GetResult();
+        var usuario = await _usuarioRepository.GetByIdAsync(query.Id);
         if (usuario is null)
             throw new KeyNotFoundException($"Usuário com Id {query.Id} não encontrado.");
 

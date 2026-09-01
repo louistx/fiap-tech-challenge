@@ -11,9 +11,9 @@ public class ObterTempoMedioExecucaoService
         _ordemServicoRepository = ordemServicoRepository;
     }
 
-    public TempoMedioExecucaoResponseDto ObterTempoMedioExecucao()
+    public async Task<TempoMedioExecucaoResponseDto> ObterTempoMedioExecucao()
     {
-        var ordens = _ordemServicoRepository.GetFinalizadasComDataFinalizacaoAsync().GetAwaiter().GetResult();
+        var ordens = await _ordemServicoRepository.GetFinalizadasComDataFinalizacaoAsync();
         var duracoes = ordens
             .Where(os => os.DataFinalizacao.HasValue)
             .Select(os => os.DataFinalizacao!.Value - os.DataCriacao)

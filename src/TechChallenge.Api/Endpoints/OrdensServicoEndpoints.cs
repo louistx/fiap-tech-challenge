@@ -187,43 +187,43 @@ public static class OrdensServicoEndpoints
         return Results.Created($"/api/v1/ordens-servico/{id}", id);
     }
 
-    private static IResult ObterOrdemServicoAsync(Guid id, ObterOSService service)
+    private static async Task<IResult> ObterOrdemServicoAsync(Guid id, ObterOSService service)
     {
-        var os = service.ObterOS(new ObterOSQuery { Id = id });
+        var os = await service.ObterOS(new ObterOSQuery { Id = id });
         return Results.Ok(MapToResponse(os));
     }
 
-    private static IResult ObterStatusOrdemServicoAsync(Guid id, ObterOSService service)
+    private static async Task<IResult> ObterStatusOrdemServicoAsync(Guid id, ObterOSService service)
     {
-        var os = service.ObterOS(new ObterOSQuery { Id = id });
+        var os = await service.ObterOS(new ObterOSQuery { Id = id });
 
         return Results.Ok(SystemHelper.GetStatusDescription(os.Status));
     }
 
-    private static IResult ObterOrdemServicoPorCodigoAcompanhamentoAsync(string codigo, ObterOSAcompanhamentoService service)
+    private static async Task<IResult> ObterOrdemServicoPorCodigoAcompanhamentoAsync(string codigo, ObterOSAcompanhamentoService service)
     {
-        var os = service.ObterOSAcompanhamento(new ObterOSAcompanhamentoQuery { CodigoAcompanhamento = codigo });
+        var os = await service.ObterOSAcompanhamento(new ObterOSAcompanhamentoQuery { CodigoAcompanhamento = codigo });
         return Results.Ok(MapToResponse(os));
     }
 
-    private static IResult ObterTempoMedioExecucaoAsync(ObterTempoMedioExecucaoService service)
+    private static async Task<IResult> ObterTempoMedioExecucaoAsync(ObterTempoMedioExecucaoService service)
     {
-        return Results.Ok(service.ObterTempoMedioExecucao());
+        return Results.Ok(await service.ObterTempoMedioExecucao());
     }
 
-    private static IResult ListarOrdensServicoAsync(ListarOSService service, StatusOS? status = null)
+    private static async Task<IResult> ListarOrdensServicoAsync(ListarOSService service, StatusOS? status = null)
     {
         var query = new ListarOSQuery { Status = status };
-        var lista = service.ListarOS(query);
+        var lista = await service.ListarOS(query);
         return Results.Ok(lista.Select(MapToResponse).ToList());
     }
 
-    private static IResult ListarOrdensServicoOficinaAsync(ListarOSOficinaService service)
+    private static async Task<IResult> ListarOrdensServicoOficinaAsync(ListarOSOficinaService service)
     {
-        return Results.Ok(service.ListarOSOficina());
+        return Results.Ok(await service.ListarOSOficina());
     }
 
-    private static IResult AtribuirOrdemServicoAsync(Guid id, AtribuirOrdemServicoRequest request, AtribuirOSService service)
+    private static async Task<IResult> AtribuirOrdemServicoAsync(Guid id, AtribuirOrdemServicoRequest request, AtribuirOSService service)
     {
         var command = new AtribuirOSCommand
         {
@@ -231,11 +231,11 @@ public static class OrdensServicoEndpoints
             MecanicoId = request.MecanicoId
         };
 
-        service.AtribuirOS(command);
+        await service.AtribuirOS(command);
         return Results.Ok();
     }
 
-    private static IResult RegistrarDiagnosticoAsync(Guid id, RegistrarDiagnosticoRequest request, RegistrarDiagnosticoService service)
+    private static async Task<IResult> RegistrarDiagnosticoAsync(Guid id, RegistrarDiagnosticoRequest request, RegistrarDiagnosticoService service)
     {
         var command = new RegistrarDiagnosticoCommand
         {
@@ -252,55 +252,55 @@ public static class OrdensServicoEndpoints
             }).ToList()
         };
 
-        service.RegistrarDiagnostico(command);
+        await service.RegistrarDiagnostico(command);
         return Results.Ok();
     }
 
-    private static IResult EnviarOrcamentoAsync(Guid id, EnviarOrcamentoService service)
+    private static async Task<IResult> EnviarOrcamentoAsync(Guid id, EnviarOrcamentoService service)
     {
-        service.EnviarOrcamento(new EnviarOrcamentoCommand { OrdemServicoId = id });
+        await service.EnviarOrcamento(new EnviarOrcamentoCommand { OrdemServicoId = id });
         return Results.Ok();
     }
 
-    private static IResult AprovarOrcamentoAsync(Guid id, AprovarOrcamentoService service)
+    private static async Task<IResult> AprovarOrcamentoAsync(Guid id, AprovarOrcamentoService service)
     {
-        service.AprovarOrcamento(new AprovarOrcamentoCommand { OrdemServicoId = id });
+        await service.AprovarOrcamento(new AprovarOrcamentoCommand { OrdemServicoId = id });
         return Results.Ok();
     }
 
-    private static IResult ReprovarOrcamentoAsync(Guid id, ReprovarOrcamentoService service)
+    private static async Task<IResult> ReprovarOrcamentoAsync(Guid id, ReprovarOrcamentoService service)
     {
-        service.ReprovarOrcamento(new ReprovarOrcamentoCommand { OrdemServicoId = id });
+        await service.ReprovarOrcamento(new ReprovarOrcamentoCommand { OrdemServicoId = id });
         return Results.Ok();
     }
 
-    private static IResult RetornarParaDiagnosticoAsync(Guid id, RetornarParaDiagnosticoService service)
+    private static async Task<IResult> RetornarParaDiagnosticoAsync(Guid id, RetornarParaDiagnosticoService service)
     {
-        service.RetornarParaDiagnostico(new RetornarParaDiagnosticoCommand { OrdemServicoId = id });
+        await service.RetornarParaDiagnostico(new RetornarParaDiagnosticoCommand { OrdemServicoId = id });
         return Results.Ok();
     }
 
-    private static IResult FinalizarOrdemServicoAsync(Guid id, FinalizarOSService service)
+    private static async Task<IResult> FinalizarOrdemServicoAsync(Guid id, FinalizarOSService service)
     {
-        service.FinalizarOS(new FinalizarOSCommand { OrdemServicoId = id });
+        await service.FinalizarOS(new FinalizarOSCommand { OrdemServicoId = id });
         return Results.Ok();
     }
 
-    private static IResult EntregarOrdemServicoAsync(Guid id, EntregarOSService service)
+    private static async Task<IResult> EntregarOrdemServicoAsync(Guid id, EntregarOSService service)
     {
-        service.EntregarOS(new EntregarOSCommand { OrdemServicoId = id });
+        await service.EntregarOS(new EntregarOSCommand { OrdemServicoId = id });
         return Results.Ok();
     }
 
-    private static IResult CancelarOrdemServicoAsync(Guid id, CancelarOSService service)
+    private static async Task<IResult> CancelarOrdemServicoAsync(Guid id, CancelarOSService service)
     {
-        service.CancelarOS(new CancelarOSCommand { OrdemServicoId = id });
+        await service.CancelarOS(new CancelarOSCommand { OrdemServicoId = id });
         return Results.Ok();
     }
 
-    private static IResult ExcluirOrdemServicoAsync(Guid id, ExcluirOSService service)
+    private static async Task<IResult> ExcluirOrdemServicoAsync(Guid id, ExcluirOSService service)
     {
-        service.ExcluirOS(new ExcluirOSCommand { Id = id });
+        await service.ExcluirOS(new ExcluirOSCommand { Id = id });
         return Results.NoContent();
     }
 

@@ -12,9 +12,9 @@ public class ObterCategoriaServicoService
         _categoriaServicoRepository = categoriaServicoRepository;
     }
 
-    public CategoriaServico ObterCategoriaServico(ObterCategoriaServicoQuery query)
+    public async Task<CategoriaServico> ObterCategoriaServico(ObterCategoriaServicoQuery query)
     {
-        var categoriaServico = _categoriaServicoRepository.GetByIdAsync(query.Id).GetAwaiter().GetResult();
+        var categoriaServico = await _categoriaServicoRepository.GetByIdAsync(query.Id);
 
         if (categoriaServico is null)
             throw new KeyNotFoundException($"Categoria de Serviço com Id {query.Id} não encontrada.");

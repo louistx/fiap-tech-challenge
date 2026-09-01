@@ -22,22 +22,22 @@ public class CriarVeiculoService
         _validator = validator;
     }
 
-    public Guid CriarVeiculo(CriarVeiculoCommand command)
+    public async Task<Guid> CriarVeiculo(CriarVeiculoCommand command)
     {
         _validator.ValidateAndThrow(command);
         var placa = PlacaValidator.Formatar(command.Placa);
 
-        var placaExiste = _veiculoRepository.GetByPlacaAsync(placa).GetAwaiter().GetResult();
+        var placaExiste = await _veiculoRepository.GetByPlacaAsync(placa);
         if (placaExiste is not null)
             throw new InvalidOperationException($"Já existe um veículo cadastrado com a placa {placa}.");
 
-        var cliente = _clienteRepository.GetByIdAsync(command.ClienteId).GetAwaiter().GetResult();
+        var cliente = await _clienteRepository.GetByIdAsync(command.ClienteId);
         if (cliente is null)
             throw new KeyNotFoundException($"Cliente com Id {command.ClienteId} não encontrado.");
 
         var veiculo = new Veiculo(Guid.NewGuid(), placa, command.Modelo, command.Marca, command.Cor, command.Ano, command.Quilometragem, command.Valor, command.ClienteId, command.CategoriaId);
 
-        _veiculoRepository.AddAsync(veiculo).GetAwaiter().GetResult();
+        await _veiculoRepository.AddAsync(veiculo);
         return veiculo.Id;
     }
 }

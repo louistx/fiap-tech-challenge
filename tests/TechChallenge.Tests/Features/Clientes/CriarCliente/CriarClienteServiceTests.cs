@@ -11,7 +11,7 @@ namespace TechChallenge.Tests.Features.Clientes.CriarCliente;
 public class CriarClienteServiceTests
 {
     [Fact]
-    public void DeveCriarClienteQuandoCommandForValidoECpfNaoExistir()
+    public async Task DeveCriarClienteQuandoCommandForValidoECpfNaoExistir()
     {
         var command = CriarCommandValido();
         const string cpfFormatado = "529.982.247-25";
@@ -24,7 +24,7 @@ public class CriarClienteServiceTests
             .Returns<Cliente>(cliente => Task.FromResult(cliente));
         var service = new CriarClienteService(repository.Object, new CriarClienteCommandValidator());
 
-        var clienteId = service.CriarCliente(command);
+        var clienteId = await service.CriarCliente(command);
 
         clienteId.Should().NotBeEmpty();
         clienteCriado.Should().NotBeNull();
@@ -38,7 +38,7 @@ public class CriarClienteServiceTests
     }
 
     [Fact]
-    public void DeveImpedirCriacaoQuandoCpfJaEstiverCadastrado()
+    public async Task DeveImpedirCriacaoQuandoCpfJaEstiverCadastrado()
     {
         var command = CriarCommandValido();
         const string cpfFormatado = "529.982.247-25";
@@ -49,13 +49,13 @@ public class CriarClienteServiceTests
 
         var act = () => service.CriarCliente(command);
 
-        act.Should().Throw<InvalidOperationException>()
+        (await act.Should().ThrowAsync<InvalidOperationException>())
             .WithMessage($"Já existe um cliente cadastrado com o CPF {cpfFormatado}.");
         repository.Verify(repo => repo.AddAsync(It.IsAny<Cliente>()), Times.Never);
     }
 
     [Fact]
-    public void DeveCriarClienteComCnpjQuandoCommandForValido()
+    public async Task DeveCriarClienteComCnpjQuandoCommandForValido()
     {
         var command = CriarCommandValido();
         command.TipoDocumento = TipoDocumento.Cnpj;
@@ -70,7 +70,7 @@ public class CriarClienteServiceTests
             .Returns<Cliente>(cliente => Task.FromResult(cliente));
         var service = new CriarClienteService(repository.Object, new CriarClienteCommandValidator());
 
-        var clienteId = service.CriarCliente(command);
+        var clienteId = await service.CriarCliente(command);
 
         clienteId.Should().NotBeEmpty();
         clienteCriado.Should().NotBeNull();

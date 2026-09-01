@@ -73,7 +73,7 @@ public static class UsuariosEndpoints
         return app;
     }
 
-    private static IResult CriarUsuarioAsync(CriarUsuarioRequest request, CriarUsuarioService service)
+    private static async Task<IResult> CriarUsuarioAsync(CriarUsuarioRequest request, CriarUsuarioService service)
     {
         var command = new CriarUsuarioCommand
         {
@@ -83,55 +83,55 @@ public static class UsuariosEndpoints
             FuncionarioId = request.FuncionarioId
         };
 
-        var id = service.CriarUsuario(command);
+        var id = await service.CriarUsuario(command);
         return Results.Created($"/api/v1/usuarios/{id}", id);
     }
 
-    private static IResult ListarUsuariosAsync(ListarUsuariosService service)
+    private static async Task<IResult> ListarUsuariosAsync(ListarUsuariosService service)
     {
-        var usuarios = service.ListarUsuarios().Select(MapToResponse).ToList();
+        var usuarios = (await service.ListarUsuarios()).Select(MapToResponse).ToList();
         return Results.Ok(usuarios);
     }
 
-    private static IResult ObterUsuarioAsync(Guid id, ObterUsuarioService service)
+    private static async Task<IResult> ObterUsuarioAsync(Guid id, ObterUsuarioService service)
     {
-        var usuario = service.ObterUsuario(new ObterUsuarioQuery { Id = id });
+        var usuario = await service.ObterUsuario(new ObterUsuarioQuery { Id = id });
         return Results.Ok(MapToResponse(usuario));
     }
 
-    private static IResult AlterarTipoAsync(Guid id, AlterarTipoRequest request, AlterarTipoService service)
+    private static async Task<IResult> AlterarTipoAsync(Guid id, AlterarTipoRequest request, AlterarTipoService service)
     {
-        service.AlterarTipo(new AlterarTipoCommand { UsuarioId = id, TipoUsuario = ParseTipo(request.TipoUsuario) });
+        await service.AlterarTipo(new AlterarTipoCommand { UsuarioId = id, TipoUsuario = ParseTipo(request.TipoUsuario) });
         return Results.NoContent();
     }
 
-    private static IResult VincularFuncionarioAsync(Guid id, VincularFuncionarioRequest request, VincularFuncionarioService service)
+    private static async Task<IResult> VincularFuncionarioAsync(Guid id, VincularFuncionarioRequest request, VincularFuncionarioService service)
     {
-        service.VincularFuncionario(new VincularFuncionarioCommand { UsuarioId = id, FuncionarioId = request.FuncionarioId });
+        await service.VincularFuncionario(new VincularFuncionarioCommand { UsuarioId = id, FuncionarioId = request.FuncionarioId });
         return Results.NoContent();
     }
 
-    private static IResult DesvincularFuncionarioAsync(Guid id, DesvincularFuncionarioService service)
+    private static async Task<IResult> DesvincularFuncionarioAsync(Guid id, DesvincularFuncionarioService service)
     {
-        service.DesvincularFuncionario(new DesvincularFuncionarioCommand { UsuarioId = id });
+        await service.DesvincularFuncionario(new DesvincularFuncionarioCommand { UsuarioId = id });
         return Results.NoContent();
     }
 
-    private static IResult AtivarUsuarioAsync(Guid id, AlterarStatusUsuarioService service)
+    private static async Task<IResult> AtivarUsuarioAsync(Guid id, AlterarStatusUsuarioService service)
     {
-        service.AlterarStatus(new AlterarStatusUsuarioCommand { UsuarioId = id, Ativo = true });
+        await service.AlterarStatus(new AlterarStatusUsuarioCommand { UsuarioId = id, Ativo = true });
         return Results.NoContent();
     }
 
-    private static IResult DesativarUsuarioAsync(Guid id, AlterarStatusUsuarioService service)
+    private static async Task<IResult> DesativarUsuarioAsync(Guid id, AlterarStatusUsuarioService service)
     {
-        service.AlterarStatus(new AlterarStatusUsuarioCommand { UsuarioId = id, Ativo = false });
+        await service.AlterarStatus(new AlterarStatusUsuarioCommand { UsuarioId = id, Ativo = false });
         return Results.NoContent();
     }
 
-    private static IResult ResetarSenhaAsync(Guid id, ResetarSenhaRequest request, ResetarSenhaService service)
+    private static async Task<IResult> ResetarSenhaAsync(Guid id, ResetarSenhaRequest request, ResetarSenhaService service)
     {
-        service.ResetarSenha(new ResetarSenhaCommand { UsuarioId = id, NovaSenha = request.NovaSenha });
+        await service.ResetarSenha(new ResetarSenhaCommand { UsuarioId = id, NovaSenha = request.NovaSenha });
         return Results.NoContent();
     }
 

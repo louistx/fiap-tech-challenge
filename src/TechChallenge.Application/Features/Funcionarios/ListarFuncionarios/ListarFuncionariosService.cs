@@ -12,8 +12,8 @@ public class ListarFuncionariosService
         _funcionarioRepository = funcionarioRepository;
     }
 
-    public List<Funcionario> ListarFuncionarios(ListarFuncionariosQuery query)
+    public async Task<List<Funcionario>> ListarFuncionarios(ListarFuncionariosQuery query)
     {
-        return _funcionarioRepository.GetAllAsync().GetAwaiter().GetResult();
+        return await _funcionarioRepository.GetAllAsync();
     }
 }

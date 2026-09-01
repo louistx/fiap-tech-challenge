@@ -24,19 +24,17 @@ public class ResetarSenhaService
         _validator = validator;
     }
 
-    public void ResetarSenha(ResetarSenhaCommand command)
+    public async Task ResetarSenha(ResetarSenhaCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var usuario = _usuarioRepository.GetByIdAsync(command.UsuarioId).GetAwaiter().GetResult();
+        var usuario = await _usuarioRepository.GetByIdAsync(command.UsuarioId);
         if (usuario is null)
             throw new KeyNotFoundException($"Usuário com Id {command.UsuarioId} não encontrado.");
 
         usuario = new Domain.Entities.Usuario(usuario.Id, usuario.Login, _passwordHasher.Hash(command.NovaSenha), usuario.TipoUsuario, usuario.Ativo, usuario.FuncionarioId);
-        _usuarioRepository.UpdateAsync(usuario).GetAwaiter().GetResult();
+        await _usuarioRepository.UpdateAsync(usuario);
 
-        _refreshTokenRepository
-            .RevogarTodasDoUsuarioAsync(usuario.Id, DateTime.UtcNow)
-            .GetAwaiter().GetResult();
+        await _refreshTokenRepository.RevogarTodasDoUsuarioAsync(usuario.Id, DateTime.UtcNow);
     }
 }

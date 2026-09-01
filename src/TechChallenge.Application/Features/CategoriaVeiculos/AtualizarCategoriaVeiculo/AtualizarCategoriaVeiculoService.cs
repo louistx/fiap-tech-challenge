@@ -16,11 +16,11 @@ public class AtualizarCategoriaVeiculoService
         _validator = validator;
     }
 
-    public bool AtualizarCategoriaVeiculo(AtualizarCategoriaVeiculoCommand command)
+    public async Task<bool> AtualizarCategoriaVeiculo(AtualizarCategoriaVeiculoCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var categoriaVeiculo = _categoriaVeiculoRepository.GetByIdAsync(command.Id).GetAwaiter().GetResult();
+        var categoriaVeiculo = await _categoriaVeiculoRepository.GetByIdAsync(command.Id);
 
         if (categoriaVeiculo is null)
             throw new KeyNotFoundException($"Categoria de Veículo com Id {command.Id} não encontrada.");
@@ -30,7 +30,7 @@ public class AtualizarCategoriaVeiculoService
             command.Descricao
         );
 
-        _categoriaVeiculoRepository.UpdateAsync(categoriaVeiculo).GetAwaiter().GetResult();
+        await _categoriaVeiculoRepository.UpdateAsync(categoriaVeiculo);
         return true;
     }
 }

@@ -22,11 +22,11 @@ public class AprovarOrcamentoService
         _notificationService = notificationService ?? NullNotificationService.Instance;
     }
 
-    public bool AprovarOrcamento(AprovarOrcamentoCommand command)
+    public async Task<bool> AprovarOrcamento(AprovarOrcamentoCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var os = _ordemServicoRepository.GetByIdAsync(command.OrdemServicoId).GetAwaiter().GetResult();
+        var os = await _ordemServicoRepository.GetByIdAsync(command.OrdemServicoId);
         if (os is null)
             throw new KeyNotFoundException($"OS com Id {command.OrdemServicoId} não encontrada.");
 
@@ -34,7 +34,7 @@ public class AprovarOrcamentoService
 
         os.TransicionarPara(StatusOS.EmExecucao);
         _notificationService.NotificarTransicaoOS(os, statusAnterior);
-        _ordemServicoRepository.UpdateAsync(os).GetAwaiter().GetResult();
+        await _ordemServicoRepository.UpdateAsync(os);
         return true;
     }
 }

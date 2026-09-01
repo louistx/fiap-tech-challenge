@@ -18,12 +18,12 @@ public class CriarFuncionarioService
         _validator = validator;
     }
 
-    public Guid CriarFuncionario(CriarFuncionarioCommand command)
+    public async Task<Guid> CriarFuncionario(CriarFuncionarioCommand command)
     {
         _validator.ValidateAndThrow(command);
         var cpf = CpfValidator.Formatar(command.Cpf);
 
-        var funcionarioExiste = _funcionarioRepository.GetByDocumentAsync(cpf).GetAwaiter().GetResult();
+        var funcionarioExiste = await _funcionarioRepository.GetByDocumentAsync(cpf);
         if (funcionarioExiste is not null)
             throw new InvalidOperationException($"Já existe um funcionário cadastrado com o CPF {cpf}.");
 
@@ -35,7 +35,7 @@ public class CriarFuncionarioService
         var funcionario = new Funcionario(Guid.NewGuid(), command.Nome, cpf, command.Rg, tipoFuncionario, endereco.Id);
         funcionario.AtribuirEndereco(endereco);
 
-        _funcionarioRepository.AddAsync(funcionario).GetAwaiter().GetResult();
+        await _funcionarioRepository.AddAsync(funcionario);
         return funcionario.Id;
     }
 }

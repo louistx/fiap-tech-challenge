@@ -53,7 +53,7 @@ public static class FuncionariosEndpoints
         return app;
     }
 
-    private static IResult CriarFuncionarioAsync(CriarFuncionarioRequest request, CriarFuncionarioService service)
+    private static async Task<IResult> CriarFuncionarioAsync(CriarFuncionarioRequest request, CriarFuncionarioService service)
     {
         var endereco = request.Endereco ?? new EnderecoRequest();
 
@@ -72,23 +72,23 @@ public static class FuncionariosEndpoints
             Cep = endereco.Cep ?? string.Empty
         };
 
-        var id = service.CriarFuncionario(command);
+        var id = await service.CriarFuncionario(command);
         return Results.Created($"/api/v1/funcionarios/{id}", id);
     }
 
-    private static IResult ObterFuncionarioAsync(Guid id, ObterFuncionarioService service)
+    private static async Task<IResult> ObterFuncionarioAsync(Guid id, ObterFuncionarioService service)
     {
-        var funcionario = service.ObterFuncionario(new ObterFuncionarioQuery { Id = id });
+        var funcionario = await service.ObterFuncionario(new ObterFuncionarioQuery { Id = id });
         return Results.Ok(MapearFuncionarioResponse(funcionario));
     }
 
-    private static IResult ListarFuncionariosAsync(ListarFuncionariosService service)
+    private static async Task<IResult> ListarFuncionariosAsync(ListarFuncionariosService service)
     {
-        var funcionarios = service.ListarFuncionarios(new ListarFuncionariosQuery());
+        var funcionarios = await service.ListarFuncionarios(new ListarFuncionariosQuery());
         return Results.Ok(funcionarios.Select(MapearFuncionarioResponse).ToList());
     }
 
-    private static IResult AtualizarFuncionarioAsync(Guid id, AtualizarFuncionarioRequest request, AtualizarFuncionarioService service)
+    private static async Task<IResult> AtualizarFuncionarioAsync(Guid id, AtualizarFuncionarioRequest request, AtualizarFuncionarioService service)
     {
         var endereco = request.Endereco ?? new EnderecoRequest();
 
@@ -108,13 +108,13 @@ public static class FuncionariosEndpoints
             Cep = endereco.Cep ?? string.Empty
         };
 
-        service.AtualizarFuncionario(command);
+        await service.AtualizarFuncionario(command);
         return Results.Ok();
     }
 
-    private static IResult ExcluirFuncionarioAsync(Guid id, ExcluirFuncionarioService service)
+    private static async Task<IResult> ExcluirFuncionarioAsync(Guid id, ExcluirFuncionarioService service)
     {
-        service.ExcluirFuncionario(new ExcluirFuncionarioCommand { Id = id });
+        await service.ExcluirFuncionario(new ExcluirFuncionarioCommand { Id = id });
         return Results.NoContent();
     }
 

@@ -11,7 +11,7 @@ namespace TechChallenge.Tests.Features.OS.EnviarOrcamento;
 public class EnviarOrcamentoServiceTests
 {
     [Fact]
-    public void DeveCalcularOrcamentoEEnviarQuandoOSTiverItens()
+    public async Task DeveCalcularOrcamentoEEnviarQuandoOSTiverItens()
     {
         var os = new OrdemServico(Guid.NewGuid(), string.Empty, string.Empty, StatusOS.EmDiagnostico, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
         
@@ -27,7 +27,7 @@ public class EnviarOrcamentoServiceTests
         repository.Setup(repo => repo.UpdateAsync(os)).ReturnsAsync(os);
         var service = new EnviarOrcamentoService(repository.Object, estoqueRepository.Object, new EnviarOrcamentoCommandValidator());
 
-        var resultado = service.EnviarOrcamento(new EnviarOrcamentoCommand { OrdemServicoId = os.Id });
+        var resultado = await service.EnviarOrcamento(new EnviarOrcamentoCommand { OrdemServicoId = os.Id });
 
         resultado.Should().BeTrue();
         os.Valor.Should().Be(355);
@@ -36,7 +36,7 @@ public class EnviarOrcamentoServiceTests
     }
 
     [Fact]
-    public void DeveBloquearEnvioQuandoOSNaoTiverItens()
+    public async Task DeveBloquearEnvioQuandoOSNaoTiverItens()
     {
         var os = new OrdemServico(Guid.NewGuid(), string.Empty, string.Empty, StatusOS.EmDiagnostico, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
         var repository = new Mock<IOrdemServicoRepository>();
@@ -48,13 +48,13 @@ public class EnviarOrcamentoServiceTests
 
         var act = () => service.EnviarOrcamento(new EnviarOrcamentoCommand { OrdemServicoId = os.Id });
 
-        act.Should().Throw<InvalidOperationException>()
+        (await act.Should().ThrowAsync<InvalidOperationException>())
             .WithMessage("Informe ao menos um serviço ou produto antes de enviar o orçamento.");
         repository.Verify(repo => repo.UpdateAsync(It.IsAny<OrdemServico>()), Times.Never);
     }
 
     [Fact]
-    public void DeveNotificarQuandoEstoqueForInsuficienteAntesDoEnvio()
+    public async Task DeveNotificarQuandoEstoqueForInsuficienteAntesDoEnvio()
     {
         var mecanicoId = Guid.NewGuid();
         var os = new OrdemServico(Guid.NewGuid(), string.Empty, string.Empty, StatusOS.EmDiagnostico, Guid.NewGuid(), mecanicoId, Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
@@ -75,7 +75,7 @@ public class EnviarOrcamentoServiceTests
 
         var act = () => service.EnviarOrcamento(new EnviarOrcamentoCommand { OrdemServicoId = os.Id });
 
-        act.Should().Throw<InvalidOperationException>()
+        (await act.Should().ThrowAsync<InvalidOperationException>())
             .WithMessage("Estoque insuficiente para o produto Filtro.");
         notificationService.Verify(service => service.NotificarFuncionariosPorFuncao(
             TipoFuncionario.Administrador,

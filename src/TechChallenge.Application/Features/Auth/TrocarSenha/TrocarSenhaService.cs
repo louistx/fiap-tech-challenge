@@ -27,14 +27,14 @@ public class TrocarSenhaService
         _validator = validator;
     }
 
-    public void TrocarSenha(TrocarSenhaCommand command)
+    public async Task TrocarSenha(TrocarSenhaCommand command)
     {
         _validator.ValidateAndThrow(command);
 
         if (_currentUser.UsuarioId is not { } usuarioId)
             throw new UnauthorizedAccessException("Usuário não autenticado.");
 
-        var usuario = _usuarioRepository.GetByIdAsync(usuarioId).GetAwaiter().GetResult();
+        var usuario = await _usuarioRepository.GetByIdAsync(usuarioId);
         if (usuario is null)
             throw new UnauthorizedAccessException("Usuário não autenticado.");
 
@@ -42,11 +42,9 @@ public class TrocarSenhaService
             throw new UnauthorizedAccessException("Senha atual incorreta.");
 
         usuario = new Domain.Entities.Usuario(usuario.Id, usuario.Login, _passwordHasher.Hash(command.NovaSenha), usuario.TipoUsuario, usuario.Ativo, usuario.FuncionarioId);
-        _usuarioRepository.UpdateAsync(usuario).GetAwaiter().GetResult();
+        await _usuarioRepository.UpdateAsync(usuario);
 
         // Invalida todos os refresh tokens: força relogin com a nova senha.
-        _refreshTokenRepository
-            .RevogarTodasDoUsuarioAsync(usuario.Id, DateTime.UtcNow)
-            .GetAwaiter().GetResult();
+        await _refreshTokenRepository.RevogarTodasDoUsuarioAsync(usuario.Id, DateTime.UtcNow);
     }
 }

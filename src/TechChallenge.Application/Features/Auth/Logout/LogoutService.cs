@@ -17,23 +17,21 @@ public class LogoutService
         _currentUser = currentUser;
     }
 
-    public void Logout()
+    public async Task Logout()
     {
-        RevogarTokensDoUsuarioAutenticado();
+        await RevogarTokensDoUsuarioAutenticado();
     }
 
-    public void LogoutTodas()
+    public async Task LogoutTodas()
     {
-        RevogarTokensDoUsuarioAutenticado();
+        await RevogarTokensDoUsuarioAutenticado();
     }
 
-    private void RevogarTokensDoUsuarioAutenticado()
+    private async Task RevogarTokensDoUsuarioAutenticado()
     {
         if (_currentUser.UsuarioId is not { } usuarioId)
             throw new UnauthorizedAccessException("Usuário não autenticado.");
 
-        _refreshTokenRepository
-            .RevogarTodasDoUsuarioAsync(usuarioId, DateTime.UtcNow)
-            .GetAwaiter().GetResult();
+        await _refreshTokenRepository.RevogarTodasDoUsuarioAsync(usuarioId, DateTime.UtcNow);
     }
 }

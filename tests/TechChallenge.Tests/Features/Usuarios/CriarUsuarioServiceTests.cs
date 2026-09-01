@@ -31,7 +31,7 @@ public class CriarUsuarioServiceTests
     };
 
     [Fact]
-    public void DeveCriarUsuarioQuandoValido()
+    public async Task DeveCriarUsuarioQuandoValido()
     {
         _usuarios.Setup(r => r.ExisteLoginAsync("novo.usuario")).ReturnsAsync(false);
         Usuario? salvo = null;
@@ -39,7 +39,7 @@ public class CriarUsuarioServiceTests
             .Callback<Usuario>(u => salvo = u)
             .ReturnsAsync((Usuario u) => u);
 
-        var id = CriarService().CriarUsuario(Comando());
+        var id = await CriarService().CriarUsuario(Comando());
 
         id.Should().NotBeEmpty();
         salvo.Should().NotBeNull();
@@ -48,18 +48,18 @@ public class CriarUsuarioServiceTests
     }
 
     [Fact]
-    public void DeveImpedirLoginDuplicado()
+    public async Task DeveImpedirLoginDuplicado()
     {
         _usuarios.Setup(r => r.ExisteLoginAsync("novo.usuario")).ReturnsAsync(true);
 
         var acao = () => CriarService().CriarUsuario(Comando());
 
-        acao.Should().Throw<InvalidOperationException>();
+        await acao.Should().ThrowAsync<InvalidOperationException>();
         _usuarios.Verify(r => r.AddAsync(It.IsAny<Usuario>()), Times.Never);
     }
 
     [Fact]
-    public void DeveLancarQuandoFuncionarioVinculadoNaoExiste()
+    public async Task DeveLancarQuandoFuncionarioVinculadoNaoExiste()
     {
         var funcionarioId = Guid.NewGuid();
         _usuarios.Setup(r => r.ExisteLoginAsync("novo.usuario")).ReturnsAsync(false);
@@ -67,11 +67,11 @@ public class CriarUsuarioServiceTests
 
         var acao = () => CriarService().CriarUsuario(Comando(funcionarioId));
 
-        acao.Should().Throw<KeyNotFoundException>();
+        await acao.Should().ThrowAsync<KeyNotFoundException>();
     }
 
     [Fact]
-    public void DeveImpedirVinculoDuplicado()
+    public async Task DeveImpedirVinculoDuplicado()
     {
         var funcionarioId = Guid.NewGuid();
         _usuarios.Setup(r => r.ExisteLoginAsync("novo.usuario")).ReturnsAsync(false);
@@ -80,6 +80,6 @@ public class CriarUsuarioServiceTests
 
         var acao = () => CriarService().CriarUsuario(Comando(funcionarioId));
 
-        acao.Should().Throw<InvalidOperationException>();
+        await acao.Should().ThrowAsync<InvalidOperationException>();
     }
 }

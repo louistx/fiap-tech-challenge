@@ -10,7 +10,7 @@ namespace TechChallenge.Tests.Features.Clientes.ExcluirCliente;
 public class ExcluirClienteServiceTests
 {
     [Fact]
-    public void DeveExcluirClienteQuandoNaoPossuirOrdemServico()
+    public async Task DeveExcluirClienteQuandoNaoPossuirOrdemServico()
     {
         var cliente = new Cliente(Guid.NewGuid(), string.Empty, TipoDocumento.Cpf, string.Empty, Guid.NewGuid());
         var clienteRepository = new Mock<IClienteRepository>();
@@ -23,14 +23,14 @@ public class ExcluirClienteServiceTests
             ordemServicoRepository.Object,
             new ExcluirClienteCommandValidator());
 
-        var resultado = service.ExcluirCliente(new ExcluirClienteCommand { Id = cliente.Id });
+        var resultado = await service.ExcluirCliente(new ExcluirClienteCommand { Id = cliente.Id });
 
         resultado.Should().BeTrue();
         clienteRepository.Verify(repo => repo.DeleteAsync(cliente), Times.Once);
     }
 
     [Fact]
-    public void DeveImpedirExclusaoQuandoClientePossuirOrdemServico()
+    public async Task DeveImpedirExclusaoQuandoClientePossuirOrdemServico()
     {
         var cliente = new Cliente(Guid.NewGuid(), string.Empty, TipoDocumento.Cpf, string.Empty, Guid.NewGuid());
         var clienteRepository = new Mock<IClienteRepository>();
@@ -44,7 +44,7 @@ public class ExcluirClienteServiceTests
 
         var act = () => service.ExcluirCliente(new ExcluirClienteCommand { Id = cliente.Id });
 
-        act.Should().Throw<InvalidOperationException>()
+        (await act.Should().ThrowAsync<InvalidOperationException>())
             .WithMessage("Não é possível excluir um cliente associado a uma ordem de serviço.");
         clienteRepository.Verify(repo => repo.DeleteAsync(It.IsAny<Cliente>()), Times.Never);
     }

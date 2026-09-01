@@ -12,8 +12,8 @@ public class ListarCategoriasVeiculosService
         _categoriaVeiculoRepository = categoriaVeiculoRepository;
     }
 
-    public List<CategoriaVeiculo> ListarCategoriasVeiculos(ListarCategoriasVeiculosQuery query)
+    public async Task<List<CategoriaVeiculo>> ListarCategoriasVeiculos(ListarCategoriasVeiculosQuery query)
     {
-        return _categoriaVeiculoRepository.GetAllAsync().GetAwaiter().GetResult();
+        return await _categoriaVeiculoRepository.GetAllAsync();
     }
 }

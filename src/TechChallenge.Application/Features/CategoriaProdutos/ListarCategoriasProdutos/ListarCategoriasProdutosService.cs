@@ -12,8 +12,8 @@ public class ListarCategoriasProdutosService
         _categoriaProdutoRepository = categoriaProdutoRepository;
     }
 
-    public List<CategoriaProduto> ListarCategoriasProdutos(ListarCategoriasProdutosQuery query)
+    public async Task<List<CategoriaProduto>> ListarCategoriasProdutos(ListarCategoriasProdutosQuery query)
     {
-        return _categoriaProdutoRepository.GetAllAsync().GetAwaiter().GetResult();
+        return await _categoriaProdutoRepository.GetAllAsync();
     }
 }

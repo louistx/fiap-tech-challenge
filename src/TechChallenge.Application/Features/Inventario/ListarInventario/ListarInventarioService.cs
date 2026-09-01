@@ -12,8 +12,8 @@ public class ListarInventarioService
         _produtoRepository = produtoRepository;
     }
 
-    public List<Produto> ListarInventario(ListarInventarioQuery query)
+    public async Task<List<Produto>> ListarInventario(ListarInventarioQuery query)
     {
-        return _produtoRepository.GetAllAsync().GetAwaiter().GetResult();
+        return await _produtoRepository.GetAllAsync();
     }
 }

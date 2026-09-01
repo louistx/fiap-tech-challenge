@@ -16,21 +16,19 @@ public class AlterarStatusUsuarioService
         _refreshTokenRepository = refreshTokenRepository;
     }
 
-    public void AlterarStatus(AlterarStatusUsuarioCommand command)
+    public async Task AlterarStatus(AlterarStatusUsuarioCommand command)
     {
-        var usuario = _usuarioRepository.GetByIdAsync(command.UsuarioId).GetAwaiter().GetResult();
+        var usuario = await _usuarioRepository.GetByIdAsync(command.UsuarioId);
         if (usuario is null)
             throw new KeyNotFoundException($"Usuário com Id {command.UsuarioId} não encontrado.");
 
         usuario = new Domain.Entities.Usuario(usuario.Id, usuario.Login, usuario.PasswordHash, usuario.TipoUsuario, command.Ativo, usuario.FuncionarioId);
-        _usuarioRepository.UpdateAsync(usuario).GetAwaiter().GetResult();
+        await _usuarioRepository.UpdateAsync(usuario);
 
         // Desativar derruba todos os refresh tokens ativos.
         if (!command.Ativo)
         {
-            _refreshTokenRepository
-                .RevogarTodasDoUsuarioAsync(usuario.Id, DateTime.UtcNow)
-                .GetAwaiter().GetResult();
+            await _refreshTokenRepository.RevogarTodasDoUsuarioAsync(usuario.Id, DateTime.UtcNow);
         }
     }
 }

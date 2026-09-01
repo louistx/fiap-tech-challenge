@@ -21,17 +21,17 @@ public class CriarServicoService
         _validator = validator;
     }
 
-    public Guid CriarServico(CriarServicoCommand command)
+    public async Task<Guid> CriarServico(CriarServicoCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var categoria = _categoriaServicoRepository.GetByIdAsync(command.CategoriaId).GetAwaiter().GetResult();
+        var categoria = await _categoriaServicoRepository.GetByIdAsync(command.CategoriaId);
         if (categoria is null)
             throw new KeyNotFoundException($"Categoria de serviço com Id {command.CategoriaId} não encontrada.");
 
         var servico = new Servico(Guid.NewGuid(), command.Descricao, command.Valor, command.CategoriaId);
 
-        _servicoRepository.AddAsync(servico).GetAwaiter().GetResult();
+        await _servicoRepository.AddAsync(servico);
         return servico.Id;
     }
 }

@@ -54,18 +54,18 @@ public static class CategoriaVeiculoEndpoints
         return app;
     }
 
-    private static IResult CriarCategoriaVeiculoAsync(CriarCategoriaVeiculoRequest request, CriarCategoriaVeiculoService service)
+    private static async Task<IResult> CriarCategoriaVeiculoAsync(CriarCategoriaVeiculoRequest request, CriarCategoriaVeiculoService service)
     {
         var command = new CriarCategoriaVeiculoCommand
         {
             Descricao = request.Descricao ?? string.Empty
         };
 
-        var id = service.CriarCategoriaVeiculo(command);
+        var id = await service.CriarCategoriaVeiculo(command);
         return Results.Created($"/api/v1/categoriaveiculo/{id}", id);
     }
 
-    private static IResult AtualizarCategoriaVeiculoAsync(Guid id, AtualizarCategoriaVeiculoRequest request, AtualizarCategoriaVeiculoService service)
+    private static async Task<IResult> AtualizarCategoriaVeiculoAsync(Guid id, AtualizarCategoriaVeiculoRequest request, AtualizarCategoriaVeiculoService service)
     {
         var command = new AtualizarCategoriaVeiculoCommand
         {
@@ -73,25 +73,25 @@ public static class CategoriaVeiculoEndpoints
             Descricao = request.Descricao ?? string.Empty
         };
 
-        service.AtualizarCategoriaVeiculo(command);
+        await service.AtualizarCategoriaVeiculo(command);
         return Results.Ok();
     }
 
-    private static IResult ExcluirCategoriaVeiculoAsync(Guid id, ExcluirCategoriaVeiculoService service)
+    private static async Task<IResult> ExcluirCategoriaVeiculoAsync(Guid id, ExcluirCategoriaVeiculoService service)
     {
-        service.ExcluirCategoriaVeiculo(new ExcluirCategoriaVeiculoCommand { Id = id });
+        await service.ExcluirCategoriaVeiculo(new ExcluirCategoriaVeiculoCommand { Id = id });
         return Results.NoContent();
     }
 
-    private static IResult ObterCategoriaVeiculoAsync(Guid id, ObterCategoriaVeiculoService service)
+    private static async Task<IResult> ObterCategoriaVeiculoAsync(Guid id, ObterCategoriaVeiculoService service)
     {
-        var categoria = service.ObterCategoriaVeiculo(new ObterCategoriaVeiculoQuery { Id = id });
+        var categoria = await service.ObterCategoriaVeiculo(new ObterCategoriaVeiculoQuery { Id = id });
         return Results.Ok(MapearCategoriaVeiculoResponse(categoria));
     }
 
-    private static IResult ListarCategoriasVeiculoAsync(ListarCategoriasVeiculosService service)
+    private static async Task<IResult> ListarCategoriasVeiculoAsync(ListarCategoriasVeiculosService service)
     {
-        var categorias = service.ListarCategoriasVeiculos(new ListarCategoriasVeiculosQuery());
+        var categorias = await service.ListarCategoriasVeiculos(new ListarCategoriasVeiculosQuery());
         return Results.Ok(categorias.Select(MapearCategoriaVeiculoResponse).ToList());
     }
 

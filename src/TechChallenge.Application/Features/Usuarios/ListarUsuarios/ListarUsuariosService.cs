@@ -12,8 +12,8 @@ public class ListarUsuariosService
         _usuarioRepository = usuarioRepository;
     }
 
-    public List<Usuario> ListarUsuarios()
+    public async Task<List<Usuario>> ListarUsuarios()
     {
-        return _usuarioRepository.GetAllAsync().GetAwaiter().GetResult();
+        return await _usuarioRepository.GetAllAsync();
     }
 }

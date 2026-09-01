@@ -14,18 +14,18 @@ public class CriarCategoriaServicoService
         _validator = validator;
     }
 
-    public Guid CriarCategoriaServico(CriarCategoriaServicoCommand command)
+    public async Task<Guid> CriarCategoriaServico(CriarCategoriaServicoCommand command)
     {
         _validator.ValidateAndThrow(command);
         var descricao = command.Descricao.Trim();
 
-        var categoriaServicoExiste = _categoriaServicoRepository.GetByDescricaoAsync(descricao).GetAwaiter().GetResult();
+        var categoriaServicoExiste = await _categoriaServicoRepository.GetByDescricaoAsync(descricao);
         if (categoriaServicoExiste is not null)
             throw new InvalidOperationException($"Já existe uma categoria de serviço cadastrada com a descrição {descricao}.");
 
         var categoriaServico = new Domain.Entities.CategoriaServico(Guid.NewGuid(), descricao);
 
-        _categoriaServicoRepository.AddAsync(categoriaServico).GetAwaiter().GetResult();
+        await _categoriaServicoRepository.AddAsync(categoriaServico);
         
         return categoriaServico.Id;
     }

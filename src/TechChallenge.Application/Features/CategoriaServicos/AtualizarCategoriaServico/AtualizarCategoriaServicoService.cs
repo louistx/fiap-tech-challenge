@@ -14,11 +14,11 @@ public class AtualizarCategoriaServicoService
         _validator = validator;
     }
 
-    public bool AtualizarCategoriaServico(AtualizarCategoriaServicoCommand command)
+    public async Task<bool> AtualizarCategoriaServico(AtualizarCategoriaServicoCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var categoriaServico = _categoriaServicoRepository.GetByIdAsync(command.Id).GetAwaiter().GetResult();
+        var categoriaServico = await _categoriaServicoRepository.GetByIdAsync(command.Id);
 
         if (categoriaServico is null)
             throw new KeyNotFoundException($"Categoria de Serviço com Id {command.Id} não encontrada.");
@@ -28,7 +28,7 @@ public class AtualizarCategoriaServicoService
             command.Descricao
         );
 
-        _categoriaServicoRepository.UpdateAsync(categoriaServico).GetAwaiter().GetResult();
+        await _categoriaServicoRepository.UpdateAsync(categoriaServico);
         
         return true;
     }

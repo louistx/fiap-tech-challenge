@@ -12,9 +12,9 @@ public class ListarOSOficinaService
         _ordemServicoRepository = ordemServicoRepository;
     }
 
-    public List<ListarOSOficinaResponseDto> ListarOSOficina()
+    public async Task<List<ListarOSOficinaResponseDto>> ListarOSOficina()
     {
-        var ordens = _ordemServicoRepository.GetByStatusAsync(StatusOS.EmDiagnostico).GetAwaiter().GetResult();
+        var ordens = await _ordemServicoRepository.GetByStatusAsync(StatusOS.EmDiagnostico);
 
         return ordens.Select(os => new ListarOSOficinaResponseDto
         {

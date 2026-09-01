@@ -12,9 +12,9 @@ public class ObterItemInventarioService
         _produtoRepository = produtoRepository;
     }
 
-    public Produto ObterItemInventario(ObterItemInventarioQuery query)
+    public async Task<Produto> ObterItemInventario(ObterItemInventarioQuery query)
     {
-        var produto = _produtoRepository.GetByIdAsync(query.Id).GetAwaiter().GetResult();
+        var produto = await _produtoRepository.GetByIdAsync(query.Id);
         if (produto is null)
             throw new KeyNotFoundException($"Item de inventário com Id {query.Id} não encontrado.");
 

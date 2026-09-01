@@ -27,28 +27,28 @@ public class LoginServiceTests
     private static LoginCommand Comando() => new() { Login = "admin", Senha = "Senha@123" };
 
     [Fact]
-    public void DeveLancarQuandoUsuarioNaoExiste()
+    public async Task DeveLancarQuandoUsuarioNaoExiste()
     {
         _usuarios.Setup(r => r.GetByLoginAsync("admin")).ReturnsAsync((Usuario?)null);
 
         var acao = () => CriarService().Login(Comando());
 
-        acao.Should().Throw<UnauthorizedAccessException>();
+        await acao.Should().ThrowAsync<UnauthorizedAccessException>();
     }
 
     [Fact]
-    public void DeveLancarQuandoUsuarioInativo()
+    public async Task DeveLancarQuandoUsuarioInativo()
     {
         _usuarios.Setup(r => r.GetByLoginAsync("admin"))
             .ReturnsAsync(new Usuario(Guid.NewGuid(), "admin", "h", TipoUsuario.Administrador, true));
 
         var acao = () => CriarService().Login(Comando());
 
-        acao.Should().Throw<UnauthorizedAccessException>();
+        await acao.Should().ThrowAsync<UnauthorizedAccessException>();
     }
 
     [Fact]
-    public void DeveLancarQuandoSenhaInvalida()
+    public async Task DeveLancarQuandoSenhaInvalida()
     {
         _usuarios.Setup(r => r.GetByLoginAsync("admin"))
             .ReturnsAsync(new Usuario(Guid.NewGuid(), "admin", "h", TipoUsuario.Administrador, true));
@@ -56,11 +56,11 @@ public class LoginServiceTests
 
         var acao = () => CriarService().Login(Comando());
 
-        acao.Should().Throw<UnauthorizedAccessException>();
+        await acao.Should().ThrowAsync<UnauthorizedAccessException>();
     }
 
     [Fact]
-    public void DeveAutenticarEGerarRefreshTokenQuandoCredenciaisValidas()
+    public async Task DeveAutenticarEGerarRefreshTokenQuandoCredenciaisValidas()
     {
         var usuario = new Usuario(Guid.NewGuid(), "admin", "h", TipoUsuario.Administrador, true);
 
@@ -75,7 +75,7 @@ public class LoginServiceTests
             .Callback<RefreshToken>(rt => salvo = rt)
             .ReturnsAsync((RefreshToken rt) => rt);
 
-        var resultado = CriarService().Login(Comando());
+        var resultado = await CriarService().Login(Comando());
 
         resultado.AccessToken.Should().Be("jwt");
         resultado.RefreshToken.Should().Be("cru");

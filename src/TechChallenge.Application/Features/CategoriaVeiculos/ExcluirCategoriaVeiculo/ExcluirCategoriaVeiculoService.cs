@@ -19,20 +19,20 @@ public class ExcluirCategoriaVeiculoService
         _validator = validator;
     }
 
-    public bool ExcluirCategoriaVeiculo(ExcluirCategoriaVeiculoCommand command)
+    public async Task<bool> ExcluirCategoriaVeiculo(ExcluirCategoriaVeiculoCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var categoriaVeiculo = _categoriaVeiculoRepository.GetByIdAsync(command.Id).GetAwaiter().GetResult();
+        var categoriaVeiculo = await _categoriaVeiculoRepository.GetByIdAsync(command.Id);
         if (categoriaVeiculo is null)
             throw new KeyNotFoundException($"Categoria de veículo com Id {command.Id} não encontrada.");
 
-        var veiculosNaCategoria = _veiculoRepository.ExisteVeiculoComCategoria(command.Id).GetAwaiter().GetResult();
+        var veiculosNaCategoria = await _veiculoRepository.ExisteVeiculoComCategoria(command.Id);
 
         if (veiculosNaCategoria)
             throw new InvalidOperationException("Não é possível excluir uma categoria de veículo que possui veículos associados.");
 
-        _categoriaVeiculoRepository.DeleteAsync(categoriaVeiculo).GetAwaiter().GetResult();
+        await _categoriaVeiculoRepository.DeleteAsync(categoriaVeiculo);
 
         return true;
     }

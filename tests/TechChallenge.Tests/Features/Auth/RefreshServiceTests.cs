@@ -22,18 +22,18 @@ public class RefreshServiceTests
     }
 
     [Fact]
-    public void DeveLancarQuandoTokenNaoExiste()
+    public async Task DeveLancarQuandoTokenNaoExiste()
     {
         _tokens.Setup(t => t.HashRefreshToken("cru")).Returns("hash");
         _refresh.Setup(r => r.GetByHashAsync("hash")).ReturnsAsync((RefreshToken?)null);
 
         var acao = () => CriarService().Refresh(new RefreshCommand { RefreshToken = "cru" });
 
-        acao.Should().Throw<UnauthorizedAccessException>();
+        await acao.Should().ThrowAsync<UnauthorizedAccessException>();
     }
 
     [Fact]
-    public void DeveRotacionarQuandoTokenAtivo()
+    public async Task DeveRotacionarQuandoTokenAtivo()
     {
         var usuario = new Usuario(Guid.NewGuid(), string.Empty, string.Empty, TipoUsuario.Vendedor, true);
 
@@ -50,7 +50,7 @@ public class RefreshServiceTests
         _refresh.Setup(r => r.AddAsync(It.IsAny<RefreshToken>())).ReturnsAsync((RefreshToken rt) => rt);
         _refresh.Setup(r => r.UpdateAsync(It.IsAny<RefreshToken>())).ReturnsAsync((RefreshToken rt) => rt);
 
-        var resultado = CriarService().Refresh(new RefreshCommand { RefreshToken = "cru" });
+        var resultado = await CriarService().Refresh(new RefreshCommand { RefreshToken = "cru" });
 
         resultado.RefreshToken.Should().Be("novo");
         token.RevogadoEm.Should().NotBeNull();
@@ -59,7 +59,7 @@ public class RefreshServiceTests
     }
 
     [Fact]
-    public void DeveLancarQuandoTokenEstiverRevogado()
+    public async Task DeveLancarQuandoTokenEstiverRevogado()
     {
         var agora = DateTime.UtcNow;
         var token = new RefreshToken(Guid.NewGuid(), Guid.NewGuid(), string.Empty, agora.AddDays(-1), agora.AddDays(7), agora.AddMinutes(-5));
@@ -69,7 +69,7 @@ public class RefreshServiceTests
 
         var acao = () => CriarService().Refresh(new RefreshCommand { RefreshToken = "cru" });
 
-        acao.Should().Throw<UnauthorizedAccessException>();
+        await acao.Should().ThrowAsync<UnauthorizedAccessException>();
         _refresh.Verify(r => r.AddAsync(It.IsAny<RefreshToken>()), Times.Never);
     }
 }

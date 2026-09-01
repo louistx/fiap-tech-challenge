@@ -22,11 +22,11 @@ public class ReprovarOrcamentoService
         _notificationService = notificationService ?? NullNotificationService.Instance;
     }
 
-    public bool ReprovarOrcamento(ReprovarOrcamentoCommand command)
+    public async Task<bool> ReprovarOrcamento(ReprovarOrcamentoCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var os = _ordemServicoRepository.GetByIdAsync(command.OrdemServicoId).GetAwaiter().GetResult();
+        var os = await _ordemServicoRepository.GetByIdAsync(command.OrdemServicoId);
         if (os is null)
             throw new KeyNotFoundException($"OS com Id {command.OrdemServicoId} não encontrada.");
 
@@ -34,7 +34,7 @@ public class ReprovarOrcamentoService
 
         os.TransicionarPara(StatusOS.Reprovada);
         _notificationService.NotificarTransicaoOS(os, statusAnterior);
-        _ordemServicoRepository.UpdateAsync(os).GetAwaiter().GetResult();
+        await _ordemServicoRepository.UpdateAsync(os);
         return true;
     }
 }

@@ -14,17 +14,17 @@ public class AtualizarServicoService
         _validator = validator;
     }
 
-    public bool AtualizarServico(AtualizarServicoCommand command)
+    public async Task<bool> AtualizarServico(AtualizarServicoCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var servico = _servicoRepository.GetByIdAsync(command.Id).GetAwaiter().GetResult();
+        var servico = await _servicoRepository.GetByIdAsync(command.Id);
         if (servico is null)
             throw new KeyNotFoundException($"Serviço com Id {command.Id} não encontrado.");
 
         servico.Atualizar(command.Descricao, command.Valor);
 
-        _servicoRepository.UpdateAsync(servico).GetAwaiter().GetResult();
+        await _servicoRepository.UpdateAsync(servico);
         return true;
     }
 }

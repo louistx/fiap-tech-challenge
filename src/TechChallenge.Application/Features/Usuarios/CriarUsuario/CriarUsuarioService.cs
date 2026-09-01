@@ -25,30 +25,30 @@ public class CriarUsuarioService
         _validator = validator;
     }
 
-    public Guid CriarUsuario(CriarUsuarioCommand command)
+    public async Task<Guid> CriarUsuario(CriarUsuarioCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var loginExiste = _usuarioRepository.ExisteLoginAsync(command.Login).GetAwaiter().GetResult();
+        var loginExiste = await _usuarioRepository.ExisteLoginAsync(command.Login);
         if (loginExiste)
             throw new InvalidOperationException($"Já existe um usuário com o login '{command.Login}'.");
 
         if (command.FuncionarioId is { } funcionarioId)
-            ValidarVinculo(funcionarioId);
+            await ValidarVinculo(funcionarioId);
 
         var usuario = new Usuario(Guid.NewGuid(), command.Login, _passwordHasher.Hash(command.Senha), command.TipoUsuario, true, command.FuncionarioId);
 
-        _usuarioRepository.AddAsync(usuario).GetAwaiter().GetResult();
+        await _usuarioRepository.AddAsync(usuario);
         return usuario.Id;
     }
 
-    private void ValidarVinculo(Guid funcionarioId)
+    private async Task ValidarVinculo(Guid funcionarioId)
     {
-        var funcionario = _funcionarioRepository.GetByIdAsync(funcionarioId).GetAwaiter().GetResult();
+        var funcionario = await _funcionarioRepository.GetByIdAsync(funcionarioId);
         if (funcionario is null)
             throw new KeyNotFoundException($"Funcionário com Id {funcionarioId} não encontrado.");
 
-        var jaVinculado = _usuarioRepository.ExisteVinculoFuncionarioAsync(funcionarioId).GetAwaiter().GetResult();
+        var jaVinculado = await _usuarioRepository.ExisteVinculoFuncionarioAsync(funcionarioId);
         if (jaVinculado)
             throw new InvalidOperationException($"O funcionário {funcionarioId} já está vinculado a outro usuário.");
     }

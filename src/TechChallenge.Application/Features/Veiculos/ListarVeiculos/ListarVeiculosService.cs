@@ -12,8 +12,8 @@ public class ListarVeiculosService
         _veiculoRepository = veiculoRepository;
     }
 
-    public List<Veiculo> ListarVeiculos(ListarVeiculosQuery query)
+    public async Task<List<Veiculo>> ListarVeiculos(ListarVeiculosQuery query)
     {
-        return _veiculoRepository.GetAllAsync().GetAwaiter().GetResult();
+        return await _veiculoRepository.GetAllAsync();
     }
 }

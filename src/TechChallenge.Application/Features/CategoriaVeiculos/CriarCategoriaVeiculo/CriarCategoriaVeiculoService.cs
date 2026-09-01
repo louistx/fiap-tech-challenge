@@ -14,18 +14,18 @@ public class CriarCategoriaVeiculoService
         _validator = validator;
     }
 
-    public Guid CriarCategoriaVeiculo(CriarCategoriaVeiculoCommand command)
+    public async Task<Guid> CriarCategoriaVeiculo(CriarCategoriaVeiculoCommand command)
     {
         _validator.ValidateAndThrow(command);
         var descricao = command.Descricao.Trim();
 
-        var categoriaVeiculoExiste = _categoriaVeiculoRepository.GetByDescricaoAsync(descricao).GetAwaiter().GetResult();
+        var categoriaVeiculoExiste = await _categoriaVeiculoRepository.GetByDescricaoAsync(descricao);
         if (categoriaVeiculoExiste is not null)
             throw new InvalidOperationException($"Já existe uma categoria de veículo cadastrada com a descrição {descricao}.");
 
         var categoriaVeiculo = new Domain.Entities.CategoriaVeiculo(Guid.NewGuid(), command.Descricao);
 
-        _categoriaVeiculoRepository.AddAsync(categoriaVeiculo).GetAwaiter().GetResult();
+        await _categoriaVeiculoRepository.AddAsync(categoriaVeiculo);
 
         return categoriaVeiculo.Id;
     }

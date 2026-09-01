@@ -10,7 +10,7 @@ namespace TechChallenge.Tests.Features.OS.ObterTempoMedioExecucao;
 public class ObterTempoMedioExecucaoServiceTests
 {
     [Fact]
-    public void DeveCalcularTempoMedioDasOrdensFinalizadas()
+    public async Task DeveCalcularTempoMedioDasOrdensFinalizadas()
     {
         var inicio = new DateTime(2026, 1, 1, 8, 0, 0, DateTimeKind.Utc);
         var repository = new Mock<IOrdemServicoRepository>();
@@ -22,7 +22,7 @@ public class ObterTempoMedioExecucaoServiceTests
             ]);
         var service = new ObterTempoMedioExecucaoService(repository.Object);
 
-        var resultado = service.ObterTempoMedioExecucao();
+        var resultado = await service.ObterTempoMedioExecucao();
 
         resultado.QuantidadeOrdensFinalizadas.Should().Be(2);
         resultado.TempoMedioHoras.Should().Be(3);
@@ -30,14 +30,14 @@ public class ObterTempoMedioExecucaoServiceTests
     }
 
     [Fact]
-    public void DeveRetornarZeroQuandoNaoExistiremOrdensFinalizadas()
+    public async Task DeveRetornarZeroQuandoNaoExistiremOrdensFinalizadas()
     {
         var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetFinalizadasComDataFinalizacaoAsync())
             .ReturnsAsync([]);
         var service = new ObterTempoMedioExecucaoService(repository.Object);
 
-        var resultado = service.ObterTempoMedioExecucao();
+        var resultado = await service.ObterTempoMedioExecucao();
 
         resultado.QuantidadeOrdensFinalizadas.Should().Be(0);
         resultado.TempoMedioHoras.Should().Be(0);

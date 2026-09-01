@@ -19,21 +19,21 @@ public class ExcluirCategoriaProdutoService
         _validator = validator;
     }
 
-    public bool ExcluirCategoriaProduto(ExcluirCategoriaProdutoCommand command)
+    public async Task<bool> ExcluirCategoriaProduto(ExcluirCategoriaProdutoCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var categoriaProduto = _categoriaProdutoRepository.GetByIdAsync(command.Id).GetAwaiter().GetResult();
+        var categoriaProduto = await _categoriaProdutoRepository.GetByIdAsync(command.Id);
 
         if (categoriaProduto is null)
             throw new KeyNotFoundException($"Categoria de produto com Id {command.Id} não encontrada.");
 
-        var categoriaPossuiProduto = _produtoRepository.ExisteProdutoComCategoria(command.Id).GetAwaiter().GetResult();
+        var categoriaPossuiProduto = await _produtoRepository.ExisteProdutoComCategoria(command.Id);
         
         if (categoriaPossuiProduto)
             throw new InvalidOperationException("Não é possível excluir uma categoria de produto associada a um produto.");
 
-        _categoriaProdutoRepository.DeleteAsync(categoriaProduto).GetAwaiter().GetResult();
+        await _categoriaProdutoRepository.DeleteAsync(categoriaProduto);
 
         return true;
     }

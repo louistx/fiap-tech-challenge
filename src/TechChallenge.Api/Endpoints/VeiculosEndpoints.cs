@@ -55,7 +55,7 @@ public static class VeiculosEndpoints
         return app;
     }
 
-    private static IResult CriarVeiculoAsync(CriarVeiculoRequest request, CriarVeiculoService service)
+    private static async Task<IResult> CriarVeiculoAsync(CriarVeiculoRequest request, CriarVeiculoService service)
     {
         var command = new CriarVeiculoCommand
         {
@@ -70,13 +70,13 @@ public static class VeiculosEndpoints
             CategoriaId = request.CategoriaId
         };
 
-        var id = service.CriarVeiculo(command);
+        var id = await service.CriarVeiculo(command);
         return Results.Created($"/api/v1/veiculos/{id}", id);
     }
 
-    private static IResult ObterVeiculoAsync(Guid id, ObterVeiculoService service)
+    private static async Task<IResult> ObterVeiculoAsync(Guid id, ObterVeiculoService service)
     {
-        var veiculo = service.ObterVeiculo(new ObterVeiculoQuery { Id = id });
+        var veiculo = await service.ObterVeiculo(new ObterVeiculoQuery { Id = id });
 
         var response = new VeiculoResponse
         {
@@ -95,9 +95,9 @@ public static class VeiculosEndpoints
         return Results.Ok(response);
     }
 
-    private static IResult ListarVeiculosAsync(ListarVeiculosService service)
+    private static async Task<IResult> ListarVeiculosAsync(ListarVeiculosService service)
     {
-        var veiculos = service.ListarVeiculos(new ListarVeiculosQuery());
+        var veiculos = await service.ListarVeiculos(new ListarVeiculosQuery());
 
         var response = veiculos.Select(v => new VeiculoResponse
         {
@@ -116,7 +116,7 @@ public static class VeiculosEndpoints
         return Results.Ok(response);
     }
 
-    private static IResult AtualizarVeiculoAsync(Guid id, AtualizarVeiculoRequest request, AtualizarVeiculoService service)
+    private static async Task<IResult> AtualizarVeiculoAsync(Guid id, AtualizarVeiculoRequest request, AtualizarVeiculoService service)
     {
         var command = new AtualizarVeiculoCommand
         {
@@ -132,13 +132,13 @@ public static class VeiculosEndpoints
             CategoriaId = request.CategoriaId
         };
 
-        service.AtualizarVeiculo(command);
+        await service.AtualizarVeiculo(command);
         return Results.Ok();
     }
 
-    private static IResult ExcluirVeiculoAsync(Guid id, ExcluirVeiculoService service)
+    private static async Task<IResult> ExcluirVeiculoAsync(Guid id, ExcluirVeiculoService service)
     {
-        service.ExcluirVeiculo(new ExcluirVeiculoCommand { Id = id });
+        await service.ExcluirVeiculo(new ExcluirVeiculoCommand { Id = id });
         return Results.NoContent();
     }
 }

@@ -12,9 +12,9 @@ public class ObterClienteService
         _clienteRepository = clienteRepository;
     }
 
-    public Cliente ObterCliente(ObterClienteQuery query)
+    public async Task<Cliente> ObterCliente(ObterClienteQuery query)
     {
-        var cliente = _clienteRepository.GetByIdAsync(query.Id).GetAwaiter().GetResult();
+        var cliente = await _clienteRepository.GetByIdAsync(query.Id);
         if (cliente is null)
             throw new KeyNotFoundException($"Cliente com Id {query.Id} não encontrado.");
 

@@ -10,7 +10,7 @@ namespace TechChallenge.Tests.Features.OS.ListarOS;
 public class ListarOSServiceTests
 {
     [Fact]
-    public void DeveListarTodasAsOSQuandoStatusNaoForInformado()
+    public async Task DeveListarTodasAsOSQuandoStatusNaoForInformado()
     {
         var ordens = new List<OrdemServico>
         {
@@ -21,7 +21,7 @@ public class ListarOSServiceTests
         repository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(ordens);
         var service = new ListarOSService(repository.Object);
 
-        var resultado = service.ListarOS(new ListarOSQuery());
+        var resultado = await service.ListarOS(new ListarOSQuery());
 
         resultado.Should().BeEquivalentTo(ordens);
         repository.Verify(repo => repo.GetAllAsync(), Times.Once);
@@ -29,7 +29,7 @@ public class ListarOSServiceTests
     }
 
     [Fact]
-    public void DeveListarOSPorStatusQuandoStatusForInformado()
+    public async Task DeveListarOSPorStatusQuandoStatusForInformado()
     {
         var ordens = new List<OrdemServico>
         {
@@ -39,7 +39,7 @@ public class ListarOSServiceTests
         repository.Setup(repo => repo.GetByStatusAsync(StatusOS.EmDiagnostico)).ReturnsAsync(ordens);
         var service = new ListarOSService(repository.Object);
 
-        var resultado = service.ListarOS(new ListarOSQuery { Status = StatusOS.EmDiagnostico });
+        var resultado = await service.ListarOS(new ListarOSQuery { Status = StatusOS.EmDiagnostico });
 
         resultado.Should().BeEquivalentTo(ordens);
         repository.Verify(repo => repo.GetByStatusAsync(StatusOS.EmDiagnostico), Times.Once);

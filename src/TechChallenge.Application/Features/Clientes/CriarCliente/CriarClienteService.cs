@@ -18,12 +18,12 @@ public class CriarClienteService
         _validator = validator;
     }
 
-    public Guid CriarCliente(CriarClienteCommand command)
+    public async Task<Guid> CriarCliente(CriarClienteCommand command)
     {
         _validator.ValidateAndThrow(command);
         var documento = FormatarDocumento(command.TipoDocumento, command.Documento);
 
-        var clienteExiste = _clienteRepository.GetByDocumentAsync(documento).GetAwaiter().GetResult();
+        var clienteExiste = await _clienteRepository.GetByDocumentAsync(documento);
         if (clienteExiste is not null)
             throw new InvalidOperationException($"Já existe um cliente cadastrado com o {NomeDocumento(command.TipoDocumento)} {documento}.");
 
@@ -32,7 +32,7 @@ public class CriarClienteService
         var cliente = new Cliente(Guid.NewGuid(), command.Nome, command.TipoDocumento, documento, endereco.Id);
         cliente.AtribuirEndereco(endereco);
 
-        _clienteRepository.AddAsync(cliente).GetAwaiter().GetResult();
+        await _clienteRepository.AddAsync(cliente);
         return cliente.Id;
     }
 

@@ -14,15 +14,15 @@ public class ExcluirOSService
         _validator = validator;
     }
 
-    public bool ExcluirOS(ExcluirOSCommand command)
+    public async Task<bool> ExcluirOS(ExcluirOSCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var ordemServico = _ordemServicoRepository.GetByIdAsync(command.Id).GetAwaiter().GetResult();
+        var ordemServico = await _ordemServicoRepository.GetByIdAsync(command.Id);
         if (ordemServico is null)
             throw new KeyNotFoundException($"Ordem de serviço com Id {command.Id} não encontrada.");
 
-        _ordemServicoRepository.DeleteAsync(ordemServico).GetAwaiter().GetResult();
+        await _ordemServicoRepository.DeleteAsync(ordemServico);
         return true;
     }
 }

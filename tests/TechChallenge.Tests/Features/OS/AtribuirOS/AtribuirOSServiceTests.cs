@@ -11,7 +11,7 @@ namespace TechChallenge.Tests.Features.OS.AtribuirOS;
 public class AtribuirOSServiceTests
 {
     [Fact]
-    public void DeveAtribuirOSRecebidaParaMecanicoSemOSAtiva()
+    public async Task DeveAtribuirOSRecebidaParaMecanicoSemOSAtiva()
     {
         var mecanicoId = Guid.NewGuid();
         var ordemServico = new OrdemServico(Guid.NewGuid(), string.Empty, string.Empty, StatusOS.Recebida, Guid.NewGuid(), mecanicoId, Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
@@ -30,7 +30,7 @@ public class AtribuirOSServiceTests
             funcionarioRepository.Object,
             new AtribuirOSCommandValidator());
 
-        var resultado = service.AtribuirOS(new AtribuirOSCommand
+        var resultado = await service.AtribuirOS(new AtribuirOSCommand
         {
             OrdemServicoId = ordemServico.Id,
             MecanicoId = mecanicoId
@@ -44,7 +44,7 @@ public class AtribuirOSServiceTests
     }
 
     [Fact]
-    public void DeveImpedirAtribuicaoQuandoMecanicoJaPossuirOSAtiva()
+    public async Task DeveImpedirAtribuicaoQuandoMecanicoJaPossuirOSAtiva()
     {
         var mecanicoId = Guid.NewGuid();
         var osAtiva = new OrdemServico(Guid.NewGuid(), string.Empty, string.Empty, StatusOS.EmDiagnostico, Guid.NewGuid(), mecanicoId, Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
@@ -66,13 +66,13 @@ public class AtribuirOSServiceTests
             MecanicoId = mecanicoId
         });
 
-        act.Should().Throw<InvalidOperationException>()
+        (await act.Should().ThrowAsync<InvalidOperationException>())
             .WithMessage($"Mecânico já possui uma OS ativa (Id: {osAtiva.Id}).");
         ordemServicoRepository.Verify(repo => repo.UpdateAsync(It.IsAny<OrdemServico>()), Times.Never);
     }
 
     [Fact]
-    public void DeveImpedirAtribuicaoQuandoOSNaoEstiverRecebida()
+    public async Task DeveImpedirAtribuicaoQuandoOSNaoEstiverRecebida()
     {
         var mecanicoId = Guid.NewGuid();
         var ordemServico = new OrdemServico(Guid.NewGuid(), string.Empty, string.Empty, StatusOS.Finalizada, Guid.NewGuid(), mecanicoId, Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
@@ -95,7 +95,7 @@ public class AtribuirOSServiceTests
             MecanicoId = mecanicoId
         });
 
-        act.Should().Throw<InvalidOperationException>()
+        (await act.Should().ThrowAsync<InvalidOperationException>())
             .WithMessage($"Transição inválida: {ordemServico.Status} -> {StatusOS.EmDiagnostico}.");
         ordemServicoRepository.Verify(repo => repo.UpdateAsync(It.IsAny<OrdemServico>()), Times.Never);
     }

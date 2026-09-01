@@ -12,9 +12,9 @@ public class ObterCategoriaVeiculoService
         _categoriaVeiculoRepository = categoriaVeiculoRepository;
     }
 
-    public CategoriaVeiculo ObterCategoriaVeiculo(ObterCategoriaVeiculoQuery query)
+    public async Task<CategoriaVeiculo> ObterCategoriaVeiculo(ObterCategoriaVeiculoQuery query)
     {
-        var categoriaVeiculo = _categoriaVeiculoRepository.GetByIdAsync(query.Id).GetAwaiter().GetResult();
+        var categoriaVeiculo = await _categoriaVeiculoRepository.GetByIdAsync(query.Id);
 
         if (categoriaVeiculo is null)
             throw new KeyNotFoundException($"Categoria de veículo com Id {query.Id} não encontrada.");

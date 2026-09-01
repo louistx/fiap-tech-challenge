@@ -12,11 +12,11 @@ public class ListarOSService
         _ordemServicoRepository = ordemServicoRepository;
     }
 
-    public List<OrdemServico> ListarOS(ListarOSQuery query)
+    public async Task<List<OrdemServico>> ListarOS(ListarOSQuery query)
     {
         if (query.Status.HasValue)
-            return _ordemServicoRepository.GetByStatusAsync(query.Status.Value).GetAwaiter().GetResult();
+            return await _ordemServicoRepository.GetByStatusAsync(query.Status.Value);
 
-        return _ordemServicoRepository.GetAllAsync().GetAwaiter().GetResult();
+        return await _ordemServicoRepository.GetAllAsync();
     }
 }

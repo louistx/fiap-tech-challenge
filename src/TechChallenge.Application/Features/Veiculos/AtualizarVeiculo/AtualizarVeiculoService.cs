@@ -20,20 +20,20 @@ public class AtualizarVeiculoService
         _validator = validator;
     }
 
-    public bool AtualizarVeiculo(AtualizarVeiculoCommand command)
+    public async Task<bool> AtualizarVeiculo(AtualizarVeiculoCommand command)
     {
         _validator.ValidateAndThrow(command);
         var placa = PlacaValidator.Formatar(command.Placa);
 
-        var veiculo = _veiculoRepository.GetByIdAsync(command.Id).GetAwaiter().GetResult();
+        var veiculo = await _veiculoRepository.GetByIdAsync(command.Id);
         if (veiculo is null)
             throw new KeyNotFoundException($"Veículo com Id {command.Id} não encontrado.");
 
-        var placaExiste = _veiculoRepository.GetByPlacaAsync(placa).GetAwaiter().GetResult();
+        var placaExiste = await _veiculoRepository.GetByPlacaAsync(placa);
         if (placaExiste is not null && placaExiste.Id != command.Id)
             throw new InvalidOperationException($"Já existe outro veículo cadastrado com a placa {placa}.");
 
-        var cliente = _clienteRepository.GetByIdAsync(command.ClienteId).GetAwaiter().GetResult();
+        var cliente = await _clienteRepository.GetByIdAsync(command.ClienteId);
         if (cliente is null)
             throw new KeyNotFoundException($"Cliente com Id {command.ClienteId} não encontrado.");
 
@@ -48,7 +48,7 @@ public class AtualizarVeiculoService
             command.ClienteId,
             command.CategoriaId);
 
-        _veiculoRepository.UpdateAsync(veiculo).GetAwaiter().GetResult();
+        await _veiculoRepository.UpdateAsync(veiculo);
         return true;
     }
 }

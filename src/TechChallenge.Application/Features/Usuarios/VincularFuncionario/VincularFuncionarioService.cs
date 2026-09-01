@@ -15,22 +15,22 @@ public class VincularFuncionarioService
         _funcionarioRepository = funcionarioRepository;
     }
 
-    public void VincularFuncionario(VincularFuncionarioCommand command)
+    public async Task VincularFuncionario(VincularFuncionarioCommand command)
     {
-        var usuario = _usuarioRepository.GetByIdAsync(command.UsuarioId).GetAwaiter().GetResult();
+        var usuario = await _usuarioRepository.GetByIdAsync(command.UsuarioId);
         if (usuario is null)
             throw new KeyNotFoundException($"Usuário com Id {command.UsuarioId} não encontrado.");
 
-        var funcionario = _funcionarioRepository.GetByIdAsync(command.FuncionarioId).GetAwaiter().GetResult();
+        var funcionario = await _funcionarioRepository.GetByIdAsync(command.FuncionarioId);
         if (funcionario is null)
             throw new KeyNotFoundException($"Funcionário com Id {command.FuncionarioId} não encontrado.");
 
-        var jaVinculado = _usuarioRepository.ExisteVinculoFuncionarioAsync(command.FuncionarioId).GetAwaiter().GetResult();
+        var jaVinculado = await _usuarioRepository.ExisteVinculoFuncionarioAsync(command.FuncionarioId);
         if (jaVinculado && usuario.FuncionarioId != command.FuncionarioId)
             throw new InvalidOperationException($"O funcionário {command.FuncionarioId} já está vinculado a outro usuário.");
 
         usuario = new Domain.Entities.Usuario(usuario.Id, usuario.Login, usuario.PasswordHash, usuario.TipoUsuario, usuario.Ativo, command.FuncionarioId);
 
-        _usuarioRepository.UpdateAsync(usuario).GetAwaiter().GetResult();
+        await _usuarioRepository.UpdateAsync(usuario);
     }
 }

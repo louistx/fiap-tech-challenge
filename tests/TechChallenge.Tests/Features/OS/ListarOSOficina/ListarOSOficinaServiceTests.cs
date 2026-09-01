@@ -10,7 +10,7 @@ namespace TechChallenge.Tests.Features.OS.ListarOSOficina;
 public class ListarOSOficinaServiceTests
 {
     [Fact]
-    public void DeveListarOSDaOficinaMapeandoCamposBasicos()
+    public async Task DeveListarOSDaOficinaMapeandoCamposBasicos()
     {
         var funcionario = new Funcionario(Guid.NewGuid(), "Joao Mecanico", string.Empty, string.Empty, TipoFuncionario.Mecanico, Guid.NewGuid());
         var veiculo = new Veiculo(Guid.NewGuid(), "ABC1D23", string.Empty, string.Empty, string.Empty, 0, 0, 0, Guid.NewGuid(), Guid.NewGuid());
@@ -22,7 +22,7 @@ public class ListarOSOficinaServiceTests
         repository.Setup(repo => repo.GetByStatusAsync(StatusOS.EmDiagnostico)).ReturnsAsync([os]);
         var service = new ListarOSOficinaService(repository.Object);
 
-        var resultado = service.ListarOSOficina();
+        var resultado = await service.ListarOSOficina();
 
         resultado.Should().ContainSingle();
         resultado[0].Id.Should().Be(os.Id);

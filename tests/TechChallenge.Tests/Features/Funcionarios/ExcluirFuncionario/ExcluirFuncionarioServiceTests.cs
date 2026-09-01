@@ -10,7 +10,7 @@ namespace TechChallenge.Tests.Features.Funcionarios.ExcluirFuncionario;
 public class ExcluirFuncionarioServiceTests
 {
     [Fact]
-    public void DeveExcluirFuncionarioQuandoNaoPossuirOrdemServico()
+    public async Task DeveExcluirFuncionarioQuandoNaoPossuirOrdemServico()
     {
         var funcionario = new Funcionario(Guid.NewGuid(), string.Empty, string.Empty, string.Empty, TipoFuncionario.Mecanico, Guid.NewGuid());
         var funcionarioRepository = new Mock<IFuncionarioRepository>();
@@ -23,14 +23,14 @@ public class ExcluirFuncionarioServiceTests
             ordemServicoRepository.Object,
             new ExcluirFuncionarioCommandValidator());
 
-        var resultado = service.ExcluirFuncionario(new ExcluirFuncionarioCommand { Id = funcionario.Id });
+        var resultado = await service.ExcluirFuncionario(new ExcluirFuncionarioCommand { Id = funcionario.Id });
 
         resultado.Should().BeTrue();
         funcionarioRepository.Verify(repo => repo.DeleteAsync(funcionario), Times.Once);
     }
 
     [Fact]
-    public void DeveImpedirExclusaoQuandoFuncionarioPossuirOrdemServico()
+    public async Task DeveImpedirExclusaoQuandoFuncionarioPossuirOrdemServico()
     {
         var funcionario = new Funcionario(Guid.NewGuid(), string.Empty, string.Empty, string.Empty, TipoFuncionario.Mecanico, Guid.NewGuid());
         var funcionarioRepository = new Mock<IFuncionarioRepository>();
@@ -44,7 +44,7 @@ public class ExcluirFuncionarioServiceTests
 
         var act = () => service.ExcluirFuncionario(new ExcluirFuncionarioCommand { Id = funcionario.Id });
 
-        act.Should().Throw<InvalidOperationException>()
+        (await act.Should().ThrowAsync<InvalidOperationException>())
             .WithMessage("Não é possível excluir um funcionário associado a uma ordem de serviço.");
         funcionarioRepository.Verify(repo => repo.DeleteAsync(It.IsAny<Funcionario>()), Times.Never);
     }

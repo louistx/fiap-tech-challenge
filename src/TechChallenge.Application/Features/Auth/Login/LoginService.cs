@@ -31,11 +31,11 @@ public class LoginService
         _validator = validator;
     }
 
-    public AuthResult Login(LoginCommand command)
+    public async Task<AuthResult> Login(LoginCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var usuario = _usuarioRepository.GetByLoginAsync(command.Login).GetAwaiter().GetResult();
+        var usuario = await _usuarioRepository.GetByLoginAsync(command.Login);
         if (usuario is null || !usuario.Ativo)
             throw new UnauthorizedAccessException("Credenciais inválidas.");
 
@@ -48,7 +48,7 @@ public class LoginService
         var agora = DateTime.UtcNow;
         var refreshToken = new RefreshToken(Guid.NewGuid(), usuario.Id, _tokenService.HashRefreshToken(refreshCru), agora, agora.AddDays(_settings.RefreshTokenDays));
 
-        _refreshTokenRepository.AddAsync(refreshToken).GetAwaiter().GetResult();
+        await _refreshTokenRepository.AddAsync(refreshToken);
 
         return new AuthResult(access.Token, access.ExpiraEm, refreshCru);
     }

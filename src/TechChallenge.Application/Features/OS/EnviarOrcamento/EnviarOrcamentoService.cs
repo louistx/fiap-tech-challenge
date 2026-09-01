@@ -25,11 +25,11 @@ public class EnviarOrcamentoService
         _notificationService = notificationService ?? NullNotificationService.Instance;
     }
 
-    public bool EnviarOrcamento(EnviarOrcamentoCommand command)
+    public async Task<bool> EnviarOrcamento(EnviarOrcamentoCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var os = _ordemServicoRepository.GetByIdAsync(command.OrdemServicoId).GetAwaiter().GetResult();
+        var os = await _ordemServicoRepository.GetByIdAsync(command.OrdemServicoId);
         if (os is null)
             throw new KeyNotFoundException($"OS com Id {command.OrdemServicoId} não encontrada.");
 
@@ -38,7 +38,7 @@ public class EnviarOrcamentoService
 
         foreach (var item in os.Produtos)
         {
-            var estoque = _estoqueRepository.GetByIdProdutoAsync(item.ProdutoId).GetAwaiter().GetResult();
+            var estoque = await _estoqueRepository.GetByIdProdutoAsync(item.ProdutoId);
             var produtoDescricao = item.Produto?.Descricao ?? item.ProdutoId.ToString();
 
             if (estoque is null || estoque.Quantidade < item.Quantidade)
@@ -64,7 +64,7 @@ public class EnviarOrcamentoService
 
         os.TransicionarPara(StatusOS.AguardandoAprovacao);
         _notificationService.NotificarTransicaoOS(os, statusAnterior);
-        _ordemServicoRepository.UpdateAsync(os).GetAwaiter().GetResult();
+        await _ordemServicoRepository.UpdateAsync(os);
         return true;
     }
 

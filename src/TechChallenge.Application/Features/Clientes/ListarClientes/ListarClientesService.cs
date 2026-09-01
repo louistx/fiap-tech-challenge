@@ -12,8 +12,8 @@ public class ListarClientesService
         _clienteRepository = clienteRepository;
     }
 
-    public List<Cliente> ListarClientes(ListarClientesQuery query)
+    public async Task<List<Cliente>> ListarClientes(ListarClientesQuery query)
     {
-        return _clienteRepository.GetAllAsync().GetAwaiter().GetResult();
+        return await _clienteRepository.GetAllAsync();
     }
 }

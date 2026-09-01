@@ -21,14 +21,14 @@ public class RefreshService
         _settings = settings;
     }
 
-    public AuthResult Refresh(RefreshCommand command)
+    public async Task<AuthResult> Refresh(RefreshCommand command)
     {
         if (string.IsNullOrWhiteSpace(command.RefreshToken))
             throw new UnauthorizedAccessException("Refresh token inválido.");
 
         var agora = DateTime.UtcNow;
         var hash = _tokenService.HashRefreshToken(command.RefreshToken);
-        var token = _refreshTokenRepository.GetByHashAsync(hash).GetAwaiter().GetResult();
+        var token = await _refreshTokenRepository.GetByHashAsync(hash);
 
         if (token is null)
             throw new UnauthorizedAccessException("Refresh token inválido.");
@@ -49,8 +49,8 @@ public class RefreshService
         var novo = new RefreshToken(Guid.NewGuid(), usuario.Id, _tokenService.HashRefreshToken(novoCru), agora, expira);
 
         token.AlterarRevogacao(agora);
-        _refreshTokenRepository.AddAsync(novo).GetAwaiter().GetResult();
-        _refreshTokenRepository.UpdateAsync(token).GetAwaiter().GetResult();
+        await _refreshTokenRepository.AddAsync(novo);
+        await _refreshTokenRepository.UpdateAsync(token);
 
         return new AuthResult(access.Token, access.ExpiraEm, novoCru);
     }

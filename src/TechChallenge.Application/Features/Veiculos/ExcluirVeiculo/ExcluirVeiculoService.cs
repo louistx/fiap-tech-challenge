@@ -19,19 +19,19 @@ public class ExcluirVeiculoService
         _validator = validator;
     }
 
-    public bool ExcluirVeiculo(ExcluirVeiculoCommand command)
+    public async Task<bool> ExcluirVeiculo(ExcluirVeiculoCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var veiculo = _veiculoRepository.GetByIdAsync(command.Id).GetAwaiter().GetResult();
+        var veiculo = await _veiculoRepository.GetByIdAsync(command.Id);
         if (veiculo is null)
             throw new KeyNotFoundException($"Veículo com Id {command.Id} não encontrado.");
 
-        var veiculoPossuiOrdemServico = _ordemServicoRepository.ExistePorVeiculoAsync(command.Id).GetAwaiter().GetResult();
+        var veiculoPossuiOrdemServico = await _ordemServicoRepository.ExistePorVeiculoAsync(command.Id);
         if (veiculoPossuiOrdemServico)
             throw new InvalidOperationException("Não é possível excluir um veículo associado a uma ordem de serviço.");
 
-        _veiculoRepository.DeleteAsync(veiculo).GetAwaiter().GetResult();
+        await _veiculoRepository.DeleteAsync(veiculo);
         return true;
     }
 }

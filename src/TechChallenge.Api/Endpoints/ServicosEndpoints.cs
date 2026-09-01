@@ -55,7 +55,7 @@ public static class ServicosEndpoints
         return app;
     }
 
-    private static IResult CriarServicoAsync(CriarServicoRequest request, CriarServicoService service)
+    private static async Task<IResult> CriarServicoAsync(CriarServicoRequest request, CriarServicoService service)
     {
         var command = new CriarServicoCommand
         {
@@ -64,13 +64,13 @@ public static class ServicosEndpoints
             CategoriaId = request.CategoriaId
         };
 
-        var id = service.CriarServico(command);
+        var id = await service.CriarServico(command);
         return Results.Created($"/api/v1/servicos/{id}", id);
     }
 
-    private static IResult ObterServicoAsync(Guid id, ObterServicoService service)
+    private static async Task<IResult> ObterServicoAsync(Guid id, ObterServicoService service)
     {
-        var servico = service.ObterServico(new ObterServicoQuery { Id = id });
+        var servico = await service.ObterServico(new ObterServicoQuery { Id = id });
 
         return Results.Ok(new ServicoResponse
         {
@@ -80,9 +80,9 @@ public static class ServicosEndpoints
         });
     }
 
-    private static IResult ListarServicosAsync(ListarServicosService service)
+    private static async Task<IResult> ListarServicosAsync(ListarServicosService service)
     {
-        var servicos = service.ListarServicos(new ListarServicosQuery());
+        var servicos = await service.ListarServicos(new ListarServicosQuery());
 
         var response = servicos.Select(s => new ServicoResponse
         {
@@ -94,7 +94,7 @@ public static class ServicosEndpoints
         return Results.Ok(response);
     }
 
-    private static IResult AtualizarServicoAsync(Guid id, AtualizarServicoRequest request, AtualizarServicoService service)
+    private static async Task<IResult> AtualizarServicoAsync(Guid id, AtualizarServicoRequest request, AtualizarServicoService service)
     {
         var command = new AtualizarServicoCommand
         {
@@ -103,13 +103,13 @@ public static class ServicosEndpoints
             Valor = request.Valor
         };
 
-        service.AtualizarServico(command);
+        await service.AtualizarServico(command);
         return Results.Ok();
     }
 
-    private static IResult ExcluirServicoAsync(Guid id, ExcluirServicoService service)
+    private static async Task<IResult> ExcluirServicoAsync(Guid id, ExcluirServicoService service)
     {
-        service.ExcluirServico(new ExcluirServicoCommand { Id = id });
+        await service.ExcluirServico(new ExcluirServicoCommand { Id = id });
         return Results.NoContent();
     }
 }

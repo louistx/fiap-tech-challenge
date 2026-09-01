@@ -11,13 +11,13 @@ public class DesvincularFuncionarioService
         _usuarioRepository = usuarioRepository;
     }
 
-    public void DesvincularFuncionario(DesvincularFuncionarioCommand command)
+    public async Task DesvincularFuncionario(DesvincularFuncionarioCommand command)
     {
-        var usuario = _usuarioRepository.GetByIdAsync(command.UsuarioId).GetAwaiter().GetResult();
+        var usuario = await _usuarioRepository.GetByIdAsync(command.UsuarioId);
         if (usuario is null)
             throw new KeyNotFoundException($"Usuário com Id {command.UsuarioId} não encontrado.");
 
         usuario = new Domain.Entities.Usuario(usuario.Id, usuario.Login, usuario.PasswordHash, usuario.TipoUsuario, usuario.Ativo, null);
-        _usuarioRepository.UpdateAsync(usuario).GetAwaiter().GetResult();
+        await _usuarioRepository.UpdateAsync(usuario);
     }
 }

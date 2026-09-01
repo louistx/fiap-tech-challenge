@@ -11,7 +11,7 @@ namespace TechChallenge.Tests.Features.OS.FinalizarOS;
 public class FinalizarOSServiceTests
 {
     [Fact]
-    public void DeveFinalizarOSQuandoEstiverEmExecucao()
+    public async Task DeveFinalizarOSQuandoEstiverEmExecucao()
     {
         var produto = new Produto(Guid.NewGuid(), "Filtro", 4, Guid.NewGuid());
         var os = new OrdemServico(Guid.NewGuid(), string.Empty, string.Empty, StatusOS.EmExecucao, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
@@ -28,7 +28,7 @@ public class FinalizarOSServiceTests
 
         var service = new FinalizarOSService(repository.Object, estoqueRepository.Object, new FinalizarOSCommandValidator());
 
-        var resultado = service.FinalizarOS(new FinalizarOSCommand { OrdemServicoId = os.Id });
+        var resultado = await service.FinalizarOS(new FinalizarOSCommand { OrdemServicoId = os.Id });
 
         resultado.Should().BeTrue();
         os.Status.Should().Be(StatusOS.Finalizada);
@@ -37,7 +37,7 @@ public class FinalizarOSServiceTests
     }
 
     [Fact]
-    public void DeveBloquearFinalizacaoQuandoEstoqueForInsuficiente()
+    public async Task DeveBloquearFinalizacaoQuandoEstoqueForInsuficiente()
     {
         var mecanicoId = Guid.NewGuid();
         
@@ -59,7 +59,7 @@ public class FinalizarOSServiceTests
 
         var act = () => service.FinalizarOS(new FinalizarOSCommand { OrdemServicoId = os.Id });
 
-        act.Should().Throw<InvalidOperationException>()
+        (await act.Should().ThrowAsync<InvalidOperationException>())
             .WithMessage("Estoque insuficiente para o produto Filtro.");
         notificationService.Verify(service => service.NotificarFuncionariosPorFuncao(
             TipoFuncionario.Administrador,
@@ -73,7 +73,7 @@ public class FinalizarOSServiceTests
     }
 
     [Fact]
-    public void DeveBloquearFinalizacaoQuandoOSNaoEstiverEmExecucao()
+    public async Task DeveBloquearFinalizacaoQuandoOSNaoEstiverEmExecucao()
     {
         var os = new OrdemServico(Guid.NewGuid(), string.Empty, string.Empty, StatusOS.AguardandoAprovacao, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, null, null, 0, 0, 0);
         var repository = new Mock<IOrdemServicoRepository>();
@@ -83,7 +83,7 @@ public class FinalizarOSServiceTests
 
         var act = () => service.FinalizarOS(new FinalizarOSCommand { OrdemServicoId = os.Id });
 
-        act.Should().Throw<InvalidOperationException>()
+        (await act.Should().ThrowAsync<InvalidOperationException>())
             .WithMessage($"Transição inválida: {StatusOS.AguardandoAprovacao} -> {StatusOS.Finalizada}.");
         repository.Verify(repo => repo.UpdateAsync(It.IsAny<OrdemServico>()), Times.Never);
     }

@@ -12,9 +12,9 @@ public class ObterServicoService
         _servicoRepository = servicoRepository;
     }
 
-    public Servico ObterServico(ObterServicoQuery query)
+    public async Task<Servico> ObterServico(ObterServicoQuery query)
     {
-        var servico = _servicoRepository.GetByIdAsync(query.Id).GetAwaiter().GetResult();
+        var servico = await _servicoRepository.GetByIdAsync(query.Id);
         if (servico is null)
             throw new KeyNotFoundException($"Serviço com Id {query.Id} não encontrado.");
 

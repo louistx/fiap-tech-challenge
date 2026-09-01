@@ -14,11 +14,11 @@ public class AtualizarCategoriaProdutoService
         _validator = validator;
     }
 
-    public bool AtualizarCategoriaProduto(AtualizarCategoriaProdutoCommand command)
+    public async Task<bool> AtualizarCategoriaProduto(AtualizarCategoriaProdutoCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var categoriaProduto = _categoriaProdutoRepository.GetByIdAsync(command.Id).GetAwaiter().GetResult();
+        var categoriaProduto = await _categoriaProdutoRepository.GetByIdAsync(command.Id);
 
         if (categoriaProduto is null)
             throw new KeyNotFoundException($"Categoria de Produto com Id {command.Id} não encontrada.");
@@ -28,7 +28,7 @@ public class AtualizarCategoriaProdutoService
             command.Descricao
         );
 
-        _categoriaProdutoRepository.UpdateAsync(categoriaProduto).GetAwaiter().GetResult();
+        await _categoriaProdutoRepository.UpdateAsync(categoriaProduto);
         return true;
     }
 }

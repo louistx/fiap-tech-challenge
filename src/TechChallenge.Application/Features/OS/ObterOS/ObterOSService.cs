@@ -12,9 +12,9 @@ public class ObterOSService
         _ordemServicoRepository = ordemServicoRepository;
     }
 
-    public OrdemServico ObterOS(ObterOSQuery query)
+    public async Task<OrdemServico> ObterOS(ObterOSQuery query)
     {
-        var ordemServico = _ordemServicoRepository.GetByIdAsync(query.Id).GetAwaiter().GetResult();
+        var ordemServico = await _ordemServicoRepository.GetByIdAsync(query.Id);
         if (ordemServico is null)
             throw new KeyNotFoundException($"Ordem de serviço com Id {query.Id} não encontrada.");
 

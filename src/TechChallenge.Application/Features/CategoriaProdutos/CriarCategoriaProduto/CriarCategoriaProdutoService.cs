@@ -15,19 +15,19 @@ public class CriarCategoriaProdutoService
         _validator = validator;
     }
 
-    public Guid CriarCategoriaProduto(CriarCategoriaProdutoCommand command)
+    public async Task<Guid> CriarCategoriaProduto(CriarCategoriaProdutoCommand command)
     {
         _validator.ValidateAndThrow(command);
         var descricao = command.Descricao.Trim();
 
-        var categoriaProdutoExiste = _categoriaProdutoRepository.GetByDescricaoAsync(descricao).GetAwaiter().GetResult();
+        var categoriaProdutoExiste = await _categoriaProdutoRepository.GetByDescricaoAsync(descricao);
         
         if (categoriaProdutoExiste is not null)
             throw new InvalidOperationException($"Já existe uma categoria de produto cadastrada com a descrição {descricao}.");
 
         var categoriaProduto = new CategoriaProduto(Guid.NewGuid(), command.Descricao);
 
-        _categoriaProdutoRepository.AddAsync(categoriaProduto).GetAwaiter().GetResult();
+        await _categoriaProdutoRepository.AddAsync(categoriaProduto);
 
         return categoriaProduto.Id;
     }

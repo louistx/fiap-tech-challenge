@@ -19,19 +19,19 @@ public class ExcluirClienteService
         _validator = validator;
     }
 
-    public bool ExcluirCliente(ExcluirClienteCommand command)
+    public async Task<bool> ExcluirCliente(ExcluirClienteCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var cliente = _clienteRepository.GetByIdAsync(command.Id).GetAwaiter().GetResult();
+        var cliente = await _clienteRepository.GetByIdAsync(command.Id);
         if (cliente is null)
             throw new KeyNotFoundException($"Cliente com Id {command.Id} não encontrado.");
 
-        var clientePossuiOrdemServico = _ordemServicoRepository.ExistePorClienteAsync(command.Id).GetAwaiter().GetResult();
+        var clientePossuiOrdemServico = await _ordemServicoRepository.ExistePorClienteAsync(command.Id);
         if (clientePossuiOrdemServico)
             throw new InvalidOperationException("Não é possível excluir um cliente associado a uma ordem de serviço.");
 
-        _clienteRepository.DeleteAsync(cliente).GetAwaiter().GetResult();
+        await _clienteRepository.DeleteAsync(cliente);
         return true;
     }
 }

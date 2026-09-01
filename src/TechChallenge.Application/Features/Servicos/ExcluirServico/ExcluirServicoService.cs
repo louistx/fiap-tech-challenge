@@ -19,19 +19,19 @@ public class ExcluirServicoService
         _validator = validator;
     }
 
-    public bool ExcluirServico(ExcluirServicoCommand command)
+    public async Task<bool> ExcluirServico(ExcluirServicoCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var servico = _servicoRepository.GetByIdAsync(command.Id).GetAwaiter().GetResult();
+        var servico = await _servicoRepository.GetByIdAsync(command.Id);
         if (servico is null)
             throw new KeyNotFoundException($"Serviço com Id {command.Id} não encontrado.");
 
-        var servicoEmUso = _ordemServicoServicosRepository.ExisteServicoEmOrdemServicoAsync(command.Id).GetAwaiter().GetResult();
+        var servicoEmUso = await _ordemServicoServicosRepository.ExisteServicoEmOrdemServicoAsync(command.Id);
         if (servicoEmUso)
             throw new InvalidOperationException("Não é possível excluir um serviço associado a uma ordem de serviço.");
 
-        _servicoRepository.DeleteAsync(servico).GetAwaiter().GetResult();
+        await _servicoRepository.DeleteAsync(servico);
         return true;
     }
 }

@@ -10,7 +10,7 @@ namespace TechChallenge.Tests.Features.OS.CancelarOS;
 public class CancelarOSServiceTests
 {
     [Fact]
-    public void DeveCancelarOSQuandoTransicaoForValida()
+    public async Task DeveCancelarOSQuandoTransicaoForValida()
     {
         var os = new OrdemServico (Guid.NewGuid(), "Descrição da OS", string.Empty, StatusOS.EmDiagnostico, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0);
         var repository = new Mock<IOrdemServicoRepository>();
@@ -18,7 +18,7 @@ public class CancelarOSServiceTests
         repository.Setup(repo => repo.UpdateAsync(os)).ReturnsAsync(os);
         var service = new CancelarOSService(repository.Object, new CancelarOSCommandValidator());
 
-        var resultado = service.CancelarOS(new CancelarOSCommand { OrdemServicoId = os.Id });
+        var resultado = await service.CancelarOS(new CancelarOSCommand { OrdemServicoId = os.Id });
 
         resultado.Should().BeTrue();
         os.Status.Should().Be(StatusOS.Cancelada);
@@ -27,7 +27,7 @@ public class CancelarOSServiceTests
     }
 
     [Fact]
-    public void DeveLancarQuandoOSNaoForEncontrada()
+    public async Task DeveLancarQuandoOSNaoForEncontrada()
     {
         var osId = Guid.NewGuid();
         var repository = new Mock<IOrdemServicoRepository>();
@@ -36,13 +36,13 @@ public class CancelarOSServiceTests
 
         var act = () => service.CancelarOS(new CancelarOSCommand { OrdemServicoId = osId });
 
-        act.Should().Throw<KeyNotFoundException>()
+        (await act.Should().ThrowAsync<KeyNotFoundException>())
             .WithMessage($"OS com Id {osId} não encontrada.");
         repository.Verify(repo => repo.UpdateAsync(It.IsAny<OrdemServico>()), Times.Never);
     }
 
     [Fact]
-    public void DeveBloquearCancelamentoDeOSEntregue()
+    public async Task DeveBloquearCancelamentoDeOSEntregue()
     {
         var os = new OrdemServico(Guid.NewGuid(), "Descrição da OS", string.Empty, StatusOS.Entregue, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0);
         var repository = new Mock<IOrdemServicoRepository>();
@@ -51,7 +51,7 @@ public class CancelarOSServiceTests
 
         var act = () => service.CancelarOS(new CancelarOSCommand { OrdemServicoId = os.Id });
 
-        act.Should().Throw<InvalidOperationException>()
+        (await act.Should().ThrowAsync<InvalidOperationException>())
             .WithMessage($"Transição inválida: {StatusOS.Entregue} -> {StatusOS.Cancelada}.");
         repository.Verify(repo => repo.UpdateAsync(It.IsAny<OrdemServico>()), Times.Never);
     }

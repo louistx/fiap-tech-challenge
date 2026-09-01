@@ -54,18 +54,18 @@ public static class CategoriaProdutoEndpoints
         return app;
     }
 
-    private static IResult CriarCategoriaProdutoAsync(CriarCategoriaProdutoRequest request, CriarCategoriaProdutoService service)
+    private static async Task<IResult> CriarCategoriaProdutoAsync(CriarCategoriaProdutoRequest request, CriarCategoriaProdutoService service)
     {
         var command = new CriarCategoriaProdutoCommand
         {
             Descricao = request.Descricao ?? string.Empty
         };
 
-        var id = service.CriarCategoriaProduto(command);
+        var id = await service.CriarCategoriaProduto(command);
         return Results.Created($"/api/v1/categoriaproduto/{id}", id);
     }
 
-    private static IResult AtualizarCategoriaProdutoAsync(Guid id, AtualizarCategoriaProdutoRequest request, AtualizarCategoriaProdutoService service)
+    private static async Task<IResult> AtualizarCategoriaProdutoAsync(Guid id, AtualizarCategoriaProdutoRequest request, AtualizarCategoriaProdutoService service)
     {
         var command = new AtualizarCategoriaProdutoCommand
         {
@@ -73,25 +73,25 @@ public static class CategoriaProdutoEndpoints
             Descricao = request.Descricao ?? string.Empty
         };
 
-        service.AtualizarCategoriaProduto(command);
+        await service.AtualizarCategoriaProduto(command);
         return Results.Ok();
     }
 
-    private static IResult ExcluirCategoriaProdutoAsync(Guid id, ExcluirCategoriaProdutoService service)
+    private static async Task<IResult> ExcluirCategoriaProdutoAsync(Guid id, ExcluirCategoriaProdutoService service)
     {
-        service.ExcluirCategoriaProduto(new ExcluirCategoriaProdutoCommand { Id = id });
+        await service.ExcluirCategoriaProduto(new ExcluirCategoriaProdutoCommand { Id = id });
         return Results.NoContent();
     }
 
-    private static IResult ObterCategoriaProdutoAsync(Guid id, ObterCategoriaProdutoService service)
+    private static async Task<IResult> ObterCategoriaProdutoAsync(Guid id, ObterCategoriaProdutoService service)
     {
-        var categoria = service.ObterCategoriaProduto(new ObterCategoriaProdutoQuery { Id = id });
-        return Results.Ok(MapearCategoriaProdutoResponse(categoria.Result));
+        var categoria = await service.ObterCategoriaProduto(new ObterCategoriaProdutoQuery { Id = id });
+        return Results.Ok(MapearCategoriaProdutoResponse(categoria));
     }
 
-    private static IResult ListarCategoriasProdutoAsync(ListarCategoriasProdutosService service)
+    private static async Task<IResult> ListarCategoriasProdutoAsync(ListarCategoriasProdutosService service)
     {
-        var categorias = service.ListarCategoriasProdutos(new ListarCategoriasProdutosQuery());
+        var categorias = await service.ListarCategoriasProdutos(new ListarCategoriasProdutosQuery());
         return Results.Ok(categorias.Select(MapearCategoriaProdutoResponse).ToList());
     }
 

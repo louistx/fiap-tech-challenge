@@ -73,7 +73,7 @@ public static class AuthEndpoints
         return app;
     }
 
-    private static IResult LoginAsync(LoginRequest request, LoginService service)
+    private static async Task<IResult> LoginAsync(LoginRequest request, LoginService service)
     {
         var command = new LoginCommand
         {
@@ -81,22 +81,22 @@ public static class AuthEndpoints
             Senha = request.Senha
         };
 
-        var resultado = service.Login(command);
+        var resultado = await service.Login(command);
         return Results.Ok(MapToResponse(resultado));
     }
 
-    private static IResult RefreshAsync(RefreshRequest request, RefreshService service)
+    private static async Task<IResult> RefreshAsync(RefreshRequest request, RefreshService service)
     {
-        var resultado = service.Refresh(new RefreshCommand { RefreshToken = request.RefreshToken });
+        var resultado = await service.Refresh(new RefreshCommand { RefreshToken = request.RefreshToken });
         return Results.Ok(MapToResponse(resultado));
     }
 
-    private static IResult ObterUsuarioLogado(ICurrentUser currentUser, ObterUsuarioService service)
+    private static async Task<IResult> ObterUsuarioLogado(ICurrentUser currentUser, ObterUsuarioService service)
     {
         if (currentUser.UsuarioId is not { } usuarioId)
             return Results.Unauthorized();
 
-        var usuario = service.ObterUsuario(new ObterUsuarioQuery { Id = usuarioId });
+        var usuario = await service.ObterUsuario(new ObterUsuarioQuery { Id = usuarioId });
         return Results.Ok(new UsuarioLogadoResponse(
             usuario.Id,
             usuario.Login,
@@ -104,21 +104,21 @@ public static class AuthEndpoints
             usuario.FuncionarioId));
     }
 
-    private static IResult LogoutAsync(LogoutService service)
+    private static async Task<IResult> LogoutAsync(LogoutService service)
     {
-        service.Logout();
+        await service.Logout();
         return Results.NoContent();
     }
 
-    private static IResult LogoutTodasAsync(LogoutService service)
+    private static async Task<IResult> LogoutTodasAsync(LogoutService service)
     {
-        service.LogoutTodas();
+        await service.LogoutTodas();
         return Results.NoContent();
     }
 
-    private static IResult TrocarSenhaAsync(TrocarSenhaRequest request, TrocarSenhaService service)
+    private static async Task<IResult> TrocarSenhaAsync(TrocarSenhaRequest request, TrocarSenhaService service)
     {
-        service.TrocarSenha(new TrocarSenhaCommand
+        await service.TrocarSenha(new TrocarSenhaCommand
         {
             SenhaAtual = request.SenhaAtual,
             NovaSenha = request.NovaSenha
@@ -126,17 +126,17 @@ public static class AuthEndpoints
         return Results.NoContent();
     }
 
-    private static IResult ListarRefreshTokens(ListarRefreshTokensService service)
+    private static async Task<IResult> ListarRefreshTokens(ListarRefreshTokensService service)
     {
-        var tokens = service.ListarRefreshTokens()
+        var tokens = (await service.ListarRefreshTokens())
             .Select(s => new RefreshTokenResponse(s.Id, s.CriadoEm, s.ExpiraEm))
             .ToList();
         return Results.Ok(tokens);
     }
 
-    private static IResult RevogarRefreshToken(Guid refreshTokenId, RevogarRefreshTokenService service)
+    private static async Task<IResult> RevogarRefreshToken(Guid refreshTokenId, RevogarRefreshTokenService service)
     {
-        service.RevogarRefreshToken(refreshTokenId);
+        await service.RevogarRefreshToken(refreshTokenId);
         return Results.NoContent();
     }
 

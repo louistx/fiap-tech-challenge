@@ -10,7 +10,7 @@ namespace TechChallenge.Tests.Features.OS.RetornarParaDiagnostico;
 public class RetornarParaDiagnosticoServiceTests
 {
     [Fact]
-    public void DeveRetornarOSReprovadaParaDiagnostico()
+    public async Task DeveRetornarOSReprovadaParaDiagnostico()
     {
         var os = new OrdemServico(Guid.NewGuid(), "Descrição da OS", string.Empty, StatusOS.Reprovada, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0);
         var repository = new Mock<IOrdemServicoRepository>();
@@ -18,7 +18,7 @@ public class RetornarParaDiagnosticoServiceTests
         repository.Setup(repo => repo.UpdateAsync(os)).ReturnsAsync(os);
         var service = new RetornarParaDiagnosticoService(repository.Object, new RetornarParaDiagnosticoCommandValidator());
 
-        var resultado = service.RetornarParaDiagnostico(new RetornarParaDiagnosticoCommand { OrdemServicoId = os.Id });
+        var resultado = await service.RetornarParaDiagnostico(new RetornarParaDiagnosticoCommand { OrdemServicoId = os.Id });
 
         resultado.Should().BeTrue();
         os.Status.Should().Be(StatusOS.EmDiagnostico);
@@ -27,7 +27,7 @@ public class RetornarParaDiagnosticoServiceTests
     }
 
     [Fact]
-    public void DeveBloquearRetornoQuandoOSNaoEstiverReprovada()
+    public async Task DeveBloquearRetornoQuandoOSNaoEstiverReprovada()
     {
         var os = new OrdemServico(Guid.NewGuid(), "Descrição da OS", string.Empty, StatusOS.AguardandoAprovacao, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0);
         var repository = new Mock<IOrdemServicoRepository>();
@@ -36,7 +36,7 @@ public class RetornarParaDiagnosticoServiceTests
 
         var act = () => service.RetornarParaDiagnostico(new RetornarParaDiagnosticoCommand { OrdemServicoId = os.Id });
 
-        act.Should().Throw<InvalidOperationException>()
+        (await act.Should().ThrowAsync<InvalidOperationException>())
             .WithMessage($"Transição inválida: {StatusOS.AguardandoAprovacao} -> {StatusOS.EmDiagnostico}.");
         repository.Verify(repo => repo.UpdateAsync(It.IsAny<OrdemServico>()), Times.Never);
     }

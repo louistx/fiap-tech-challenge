@@ -54,18 +54,18 @@ public static class CategoriaServicoEndpoints
         return app;
     }
 
-    private static IResult CriarCategoriaServicoAsync(CriarCategoriaServicoRequest request, CriarCategoriaServicoService service)
+    private static async Task<IResult> CriarCategoriaServicoAsync(CriarCategoriaServicoRequest request, CriarCategoriaServicoService service)
     {
         var command = new CriarCategoriaServicoCommand
         {
             Descricao = request.Descricao ?? string.Empty
         };
 
-        var id = service.CriarCategoriaServico(command);
+        var id = await service.CriarCategoriaServico(command);
         return Results.Created($"/api/v1/categoriaServico/{id}", id);
     }
 
-    private static IResult AtualizarCategoriaServicoAsync(Guid id, AtualizarCategoriaServicoRequest request, AtualizarCategoriaServicoService service)
+    private static async Task<IResult> AtualizarCategoriaServicoAsync(Guid id, AtualizarCategoriaServicoRequest request, AtualizarCategoriaServicoService service)
     {
         var command = new AtualizarCategoriaServicoCommand
         {
@@ -73,25 +73,25 @@ public static class CategoriaServicoEndpoints
             Descricao = request.Descricao ?? string.Empty
         };
 
-        service.AtualizarCategoriaServico(command);
+        await service.AtualizarCategoriaServico(command);
         return Results.Ok();
     }
 
-    private static IResult ExcluirCategoriaServicoAsync(Guid id, ExcluirCategoriaServicoService service)
+    private static async Task<IResult> ExcluirCategoriaServicoAsync(Guid id, ExcluirCategoriaServicoService service)
     {
-        service.ExcluirCategoriaServico(new ExcluirCategoriaServicoCommand { Id = id });
+        await service.ExcluirCategoriaServico(new ExcluirCategoriaServicoCommand { Id = id });
         return Results.NoContent();
     }
 
-    private static IResult ObterCategoriaServicoAsync(Guid id, ObterCategoriaServicoService service)
+    private static async Task<IResult> ObterCategoriaServicoAsync(Guid id, ObterCategoriaServicoService service)
     {
-        var categoria = service.ObterCategoriaServico(new ObterCategoriaServicoQuery { Id = id });
+        var categoria = await service.ObterCategoriaServico(new ObterCategoriaServicoQuery { Id = id });
         return Results.Ok(MapearCategoriaServicoResponse(categoria));
     }
 
-    private static IResult ListarCategoriasServicoAsync(ListarCategoriasServicosService service)
+    private static async Task<IResult> ListarCategoriasServicoAsync(ListarCategoriasServicosService service)
     {
-        var categorias = service.ListarCategoriasServicos(new ListarCategoriasServicosQuery());
+        var categorias = await service.ListarCategoriasServicos(new ListarCategoriasServicosQuery());
         return Results.Ok(categorias.Select(MapearCategoriaServicoResponse).ToList());
     }
 

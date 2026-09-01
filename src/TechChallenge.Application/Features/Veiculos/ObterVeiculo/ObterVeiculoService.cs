@@ -12,9 +12,9 @@ public class ObterVeiculoService
         _veiculoRepository = veiculoRepository;
     }
 
-    public Veiculo ObterVeiculo(ObterVeiculoQuery query)
+    public async Task<Veiculo> ObterVeiculo(ObterVeiculoQuery query)
     {
-        var veiculo = _veiculoRepository.GetByIdAsync(query.Id).GetAwaiter().GetResult();
+        var veiculo = await _veiculoRepository.GetByIdAsync(query.Id);
         if (veiculo is null)
             throw new KeyNotFoundException($"Veículo com Id {query.Id} não encontrado.");
 

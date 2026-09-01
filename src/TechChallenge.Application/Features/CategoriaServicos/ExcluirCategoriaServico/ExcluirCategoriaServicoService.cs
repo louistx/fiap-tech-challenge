@@ -19,21 +19,21 @@ public class ExcluirCategoriaServicoService
         _validator = validator;
     }
 
-    public bool ExcluirCategoriaServico(ExcluirCategoriaServicoCommand command)
+    public async Task<bool> ExcluirCategoriaServico(ExcluirCategoriaServicoCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var categoriaServico = _categoriaServicoRepository.GetByIdAsync(command.Id).GetAwaiter().GetResult();
+        var categoriaServico = await _categoriaServicoRepository.GetByIdAsync(command.Id);
 
         if (categoriaServico is null)
             throw new KeyNotFoundException($"Categoria de serviço com Id {command.Id} não encontrada.");
 
-        var servicoAssociado = _servicoRepository.ExisteServicoComCategoria(command.Id).GetAwaiter().GetResult();
+        var servicoAssociado = await _servicoRepository.ExisteServicoComCategoria(command.Id);
         
         if (servicoAssociado)
             throw new InvalidOperationException("Não é possível excluir uma categoria de serviço associada a um serviço.");
 
-        _categoriaServicoRepository.DeleteAsync(categoriaServico).GetAwaiter().GetResult();
+        await _categoriaServicoRepository.DeleteAsync(categoriaServico);
 
         return true;
     }

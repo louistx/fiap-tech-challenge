@@ -12,12 +12,10 @@ public class ObterOSAcompanhamentoService
         _ordemServicoRepository = ordemServicoRepository;
     }
 
-    public OrdemServico ObterOSAcompanhamento(ObterOSAcompanhamentoQuery query)
+    public async Task<OrdemServico> ObterOSAcompanhamento(ObterOSAcompanhamentoQuery query)
     {
-        var ordemServico = _ordemServicoRepository
-            .GetByCodigoAcompanhamentoAsync(query.CodigoAcompanhamento)
-            .GetAwaiter()
-            .GetResult();
+        var ordemServico = await _ordemServicoRepository
+            .GetByCodigoAcompanhamentoAsync(query.CodigoAcompanhamento);
 
         if (ordemServico is null)
             throw new KeyNotFoundException("Ordem de serviço não encontrada para o código de acompanhamento informado.");

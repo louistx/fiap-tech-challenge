@@ -15,16 +15,16 @@ public class RevogarRefreshTokenService
         _currentUser = currentUser;
     }
 
-    public void RevogarRefreshToken(Guid refreshTokenId)
+    public async Task RevogarRefreshToken(Guid refreshTokenId)
     {
         if (_currentUser.UsuarioId is not { } usuarioId)
             throw new UnauthorizedAccessException("Usuário não autenticado.");
 
-        var token = _refreshTokenRepository.GetByIdAsync(refreshTokenId).GetAwaiter().GetResult();
+        var token = await _refreshTokenRepository.GetByIdAsync(refreshTokenId);
         if (token is null || token.UsuarioId != usuarioId)
             throw new KeyNotFoundException("Refresh token não encontrado.");
 
         token.AlterarRevogacao(DateTime.UtcNow);
-        _refreshTokenRepository.UpdateAsync(token).GetAwaiter().GetResult();
+        await _refreshTokenRepository.UpdateAsync(token);
     }
 }

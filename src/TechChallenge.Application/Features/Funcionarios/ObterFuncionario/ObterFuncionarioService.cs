@@ -12,9 +12,9 @@ public class ObterFuncionarioService
         _funcionarioRepository = funcionarioRepository;
     }
 
-    public Funcionario ObterFuncionario(ObterFuncionarioQuery query)
+    public async Task<Funcionario> ObterFuncionario(ObterFuncionarioQuery query)
     {
-        var funcionario = _funcionarioRepository.GetByIdAsync(query.Id).GetAwaiter().GetResult();
+        var funcionario = await _funcionarioRepository.GetByIdAsync(query.Id);
         if (funcionario is null)
             throw new KeyNotFoundException($"Funcionário com Id {query.Id} não encontrado.");
 

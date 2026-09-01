@@ -16,12 +16,12 @@ public class AtualizarClienteService
         _validator = validator;
     }
 
-    public bool AtualizarCliente(AtualizarClienteCommand command)
+    public async Task<bool> AtualizarCliente(AtualizarClienteCommand command)
     {
         _validator.ValidateAndThrow(command);
         var documento = FormatarDocumento(command.TipoDocumento, command.Documento);
 
-        var cliente = _clienteRepository.GetByIdAsync(command.Id).GetAwaiter().GetResult();
+        var cliente = await _clienteRepository.GetByIdAsync(command.Id);
         if (cliente is null)
             throw new KeyNotFoundException($"Cliente com Id {command.Id} não encontrado.");
 
@@ -35,7 +35,7 @@ public class AtualizarClienteService
             command.Estado,
             command.Cep);
 
-        _clienteRepository.UpdateAsync(cliente).GetAwaiter().GetResult();
+        await _clienteRepository.UpdateAsync(cliente);
         return true;
     }
 

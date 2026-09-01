@@ -15,14 +15,12 @@ public class ListarRefreshTokensService
         _currentUser = currentUser;
     }
 
-    public List<RefreshTokenDto> ListarRefreshTokens()
+    public async Task<List<RefreshTokenDto>> ListarRefreshTokens()
     {
         if (_currentUser.UsuarioId is not { } usuarioId)
             throw new UnauthorizedAccessException("Usuário não autenticado.");
 
-        var tokens = _refreshTokenRepository
-            .GetAtivasDoUsuarioAsync(usuarioId, DateTime.UtcNow)
-            .GetAwaiter().GetResult();
+        var tokens = await _refreshTokenRepository.GetAtivasDoUsuarioAsync(usuarioId, DateTime.UtcNow);
 
         return tokens
             .Select(t => new RefreshTokenDto(t.Id, t.CriadoEm, t.ExpiraEm))

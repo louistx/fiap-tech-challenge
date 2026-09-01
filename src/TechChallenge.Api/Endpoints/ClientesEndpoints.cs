@@ -54,7 +54,7 @@ public static class ClientesEndpoints
         return app;
     }
 
-    private static IResult CriarClienteAsync(CriarClienteRequest request, CriarClienteService service)
+    private static async Task<IResult> CriarClienteAsync(CriarClienteRequest request, CriarClienteService service)
     {
         var endereco = request.Endereco ?? new EnderecoRequest();
 
@@ -72,11 +72,11 @@ public static class ClientesEndpoints
             Cep = endereco.Cep ?? string.Empty
         };
 
-        var id = service.CriarCliente(command);
+        var id = await service.CriarCliente(command);
         return Results.Created($"/api/v1/clientes/{id}", id);
     }
 
-    private static IResult AtualizarClienteAsync(Guid id, AtualizarClienteRequest request, AtualizarClienteService service)
+    private static async Task<IResult> AtualizarClienteAsync(Guid id, AtualizarClienteRequest request, AtualizarClienteService service)
     {
         var endereco = request.Endereco ?? new EnderecoRequest();
 
@@ -95,25 +95,25 @@ public static class ClientesEndpoints
             Cep = endereco.Cep ?? string.Empty
         };
 
-        service.AtualizarCliente(command);
+        await service.AtualizarCliente(command);
         return Results.Ok();
     }
 
-    private static IResult ExcluirClienteAsync(Guid id, ExcluirClienteService service)
+    private static async Task<IResult> ExcluirClienteAsync(Guid id, ExcluirClienteService service)
     {
-        service.ExcluirCliente(new ExcluirClienteCommand { Id = id });
+        await service.ExcluirCliente(new ExcluirClienteCommand { Id = id });
         return Results.NoContent();
     }
 
-    private static IResult ObterClienteAsync(Guid id, ObterClienteService service)
+    private static async Task<IResult> ObterClienteAsync(Guid id, ObterClienteService service)
     {
-        var cliente = service.ObterCliente(new ObterClienteQuery { Id = id });
+        var cliente = await service.ObterCliente(new ObterClienteQuery { Id = id });
         return Results.Ok(MapearClienteResponse(cliente));
     }
 
-    private static IResult ListarClientesAsync(ListarClientesService service)
+    private static async Task<IResult> ListarClientesAsync(ListarClientesService service)
     {
-        var clientes = service.ListarClientes(new ListarClientesQuery());
+        var clientes = await service.ListarClientes(new ListarClientesQuery());
         return Results.Ok(clientes.Select(MapearClienteResponse).ToList());
     }
 

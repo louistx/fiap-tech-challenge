@@ -26,20 +26,20 @@ public class AtribuirOSService
         _notificationService = notificationService ?? NullNotificationService.Instance;
     }
 
-    public bool AtribuirOS(AtribuirOSCommand command)
+    public async Task<bool> AtribuirOS(AtribuirOSCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var mecanico = _funcionarioRepository.GetByIdAsync(command.MecanicoId).GetAwaiter().GetResult();
+        var mecanico = await _funcionarioRepository.GetByIdAsync(command.MecanicoId);
         if (mecanico is null)
             throw new KeyNotFoundException($"Mecânico com Id {command.MecanicoId} não encontrado.");
 
         // RF10: mecânico só pode ter 1 OS ativa por vez
-        var osAtiva = _ordemServicoRepository.GetOSAtivaMecanicoAsync(command.MecanicoId).GetAwaiter().GetResult();
+        var osAtiva = await _ordemServicoRepository.GetOSAtivaMecanicoAsync(command.MecanicoId);
         if (osAtiva is not null)
             throw new InvalidOperationException($"Mecânico já possui uma OS ativa (Id: {osAtiva.Id}).");
 
-        var os = _ordemServicoRepository.GetByIdAsync(command.OrdemServicoId).GetAwaiter().GetResult();
+        var os = await _ordemServicoRepository.GetByIdAsync(command.OrdemServicoId);
         if (os is null)
             throw new KeyNotFoundException($"OS com Id {command.OrdemServicoId} não encontrada.");
 
@@ -49,7 +49,7 @@ public class AtribuirOSService
         os.TransicionarPara(StatusOS.EmDiagnostico);
         _notificationService.NotificarTransicaoOS(os, statusAnterior);
 
-        _ordemServicoRepository.UpdateAsync(os).GetAwaiter().GetResult();
+        await _ordemServicoRepository.UpdateAsync(os);
         return true;
     }
 }

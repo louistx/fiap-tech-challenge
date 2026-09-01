@@ -9,7 +9,7 @@ namespace TechChallenge.Tests.Features.Veiculos.ExcluirVeiculo;
 public class ExcluirVeiculoServiceTests
 {
     [Fact]
-    public void DeveExcluirVeiculoQuandoNaoPossuirOrdemServico()
+    public async Task DeveExcluirVeiculoQuandoNaoPossuirOrdemServico()
     {
         var veiculo = new Veiculo(Guid.NewGuid(), string.Empty, string.Empty, string.Empty, string.Empty, 0, 0, 0, Guid.NewGuid(), Guid.NewGuid());
         var veiculoRepository = new Mock<IVeiculoRepository>();
@@ -22,14 +22,14 @@ public class ExcluirVeiculoServiceTests
             ordemServicoRepository.Object,
             new ExcluirVeiculoCommandValidator());
 
-        var resultado = service.ExcluirVeiculo(new ExcluirVeiculoCommand { Id = veiculo.Id });
+        var resultado = await service.ExcluirVeiculo(new ExcluirVeiculoCommand { Id = veiculo.Id });
 
         resultado.Should().BeTrue();
         veiculoRepository.Verify(repo => repo.DeleteAsync(veiculo), Times.Once);
     }
 
     [Fact]
-    public void DeveImpedirExclusaoQuandoVeiculoPossuirOrdemServico()
+    public async Task DeveImpedirExclusaoQuandoVeiculoPossuirOrdemServico()
     {
         var veiculo = new Veiculo(Guid.NewGuid(), string.Empty, string.Empty, string.Empty, string.Empty, 0, 0, 0, Guid.NewGuid(), Guid.NewGuid());
         var veiculoRepository = new Mock<IVeiculoRepository>();
@@ -43,7 +43,7 @@ public class ExcluirVeiculoServiceTests
 
         var act = () => service.ExcluirVeiculo(new ExcluirVeiculoCommand { Id = veiculo.Id });
 
-        act.Should().Throw<InvalidOperationException>()
+        (await act.Should().ThrowAsync<InvalidOperationException>())
             .WithMessage("Não é possível excluir um veículo associado a uma ordem de serviço.");
         veiculoRepository.Verify(repo => repo.DeleteAsync(It.IsAny<Veiculo>()), Times.Never);
     }

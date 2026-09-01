@@ -68,15 +68,15 @@ public static class InventarioEndpoints
         return Results.Created($"/api/v1/produtos/{id}", id);
     }
 
-    private static IResult ObterItemInventarioAsync(Guid id, ObterItemInventarioService service)
+    private static async Task<IResult> ObterItemInventarioAsync(Guid id, ObterItemInventarioService service)
     {
-        var produto = service.ObterItemInventario(new ObterItemInventarioQuery { Id = id });
+        var produto = await service.ObterItemInventario(new ObterItemInventarioQuery { Id = id });
         return Results.Ok(MapearProdutoResponse(produto));
     }
 
-    private static IResult ListarInventarioAsync(ListarInventarioService service)
+    private static async Task<IResult> ListarInventarioAsync(ListarInventarioService service)
     {
-        var produtos = service.ListarInventario(new ListarInventarioQuery());
+        var produtos = await service.ListarInventario(new ListarInventarioQuery());
         return Results.Ok(produtos.Select(MapearProdutoResponse).ToList());
     }
 

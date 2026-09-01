@@ -17,12 +17,12 @@ public class AtualizarFuncionarioService
         _validator = validator;
     }
 
-    public bool AtualizarFuncionario(AtualizarFuncionarioCommand command)
+    public async Task<bool> AtualizarFuncionario(AtualizarFuncionarioCommand command)
     {
         _validator.ValidateAndThrow(command);
         var cpf = CpfValidator.Formatar(command.Cpf);
 
-        var funcionario = _funcionarioRepository.GetByIdAsync(command.Id).GetAwaiter().GetResult();
+        var funcionario = await _funcionarioRepository.GetByIdAsync(command.Id);
         if (funcionario is null)
             throw new KeyNotFoundException($"Funcionário com Id {command.Id} não encontrado.");
 
@@ -39,7 +39,7 @@ public class AtualizarFuncionarioService
             command.Estado,
             command.Cep);
 
-        _funcionarioRepository.UpdateAsync(funcionario).GetAwaiter().GetResult();
+        await _funcionarioRepository.UpdateAsync(funcionario);
         return true;
     }
 }

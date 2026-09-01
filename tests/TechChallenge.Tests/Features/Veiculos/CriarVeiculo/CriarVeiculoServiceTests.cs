@@ -11,7 +11,7 @@ namespace TechChallenge.Tests.Features.Veiculos.CriarVeiculo;
 public class CriarVeiculoServiceTests
 {
     [Fact]
-    public void DeveCriarVeiculoQuandoPlacaNaoExistirEClienteForEncontrado()
+    public async Task DeveCriarVeiculoQuandoPlacaNaoExistirEClienteForEncontrado()
     {
         var command = CriarCommandValido();
         const string placaFormatada = "ABC-1234";
@@ -30,7 +30,7 @@ public class CriarVeiculoServiceTests
             clienteRepository.Object,
             new CriarVeiculoCommandValidator());
 
-        var veiculoId = service.CriarVeiculo(command);
+        var veiculoId = await service.CriarVeiculo(command);
 
         veiculoId.Should().NotBeEmpty();
         veiculoCriado.Should().NotBeNull();
@@ -42,7 +42,7 @@ public class CriarVeiculoServiceTests
     }
 
     [Fact]
-    public void DeveCriarVeiculoMercosulComPlacaNormalizada()
+    public async Task DeveCriarVeiculoMercosulComPlacaNormalizada()
     {
         var command = CriarCommandValido();
         command.Placa = "abc1d23";
@@ -61,14 +61,14 @@ public class CriarVeiculoServiceTests
             clienteRepository.Object,
             new CriarVeiculoCommandValidator());
 
-        service.CriarVeiculo(command);
+        await service.CriarVeiculo(command);
 
         veiculoCriado.Should().NotBeNull();
         veiculoCriado.Placa.Should().Be("ABC1D23");
     }
 
     [Fact]
-    public void DeveImpedirCriacaoQuandoPlacaJaEstiverCadastrada()
+    public async Task DeveImpedirCriacaoQuandoPlacaJaEstiverCadastrada()
     {
         var command = CriarCommandValido();
         command.Placa = "abc1234";
@@ -85,14 +85,14 @@ public class CriarVeiculoServiceTests
 
         var act = () => service.CriarVeiculo(command);
 
-        act.Should().Throw<InvalidOperationException>()
+        (await act.Should().ThrowAsync<InvalidOperationException>())
             .WithMessage($"Já existe um veículo cadastrado com a placa {placaFormatada}.");
         clienteRepository.Verify(repo => repo.GetByIdAsync(It.IsAny<Guid>()), Times.Never);
         veiculoRepository.Verify(repo => repo.AddAsync(It.IsAny<Veiculo>()), Times.Never);
     }
 
     [Fact]
-    public void DeveRetornarErroQuandoClienteNaoForEncontrado()
+    public async Task DeveRetornarErroQuandoClienteNaoForEncontrado()
     {
         var command = CriarCommandValido();
         var veiculoRepository = new Mock<IVeiculoRepository>();
@@ -108,7 +108,7 @@ public class CriarVeiculoServiceTests
 
         var act = () => service.CriarVeiculo(command);
 
-        act.Should().Throw<KeyNotFoundException>()
+        (await act.Should().ThrowAsync<KeyNotFoundException>())
             .WithMessage($"Cliente com Id {command.ClienteId} não encontrado.");
         veiculoRepository.Verify(repo => repo.AddAsync(It.IsAny<Veiculo>()), Times.Never);
     }

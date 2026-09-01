@@ -12,8 +12,8 @@ public class ListarServicosService
         _servicoRepository = servicoRepository;
     }
 
-    public List<Servico> ListarServicos(ListarServicosQuery query)
+    public async Task<List<Servico>> ListarServicos(ListarServicosQuery query)
     {
-        return _servicoRepository.GetAllAsync().GetAwaiter().GetResult();
+        return await _servicoRepository.GetAllAsync();
     }
 }

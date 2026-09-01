@@ -10,7 +10,7 @@ namespace TechChallenge.Tests.Features.OS.AprovarOrcamento;
 public class AprovarOrcamentoServiceTests
 {
     [Fact]
-    public void DeveAprovarOrcamentoEIniciarExecucao()
+    public async Task DeveAprovarOrcamentoEIniciarExecucao()
     {
         var os = new OrdemServico(Guid.NewGuid(), "Descrição da OS", string.Empty, StatusOS.AguardandoAprovacao, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0);
         var repository = new Mock<IOrdemServicoRepository>();
@@ -18,7 +18,7 @@ public class AprovarOrcamentoServiceTests
         repository.Setup(repo => repo.UpdateAsync(os)).ReturnsAsync(os);
         var service = new AprovarOrcamentoService(repository.Object, new AprovarOrcamentoCommandValidator());
 
-        var resultado = service.AprovarOrcamento(new AprovarOrcamentoCommand { OrdemServicoId = os.Id });
+        var resultado = await service.AprovarOrcamento(new AprovarOrcamentoCommand { OrdemServicoId = os.Id });
 
         resultado.Should().BeTrue();
         os.Status.Should().Be(StatusOS.EmExecucao);
@@ -27,7 +27,7 @@ public class AprovarOrcamentoServiceTests
     }
 
     [Fact]
-    public void DeveBloquearAprovacaoQuandoOSNaoAguardarAprovacao()
+    public async Task DeveBloquearAprovacaoQuandoOSNaoAguardarAprovacao()
     {
         var os = new OrdemServico(Guid.NewGuid(), "Descrição da OS", string.Empty, StatusOS.EmDiagnostico, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.Now, null, null, 0, 0, 0); var repository = new Mock<IOrdemServicoRepository>();
         repository.Setup(repo => repo.GetByIdAsync(os.Id)).ReturnsAsync(os);
@@ -35,7 +35,7 @@ public class AprovarOrcamentoServiceTests
 
         var act = () => service.AprovarOrcamento(new AprovarOrcamentoCommand { OrdemServicoId = os.Id });
 
-        act.Should().Throw<InvalidOperationException>()
+        (await act.Should().ThrowAsync<InvalidOperationException>())
             .WithMessage($"Transição inválida: {StatusOS.EmDiagnostico} -> {StatusOS.EmExecucao}.");
         repository.Verify(repo => repo.UpdateAsync(It.IsAny<OrdemServico>()), Times.Never);
     }

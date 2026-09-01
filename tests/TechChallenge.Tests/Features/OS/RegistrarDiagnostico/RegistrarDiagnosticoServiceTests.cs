@@ -11,7 +11,7 @@ namespace TechChallenge.Tests.Features.OS.RegistrarDiagnostico;
 public class RegistrarDiagnosticoServiceTests
 {
     [Fact]
-    public void DeveNotificarQuandoProdutoNaoTiverEstoque()
+    public async Task DeveNotificarQuandoProdutoNaoTiverEstoque()
     {
         var osId = Guid.NewGuid();
         var produtoId = Guid.NewGuid();
@@ -39,7 +39,7 @@ public class RegistrarDiagnosticoServiceTests
             Produtos = [new ItemDiagnosticoCommand { Id = produtoId, Quantidade = 2 }]
         });
 
-        act.Should().Throw<InvalidOperationException>()
+        (await act.Should().ThrowAsync<InvalidOperationException>())
             .WithMessage("Estoque insuficiente para o produto Filtro.");
         notificationService.Verify(service => service.NotificarFuncionariosPorFuncao(
             TipoFuncionario.Administrador,

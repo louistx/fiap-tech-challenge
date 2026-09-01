@@ -19,19 +19,19 @@ public class ExcluirFuncionarioService
         _validator = validator;
     }
 
-    public bool ExcluirFuncionario(ExcluirFuncionarioCommand command)
+    public async Task<bool> ExcluirFuncionario(ExcluirFuncionarioCommand command)
     {
         _validator.ValidateAndThrow(command);
 
-        var funcionario = _funcionarioRepository.GetByIdAsync(command.Id).GetAwaiter().GetResult();
+        var funcionario = await _funcionarioRepository.GetByIdAsync(command.Id);
         if (funcionario is null)
             throw new KeyNotFoundException($"Funcionário com Id {command.Id} não encontrado.");
 
-        var funcionarioPossuiOrdemServico = _ordemServicoRepository.ExistePorFuncionarioAsync(command.Id).GetAwaiter().GetResult();
+        var funcionarioPossuiOrdemServico = await _ordemServicoRepository.ExistePorFuncionarioAsync(command.Id);
         if (funcionarioPossuiOrdemServico)
             throw new InvalidOperationException("Não é possível excluir um funcionário associado a uma ordem de serviço.");
 
-        _funcionarioRepository.DeleteAsync(funcionario).GetAwaiter().GetResult();
+        await _funcionarioRepository.DeleteAsync(funcionario);
         return true;
     }
 }
