@@ -487,3 +487,18 @@ $RECYCLE.BIN/
 PROXIMOS-PASSOS.md
 JWT-DESIGN.md
 OS-STATE-MACHINE.md
+
+# Terraform local: estado e planos podem conter credenciais.
+**/.terraform/*
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+# Versionar os exemplos e .terraform.lock.hcl.
+!*.tfvars.example
+
+# Artefatos locais de deploy e backup.
+.local/

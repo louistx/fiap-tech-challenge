@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi;
 using System.Text.Json.Serialization;
 using TechChallenge.Api.Endpoints;
+using TechChallenge.Api.HealthChecks;
 using TechChallenge.Api.Middleware;
 using TechChallenge.Infrastructure.Auth;
 using TechChallenge.Infrastructure.Database.Context;
@@ -43,9 +45,13 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 });
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddAuth(builder.Configuration);
+builder.Services.AddHealthChecks()
+    .AddCheck<DatabaseHealthCheck>("database", tags: ["ready"], timeout: TimeSpan.FromSeconds(3));
 
 var app = builder.Build();
 
+// No laboratório, o processo só começa a servir HTTP após migrations e seed.
+// Se a inicialização falhar, o processo termina e o Kubernetes tenta novamente.
 if (!app.Environment.IsEnvironment("Testing"))
 {
     using (var scope = app.Services.CreateScope())
@@ -58,6 +64,16 @@ if (!app.Environment.IsEnvironment("Testing"))
 
 app.UseMiddleware<ExceptionMiddleware>();
 
+app.MapHealthChecks("/health/live", new HealthCheckOptions
+{
+    // Falha do banco retira o pod do Service, mas não deve reiniciar o processo.
+    Predicate = _ => false
+}).AllowAnonymous();
+app.MapHealthChecks("/health/ready", new HealthCheckOptions
+{
+    Predicate = check => check.Tags.Contains("ready")
+}).AllowAnonymous();
+
 app.MapOpenApi().AllowAnonymous();
 
 app.UseSwagger();
@@ -65,7 +81,10 @@ app.UseSwaggerUI(options =>
 {
     options.SwaggerEndpoint("/openapi/v1.json", "TechChallenge API");
 });
-app.UseHttpsRedirection();
+if (app.Configuration.GetValue("Http:UseHttpsRedirection", true))
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();

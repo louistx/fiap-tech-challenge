@@ -1,0 +1,11 @@
+# Copie para terraform.tfvars somente se precisar alterar os padrões locais.
+postgres_image        = "postgres:17.11-bookworm"
+postgres_storage_size = "2Gi"
+# storage_class_name = "standard"
+
+# Se já houver Metrics Server no cluster, não instale um segundo.
+install_metrics_server = true
+
+# Somente Docker Desktop: necessário no cluster local com certificado sem IP SAN válido.
+# A verificação TLS do provider Kubernetes continua habilitada.
+metrics_server_insecure_tls = true
