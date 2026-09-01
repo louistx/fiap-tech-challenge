@@ -23,7 +23,8 @@ spec:
         fsGroup: 1654
       containers:
         - name: api
-          image: ghcr.io/louistx/fiap-tech-challenge:latest
+          # Tag neutra substituída pela tag imutável de cada overlay Kustomize.
+          image: ghcr.io/louistx/fiap-tech-challenge:0.0.0
           imagePullPolicy: Always
           ports:
             - name: http
