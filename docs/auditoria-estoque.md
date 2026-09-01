@@ -47,7 +47,6 @@ flowchart LR
 
 ## Melhorias futuras
 
-- substituir os demais usos de `GetAwaiter().GetResult()` da solução por `async/await`;
 - modelar um histórico de movimentações para auditoria e idempotência;
 - executar migration e testes de carga/concorrência em PostgreSQL real;
 - tornar baixa de estoque e transição da OS uma única transação explícita;

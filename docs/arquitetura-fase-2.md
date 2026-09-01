@@ -4,7 +4,7 @@
 
 A Fase 2 mantém o back-end como um monólito modular, mas passa a exigir separação clara de responsabilidades, conteinerização reproduzível, execução em Kubernetes, infraestrutura provisionada por Terraform e entrega automatizada.
 
-Esta é a arquitetura-alvo. Componentes marcados como pendentes ainda não devem ser interpretados como ambiente disponível.
+O ambiente de entrega é o cluster local fornecido pelo Docker Desktop. O GitHub Actions valida e publica a imagem, enquanto Terraform e Kustomize concluem o CD na máquina que hospeda esse cluster. Não existe ambiente remoto neste trabalho acadêmico.
 
 ## Componentes da aplicação
 
@@ -39,9 +39,9 @@ flowchart LR
 - Infraestruturas implementam essas portas.
 - `Api` transforma HTTP em comandos/consultas e compõe as dependências.
 
-O repositório já segue parte desse desenho. Identificação, materialização e helpers duplicados foram corrigidos; ainda existem chamadas síncronas sobre APIs assíncronas em casos de uso legados e oportunidades de reduzir acoplamentos. A separação de projetos, isoladamente, não conclui a Clean Architecture.
+O repositório segue esse desenho: identificação, materialização e helpers duplicados foram corrigidos, e o fluxo assíncrono é propagado dos endpoints aos repositórios sem bloqueios por `GetAwaiter().GetResult()`. A separação dos projetos mantém domínio e abstrações independentes dos detalhes de API, autenticação e persistência.
 
-## Infraestrutura-alvo
+## Infraestrutura local
 
 ```mermaid
 flowchart TB
@@ -49,23 +49,26 @@ flowchart TB
     GitHub[GitHub]
     Actions[GitHub Actions]
     Registry[GHCR\nimagem da API]
-    Terraform[Terraform\npendente]
-    Cluster[Kubernetes]
-    Ingress[Service/Ingress]
+    Docker[Docker Desktop\ncluster existente]
+    Terraform[Terraform local]
+    Cluster[Namespace techchallenge]
+    Ingress[Port-forward / Service]
     Deploy[Deployment da API]
     HPA[HPA CPU/memória]
     Config[ConfigMap]
     Secrets[Secret]
-    DB[(PostgreSQL\nno cluster ou gerenciado)]
+    DB[(PostgreSQL 17\nStatefulSet + PVC)]
 
     Dev -->|push/PR| GitHub
     GitHub --> Actions
     Actions -->|build e testes| Actions
     Actions -->|push da imagem| Registry
-    Actions -.->|plan/apply aprovado| Terraform
-    Terraform -.-> Cluster
-    Terraform -.-> DB
-    Actions -.->|Kustomize/kubectl| Cluster
+    Dev -->|plan/apply local| Terraform
+    Docker --> Cluster
+    Terraform --> Cluster
+    Terraform --> DB
+    Terraform --> Secrets
+    Dev -->|Kustomize/kubectl| Cluster
     Registry --> Deploy
     Ingress --> Deploy
     HPA --> Deploy
@@ -74,18 +77,22 @@ flowchart TB
     Deploy --> DB
 ```
 
-### Recursos esperados
+### Responsabilidades
 
 | Camada | Recursos |
 | --- | --- |
 | Aplicação | Deployment, Service, probes, requests/limits e HPA |
 | Configuração | ConfigMap para configurações não sensíveis e Secret para conexão/JWT |
-| Dados | PostgreSQL gerenciado ou StatefulSet, storage persistente, backup e migration controlada |
-| Rede | Service interno e, quando necessário, Ingress com TLS |
+| Dados | Terraform cria PostgreSQL em StatefulSet, Service interno e PVC; a API executa migrations no startup |
+| Rede | Rede fornecida pelo Docker Desktop; Service ClusterIP e acesso local por port-forward |
 | Observabilidade | logs, métricas para HPA e health checks |
-| IaC | providers, cluster, rede, banco, outputs, variáveis e estado remoto do Terraform |
+| IaC | Providers Kubernetes/Helm/Random, namespace, banco, Secrets, Metrics Server, variáveis, outputs e state local |
 
-## Fluxo de deploy proposto
+Terraform e Kustomize não gerenciam o mesmo recurso. O namespace e os Secrets são
+referenciados pelos manifests, sem uma segunda definição em YAML. O guia executável
+está em [Infraestrutura local](../infra/README.md).
+
+## Fluxo de entrega implementado
 
 ```mermaid
 sequenceDiagram
@@ -93,6 +100,7 @@ sequenceDiagram
     participant GH as GitHub
     participant CI as GitHub Actions
     participant REG as GHCR
+    participant LOCAL as Terminal local
     participant TF as Terraform
     participant K8S as Kubernetes
 
@@ -100,81 +108,74 @@ sequenceDiagram
     GH->>CI: dispara validação
     CI->>CI: restore, build e testes
     CI->>REG: build e push da imagem imutável
-    CI->>TF: plan; apply com aprovação do ambiente
-    TF->>K8S: garante cluster e dependências
-    CI->>K8S: aplica manifests/Kustomize com tag do commit
+    LOCAL->>TF: plan; apply das dependências locais
+    TF->>K8S: prepara dependências no cluster existente
+    LOCAL->>K8S: aplica Kustomize com a tag do commit
     K8S->>K8S: rollout, probes e HPA
-    CI->>CI: smoke test e registro da entrega
+    LOCAL->>K8S: valida rollout e smoke test
 ```
 
-Gates mínimos: nenhum deploy quando build/testes falharem; `terraform plan` revisado antes de `apply`; segredos fora do Git; imagem identificada pelo SHA; rollout validado antes de promover o ambiente.
+Gates do fluxo: nenhuma imagem é publicada quando build/testes falharem; `terraform plan` é revisado antes de `apply`; segredos ficam fora do Git; a imagem é identificada pelo SHA; e o rollout local é validado após o apply.
 
-## Estado atual dos manifestos Kubernetes
+Esse é o fluxo de CI/CD do projeto: CI automatizada até a publicação no GHCR e CD
+reproduzível no ambiente Kubernetes local. A separação é necessária porque o
+cluster Docker Desktop pertence à máquina de demonstração, não a um ambiente
+remoto acessível pelo runner hospedado.
 
-A base pode ser renderizada com:
+## Manifests Kubernetes
+
+Os manifests reutilizáveis da API ficam em `k8s/base/`, incluindo um ConfigMap
+vazio. O único overlay `k8s/overlays/docker-local/` preenche o ConfigMap por patch
+e define o HPA desse ambiente. Para renderizar:
 
 ```bash
 kubectl kustomize k8s/base
-```
-
-Isso confirma apenas a sintaxe e a composição. O Service atual possui selector diferente dos labels do Deployment, portanto não encaminhará tráfego aos pods.
-
-O overlay local ainda não é aplicável:
-
-```bash
 kubectl kustomize k8s/overlays/docker-local
 ```
 
-Ele referencia `namespace.yaml`, que não existe, e deve ser completado antes do uso. ConfigMap, Secret, HPA, banco, probes e recursos de CPU/memória também não existem.
+O selector do Service foi alinhado aos pods. A API possui ConfigMap, referências a
+Secret, startup/readiness/liveness probes e requests/limits. O HPA controla 1 a 3
+réplicas por CPU. A API aplica migrations e seed antes de servir HTTP. Falhas de
+inicialização encerram o processo, que o Kubernetes reinicia. Não há Job nem
+etapas separadas de deploy. A renderização não substitui testes no cluster.
 
-Quando essas pendências forem corrigidas, a sequência esperada será:
+Após provisionar as dependências, aplique o overlay e verifique os recursos:
 
 ```bash
-kubectl apply -k k8s/overlays/docker-local
-kubectl rollout status deployment/fiap-tech-challenge-api-local
-kubectl get pods,service,hpa -n techchallenge
+kubectl --context=docker-desktop apply -k k8s/overlays/docker-local
+kubectl --context=docker-desktop -n techchallenge get pods,service,hpa
 ```
 
-Os nomes e o namespace acima precisam ser alinhados aos manifests finais; os comandos representam o procedimento-alvo, não uma implantação atualmente funcional.
-
-## Provisionamento futuro com Terraform
-
-O diretório `/infra` ainda não existe. Uma estrutura mínima recomendada é:
+## Terraform local
 
 ```text
 infra/
-├── modules/
-│   ├── network/
-│   ├── kubernetes/
-│   └── database/
 ├── environments/
-│   ├── dev/
-│   └── prod/
-├── versions.tf
+│   └── local/       # .tf, lockfile e testes mockados
 └── README.md
 ```
 
-Quando implementado, o fluxo documentado deverá ser:
+O fluxo de provisionamento é:
 
 ```bash
-terraform -chdir=infra/environments/dev init
-terraform -chdir=infra/environments/dev fmt -check
-terraform -chdir=infra/environments/dev validate
-terraform -chdir=infra/environments/dev plan -out=tfplan
-terraform -chdir=infra/environments/dev apply tfplan
+terraform -chdir=infra/environments/local init
+terraform -chdir=infra/environments/local validate
+terraform -chdir=infra/environments/local test
+terraform -chdir=infra/environments/local plan -out=local.tfplan
+terraform -chdir=infra/environments/local apply local.tfplan
 ```
 
-Antes de aplicar, é obrigatório definir o provedor e a estratégia de cluster local/cloud, banco, rede, estado remoto, locking, credenciais e política de destruição. Nenhum desses comandos funcionará até que os arquivos Terraform sejam criados.
+Leia o [guia](../infra/README.md) antes de aplicar: ele explica a configuração do
+Metrics Server no Docker Desktop, o state local sensível, as credenciais geradas,
+backup e proteção de namespace/PVC contra destruição. Não há ambiente de nuvem,
+módulos de rede ou backend remoto nesta implementação.
 
-## Decisões pendentes
+## Evoluções para um eventual ambiente compartilhado
 
-- provedor do cluster e do PostgreSQL;
-- Ingress e terminação TLS;
-- gerenciamento de segredos;
-- estratégia de migration sem execução concorrente em múltiplos pods;
-- métricas e limites que alimentarão o HPA;
+- backend remoto e locking, se houver ambiente compartilhado;
+- Ingress, TLS e credenciais adequadas, se houver exposição pública;
 - ambientes, aprovações e política de promoção;
 - canal externo para decisão do orçamento e notificação de status;
-- recuperação, backup e observabilidade.
+- automatização de backup e observabilidade além dos testes locais documentados.
 
 O acompanhamento item a item está no [Checklist de Entregáveis](fase-2-entregaveis.md).

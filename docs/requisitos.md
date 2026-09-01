@@ -148,9 +148,9 @@ Este documento reúne as regras funcionais da Fase 1 e as evoluções obrigatór
 
 - arquitetura em camadas com dependências orientadas ao domínio;
 - build e execução reproduzíveis por Docker;
-- Deployment, Service, ConfigMap, Secret e HPA em `/k8s`;
-- cluster e banco provisionados por Terraform em `/infra`;
-- pipeline com build, testes, imagem, infraestrutura e deploy;
+- Deployment, Service, ConfigMap e HPA em `/k8s`, com migrations executadas pela API e Secrets fornecidos pelo Terraform;
+- recursos e banco provisionados por Terraform em `/infra`, usando o cluster existente do Docker Desktop no escopo local;
+- fluxo de CI/CD com build, testes e imagem no GitHub Actions, seguido de infraestrutura e deploy no Kubernetes local;
 - documentação da arquitetura, execução local, Kubernetes, Terraform, APIs e vídeo.
 
 A implementação detalhada e as lacunas estão no [Checklist de Entregáveis da Fase 2](fase-2-entregaveis.md).

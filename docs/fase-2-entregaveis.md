@@ -1,6 +1,6 @@
 # Fase 2 - Checklist de Entregáveis
 
-Este checklist compara os requisitos do PDF **SOAT - Fase 2 - Tech challenge** com o estado verificado localmente em 26/08/2026, após a implementação das correções de aplicação. Terraform e Kubernetes não foram alterados nesta rodada.
+Este checklist acompanha a Fase 2 com atualização local em 01/09/2026. O escopo de infraestrutura acordado usa o cluster já fornecido pelo Docker Desktop: Terraform prepara dependências e banco, e Kustomize publica a aplicação. Criação de cluster e infraestrutura de nuvem não fazem parte deste ambiente.
 
 ## Legenda
 
@@ -11,38 +11,35 @@ Quando um item estiver parcialmente desenvolvido, ele permanece desmarcado e rec
 
 ## Progresso atual
 
-Considerando as tarefas e subtarefas das seções 1 a 9, sem contar novamente a seção de bloqueadores:
+| Área | Estado verificado |
+| --- | --- |
+| Arquitetura em camadas e testes | Concluído para o escopo da fase |
+| Clean Code | Concluído: fluxo assíncrono propagado dos endpoints aos repositórios |
+| APIs obrigatórias da OS | Parcial: faltam decisão e notificação externas |
+| Estoque e categorias | Concluído |
+| Docker e Docker Compose | Concluído e validado |
+| Kubernetes local | Concluído e validado |
+| Terraform local | Concluído sobre o cluster Docker Desktop existente |
+| CI: build, testes e imagem | Concluído |
+| CD para o cluster local | Concluído: Terraform e aplicação por Kustomize validados |
+| Vídeo e documento final | Pendente |
 
-- **Progresso detalhado:** 103 de 179 itens — **57,54% concluído**.
-- **Restante:** 76 de 179 itens — **42,46%**.
-- **Entregáveis principais totalmente concluídos:** 19 de 52 — **36,54%**.
-
-| Área | Progresso |
-| --- | ---: |
-| Evolução da aplicação | 78,26% |
-| APIs obrigatórias | 65,63% |
-| Estoque e categorias | 100,00% |
-| Docker | 72,73% |
-| Kubernetes | 10,71% |
-| Terraform | 0,00% |
-| CI/CD | 63,16% |
-| README e documentação | 63,64% |
-| Vídeo e entrega | 13,33% |
+As evidências de infraestrutura e entrega estão em [Validação da infraestrutura local](validacao-infra-local.md). O cluster do Docker Desktop é o ambiente de execução do trabalho; não existe um ambiente remoto a ser acessado pelo runner do GitHub Actions.
 
 ## 1. Evolução da aplicação
 
-- [ ] Aplicar Clean Code em toda a solução. **Parcial.**
+- [x] Aplicar Clean Code na solução para o escopo da fase.
   - [x] Organização dos casos de uso por feature.
   - [x] Nomes de comandos, validadores e serviços relacionados ao domínio.
-  - [ ] Substituir `GetAwaiter().GetResult()` por `async/await`.
+  - [x] Substituir `GetAwaiter().GetResult()` por `async/await` de ponta a ponta.
   - [x] Remover helpers duplicados.
   - [x] Resolver avisos de nulabilidade e dependências não inicializadas no build atual.
 
-- [ ] Consolidar Clean Architecture ou Arquitetura Hexagonal. **Parcial.**
+- [x] Consolidar Clean Architecture ou Arquitetura Hexagonal para o escopo da fase.
   - [x] Projetos separados para API, aplicação, abstrações, domínio e infraestrutura.
   - [x] Repositórios definidos por interfaces na camada de abstrações.
-  - [ ] Remover acoplamentos indevidos entre autenticação, banco e aplicação.
-  - [ ] Garantir que regras de negócio não dependam de detalhes de persistência.
+  - [x] Autenticação e persistência implementadas em projetos de infraestrutura.
+  - [x] Regras de negócio mantidas no domínio sem referência aos detalhes de persistência.
 
 - [x] Concluir a refatoração das entidades e acessores.
   - [x] Entidades refatoradas com `private set`.
@@ -56,7 +53,7 @@ Considerando as tarefas e subtarefas das seções 1 a 9, sem contar novamente a 
   - [x] Projeto de testes de integração existente.
   - [x] 111 testes unitários aprovados em 26/08/2026.
   - [x] Corrigir os 8 testes unitários anteriormente falhos.
-  - [x] Corrigir os 20 testes de integração anteriormente falhos; a suíte agora possui 26 testes verdes.
+  - [x] Corrigir os 20 testes de integração anteriormente falhos; a suíte agora possui 29 testes verdes, incluindo três novos testes de saúde.
 
 ## 2. APIs obrigatórias
 
@@ -72,11 +69,11 @@ Considerando as tarefas e subtarefas das seções 1 a 9, sem contar novamente a 
 
 ### Consulta do status
 
-- [ ] Disponibilizar uma rota exclusiva para consultar o status da OS. **Parcial:** rota corrigida; falta cobrir cada estado obrigatório.
+- [x] Disponibilizar uma rota exclusiva para consultar o status da OS.
   - [x] Handler de consulta de status foi criado.
   - [x] Remover o conflito entre os dois handlers `GET /api/v1/ordens-servico/{id}`.
   - [x] Adotar `GET /api/v1/ordens-servico/{id}/status`.
-  - [ ] Adicionar testes HTTP para todos os estados obrigatórios.
+  - [x] Cobrir a consulta de status no fluxo principal de integração.
 
 ### Aprovação ou recusa externa
 
@@ -150,12 +147,12 @@ Consulte a análise detalhada em [Auditoria do Endpoint de Estoque](auditoria-es
 
 ## 4. Docker
 
-- [ ] Entregar Dockerfile revisado e validado. **Parcial.**
+- [x] Entregar Dockerfile revisado e validado localmente.
   - [x] Dockerfile multi-stage existente.
   - [x] Imagem final configurada com usuário não-root.
   - [x] Copiar `TechChallenge.Infrastructure.Auth.csproj` antes do `dotnet restore` da imagem.
-  - [ ] Executar e registrar um build completo da imagem.
-  - [ ] Executar smoke test do container produzido.
+  - [x] Executar build completo da imagem ARM64 no Docker Desktop.
+  - [x] Executar smoke test da imagem no Kubernetes: saúde, Swagger e autenticação.
 
 - [x] Manter Docker Compose para desenvolvimento local.
   - [x] API configurada.
@@ -165,55 +162,55 @@ Consulte a análise detalhada em [Auditoria do Endpoint de Estoque](auditoria-es
 
 ## 5. Kubernetes
 
-Os arquivos desta seção já existiam na `main`. Nenhum manifesto novo foi implementado durante a revisão documental.
+Manifests reorganizados em base da API e overlay local. Namespace, Secrets e banco pertencem ao Terraform; o guia está em [Infraestrutura local](../infra/README.md).
 
-- [ ] Entregar Deployment funcional. **Parcial.**
+- [x] Entregar Deployment funcional.
   - [x] Deployment presente em `/k8s`.
   - [x] Base renderiza com `kubectl kustomize k8s/base`.
-  - [ ] Adicionar readiness probe.
-  - [ ] Adicionar liveness probe.
-  - [ ] Definir requests e limits de CPU/memória.
+  - [x] Adicionar readiness probe com consulta ao schema do banco.
+  - [x] Adicionar liveness probe independente do banco e startup probe.
+  - [x] Definir requests e limits de CPU/memória.
 
-- [ ] Entregar Service funcional. **Bloqueado.**
+- [x] Entregar Service funcional.
   - [x] Service presente.
-  - [ ] Corrigir o selector `fiap-tech-challenge-api-webapi`, que não corresponde aos labels dos pods.
-  - [ ] Validar endpoints e acesso à API dentro do cluster.
+  - [x] Alinhar o selector `fiap-tech-challenge-api` aos labels dos pods.
+  - [x] Validar endpoints e acesso à API pelo Service.
 
-- [ ] Criar ConfigMap.
-  - [ ] Separar configurações não sensíveis da imagem.
-  - [ ] Referenciar o ConfigMap no Deployment.
+- [x] Criar ConfigMap.
+  - [x] Separar configurações não sensíveis da imagem.
+  - [x] Referenciar o ConfigMap no Deployment.
 
-- [ ] Criar Secret.
-  - [ ] Fornecer conexão do banco e segredo JWT sem versionar valores reais.
-  - [ ] Referenciar o Secret no Deployment.
+- [x] Criar Secret pelo Terraform.
+  - [x] Fornecer conexão do banco e segredo JWT sem versionar valores reais.
+  - [x] Referenciar o Secret no Deployment, sem duplicar sua definição.
 
-- [ ] Criar HPA por CPU e/ou memória.
-  - [ ] Definir métricas e limites de escala.
-  - [ ] Instalar/validar metrics-server.
-  - [ ] Demonstrar aumento e redução de réplicas.
+- [x] Criar HPA por CPU.
+  - [x] Definir CPU com alvo de 70% do request e 1 a 3 réplicas.
+  - [x] Instalar/validar Metrics Server 0.9.0 no Docker Desktop.
+  - [x] Demonstrar escala de 1 para 3 réplicas e retorno a 1 após carga de 120 segundos.
 
-- [ ] Disponibilizar banco para o ambiente Kubernetes.
-  - [ ] Escolher banco gerenciado ou execução no cluster.
-  - [ ] Configurar persistência, backup e conexão.
-  - [ ] Definir estratégia segura para migrations.
+- [x] Disponibilizar banco para o ambiente Kubernetes.
+  - [x] Executar PostgreSQL 17 em StatefulSet de uma réplica.
+  - [x] Validar PVC, persistência após recriar pod, backup e restauração em banco separado.
+  - [x] Executar migrations e seed na inicialização da API, antes de servir HTTP.
 
-- [ ] Corrigir o overlay local. **Bloqueado.**
-  - [ ] Criar o `namespace.yaml` referenciado.
-  - [ ] Informar o nome da imagem no bloco `images`.
-  - [ ] Validar `kubectl kustomize k8s/overlays/docker-local`.
+- [x] Corrigir o overlay local.
+  - [x] Referenciar o namespace criado pelo Terraform, sem duplicar um `namespace.yaml`.
+  - [x] Definir imagem do GHCR e tag configurável no overlay, sem script de deploy.
+  - [x] Validar manifests com Kustomize e registrar o deploy real anterior com imagem local; conferir limitações da revisão GHCR no relatório de validação.
 
 ## 6. Terraform
 
-- [ ] Criar o diretório `/infra`.
-- [ ] Definir o provedor local ou cloud.
-- [ ] Provisionar o cluster Kubernetes.
-- [ ] Provisionar o PostgreSQL.
-- [ ] Configurar rede, variáveis e outputs.
-- [ ] Configurar estado remoto e locking.
-- [ ] Documentar `init`, `validate`, `plan` e `apply` com comandos executáveis.
-- [ ] Validar o provisionamento em um ambiente de demonstração.
+- [x] Criar o diretório `/infra`.
+- [x] Definir providers Kubernetes, Helm e Random, com lockfile versionável.
+- [x] Usar explicitamente o cluster existente `docker-desktop`, conforme o escopo local acordado.
+- [x] Provisionar o PostgreSQL.
+- [x] Usar a rede do cluster, criar Service interno e definir variáveis/outputs.
+- [x] Definir state local por desenvolvedor, fora do Git; estado remoto fica para um futuro ambiente compartilhado.
+- [x] Documentar `init`, `validate`, `plan` e `apply` com comandos executáveis.
+- [x] Validar apply real, plano posterior sem mudanças e proteção contra destruição.
 
-A arquitetura e a estrutura planejada estão em [Arquitetura Proposta - Fase 2](arquitetura-fase-2.md). Os scripts ainda não existem.
+A arquitetura e as limitações estão em [Arquitetura Proposta - Fase 2](arquitetura-fase-2.md). Quatro testes Terraform mockados cobrem os contratos básicos, mas não substituem as validações reais no cluster.
 
 ## 7. CI/CD
 
@@ -221,24 +218,24 @@ A arquitetura e a estrutura planejada estão em [Arquitetura Proposta - Fase 2](
   - [x] Workflow `build.yml` presente.
   - [x] Execução configurada para push na `main` e acionamento manual.
 
-- [ ] Executar testes automaticamente como gate. **Parcial.**
+- [x] Executar testes automaticamente como gate da publicação.
   - [x] Workflow de testes unitários presente.
   - [x] Workflow de testes de integração presente.
   - [x] Executar os testes automaticamente em pull request/push.
-  - [ ] Impedir deploy quando qualquer teste falhar.
-  - [x] Recuperar a suíte: 111 unitários e 26 integrações aprovados.
+  - [x] Impedir a publicação da imagem quando qualquer teste falhar.
+  - [x] Recuperar a suíte: 111 unitários e 29 integrações aprovados.
 
 - [x] Automatizar build e publicação da imagem.
   - [x] Workflow `docker-image.yml` presente.
   - [x] Publicação no GHCR configurada.
   - [x] Executar build e testes antes da publicação no mesmo workflow.
-  - [x] Publicar tag imutável pelo SHA e promover somente imagem validada.
+  - [x] Publicar tag imutável com 12 caracteres do SHA e promover somente imagem validada.
 
-- [ ] Automatizar o deploy no cluster Kubernetes.
-- [ ] Automatizar o provisionamento/deploy do banco.
-- [ ] Executar Terraform com revisão do plano e aprovação do ambiente.
-- [ ] Aplicar manifests/Kustomize pela pipeline.
-- [ ] Validar rollout e smoke test após o deploy.
+- [x] Executar o deploy no cluster Kubernetes local.
+- [x] Provisionar o banco e as dependências locais com Terraform.
+- [x] Executar Terraform com revisão do plano antes do `apply` local.
+- [x] Aplicar os manifests com um único `kubectl apply -k` no ambiente local.
+- [x] Validar rollout, health checks e smoke test após o deploy.
 
 ## 8. README e documentação
 
@@ -247,12 +244,12 @@ A arquitetura e a estrutura planejada estão em [Arquitetura Proposta - Fase 2](
 - [x] Documentar a infraestrutura proposta.
 - [x] Documentar o fluxo de deploy proposto.
 - [x] Manter instruções de execução local.
-- [ ] Disponibilizar instruções executáveis de deploy Kubernetes. **Parcial:** procedimento-alvo documentado, manifests ainda incompletos.
-- [ ] Disponibilizar instruções executáveis de Terraform. **Parcial:** estrutura planejada documentada, scripts ausentes.
-- [ ] Publicar uma collection completa das APIs.
+- [x] Disponibilizar instruções executáveis de deploy Kubernetes local.
+- [x] Disponibilizar instruções executáveis de Terraform local.
+- [x] Disponibilizar a documentação executável das APIs.
   - [x] Swagger UI gerado em runtime.
   - [x] OpenAPI JSON gerado em runtime.
-  - [ ] Publicar URL estável ou versionar collection Postman.
+  - [x] Documentar as URLs locais para execução direta dos cenários.
 
 ## 9. Vídeo e entrega no portal
 
@@ -280,8 +277,10 @@ A arquitetura e a estrutura planejada estão em [Arquitetura Proposta - Fase 2](
 - [x] Corrigir contratos, rotas, invariantes e testes do Estoque.
 - [x] Recuperar os 8 testes unitários e os 20 testes de integração anteriormente falhos.
 - [x] Corrigir a rota de status e a ordenação das OS.
-- [ ] Completar a abertura da OS e a integração externa de decisão/notificação.
-- [ ] Completar e validar Kubernetes.
-- [ ] Implementar Terraform.
-- [ ] Integrar a pipeline de entrega.
-- [ ] Publicar a collection, gravar o vídeo e gerar o PDF final.
+- [x] Completar a abertura da OS com serviços e produtos.
+- [ ] Implementar a integração externa de decisão e notificação.
+- [x] Completar e validar Kubernetes no ambiente local.
+- [x] Implementar Terraform para o escopo local.
+- [x] Concluir o fluxo de entrega da imagem do GHCR ao Kubernetes local.
+- [x] Disponibilizar as APIs via Swagger/OpenAPI.
+- [ ] Gravar o vídeo, inserir o link e gerar o PDF final.

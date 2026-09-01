@@ -5,6 +5,7 @@
 @mecanicoId = aaaaaaaa-0000-0000-0000-000000000005
 @veiculoId = aaaaaaaa-0000-0000-0000-000000000008
 @servicoRevisaoId = aaaaaaaa-0000-0000-0000-000000000009
+@servicoDiagnosticoId = aaaaaaaa-0000-0000-0000-000000000010
 @produtoFiltroId = aaaaaaaa-0000-0000-0000-000000000011
 
 ### 1. Criar OS como vendedor
@@ -18,33 +19,7 @@ Content-Type: application/json
   "descricao": "Cliente relata barulho no motor e solicita revisão demo",
   "clienteResponsavelId": "{{clienteId}}",
   "funcionarioResponsavelId": "{{vendedorId}}",
-  "veiculoId": "{{veiculoId}}"
-}
-
-> {%
-client.global.set("osCompletaId", response.body);
-%}
-
-### 2. Consultar OS recebida
-GET {{baseUrl}}/api/v1/ordens-servico/{{osCompletaId}}
-Authorization: Bearer {{vendedorToken}}
-Accept: application/json
-
-### 3. Atribuir OS ao mecanico
-PATCH {{baseUrl}}/api/v1/ordens-servico/{{osCompletaId}}/atribuir
-Authorization: Bearer {{mecanicoToken}}
-Content-Type: application/json
-
-{
-  "mecanicoId": "{{mecanicoId}}"
-}
-
-### 4. Registrar diagnostico com servico e produto em estoque
-PATCH {{baseUrl}}/api/v1/ordens-servico/{{osCompletaId}}/diagnostico
-Authorization: Bearer {{mecanicoToken}}
-Content-Type: application/json
-
-{
+  "veiculoId": "{{veiculoId}}",
   "servicos": [
     {
       "id": "{{servicoRevisaoId}}",
@@ -59,30 +34,68 @@ Content-Type: application/json
   ]
 }
 
-### 5. Enviar orcamento
+> {%
+client.global.set("osCompletaId", response.body);
+%}
+
+### 2. Consultar status exclusivo da OS recebida
+GET {{baseUrl}}/api/v1/ordens-servico/{{osCompletaId}}/status
+Authorization: Bearer {{vendedorToken}}
+Accept: application/json
+
+### 3. Consultar OS recebida
+GET {{baseUrl}}/api/v1/ordens-servico/{{osCompletaId}}
+Authorization: Bearer {{vendedorToken}}
+Accept: application/json
+
+### 4. Atribuir OS ao mecanico
+PATCH {{baseUrl}}/api/v1/ordens-servico/{{osCompletaId}}/atribuir
+Authorization: Bearer {{mecanicoToken}}
+Content-Type: application/json
+
+{
+  "mecanicoId": "{{mecanicoId}}"
+}
+
+### 5. Registrar diagnostico complementar
+PATCH {{baseUrl}}/api/v1/ordens-servico/{{osCompletaId}}/diagnostico
+Authorization: Bearer {{mecanicoToken}}
+Content-Type: application/json
+
+{
+  "servicos": [
+    {
+      "id": "{{servicoDiagnosticoId}}",
+      "quantidade": 1
+    }
+  ],
+  "produtos": []
+}
+
+### 6. Enviar orcamento
 PATCH {{baseUrl}}/api/v1/ordens-servico/{{osCompletaId}}/orcamento/enviar
 Authorization: Bearer {{mecanicoToken}}
 
-### 6. Aprovar orcamento
+### 7. Aprovar orcamento
 PATCH {{baseUrl}}/api/v1/ordens-servico/{{osCompletaId}}/aprovar
 Authorization: Bearer {{vendedorToken}}
 
-### 7. Finalizar OS
+### 8. Finalizar OS
 # Baixa 2 unidades do produto "Filtro de oleo demo".
 PATCH {{baseUrl}}/api/v1/ordens-servico/{{osCompletaId}}/finalizar
 Authorization: Bearer {{mecanicoToken}}
 
-### 8. Entregar OS
+### 9. Entregar OS
 PATCH {{baseUrl}}/api/v1/ordens-servico/{{osCompletaId}}/entregar
 Authorization: Bearer {{vendedorToken}}
 
-### 9. Consultar OS entregue
+### 10. Consultar OS entregue
 # Copie o campo codigoAcompanhamento para o arquivo 04.
 GET {{baseUrl}}/api/v1/ordens-servico/{{osCompletaId}}
 Authorization: Bearer {{vendedorToken}}
 Accept: application/json
 
-### 10. Conferir inventario apos baixa
+### 11. Conferir inventario apos baixa
 GET {{baseUrl}}/api/v1/produtos
 Authorization: Bearer {{vendedorToken}}
 Accept: application/json

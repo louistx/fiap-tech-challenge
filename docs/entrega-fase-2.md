@@ -19,7 +19,7 @@
 | Repositório | [github.com/louistx/fiap-tech-challenge](https://github.com/louistx/fiap-tech-challenge) |
 | Documentação | [Índice](README.md) |
 | Arquitetura | [Arquitetura Proposta - Fase 2](arquitetura-fase-2.md) |
-| APIs | Swagger/OpenAPI em runtime; URL pública ou collection versionada pendente |
+| APIs | Swagger/OpenAPI em runtime, com URLs e cenários documentados no repositório |
 | Vídeo de até 15 minutos | **PENDENTE - inserir URL pública ou não listada do YouTube/Vimeo** |
 | Compartilhamento com `soat-architecture` | **PENDENTE - confirmar na configuração do GitHub** |
 
@@ -34,8 +34,9 @@ flowchart LR
     DBADAPTER[EF Core/Repositórios] --> PORTS
     DBADAPTER --> PG[(PostgreSQL)]
     CICD[GitHub Actions] --> REG[GHCR]
-    CICD -.-> TF[Terraform pendente]
-    CICD -.-> K8S[Kubernetes parcial]
+    DEV[Terminal local] --> TF[Terraform local]
+    DEV --> K8S[Kubernetes Docker Desktop]
+    TF --> PG
     REG --> K8S
     K8S --> PG
 ```
@@ -46,16 +47,16 @@ A descrição completa de componentes, recursos e fluxo de deploy está em [Arqu
 
 A solução mantém o monólito modular da Fase 1 e separa API, aplicação, domínio, contratos e infraestrutura. PostgreSQL é usado para persistência; Docker e Docker Compose suportam o desenvolvimento local. A Fase 2 propõe execução em Kubernetes, escalabilidade via HPA, infraestrutura Terraform e entrega por GitHub Actions.
 
-No estado validado em 26/08/2026, Estoque/Categorias e as principais correções das APIs da Fase 2 estão operacionais, com build sem avisos, 111 testes unitários e 26 integrações aprovados. A entrega ainda não está pronta porque Kubernetes está incompleto, Terraform não existe, callback/notificação externos não foram implementados e o deploy não foi integrado à pipeline.
+Em 01/09/2026, o build está sem avisos, com 111 testes unitários, 29 integrações e quatro testes Terraform aprovados. A infraestrutura e o CD foram validados no cluster do Docker Desktop, que é o ambiente de execução deste trabalho acadêmico. O GitHub Actions publica a imagem validada no GHCR; Terraform e Kustomize concluem a entrega localmente. Vídeo, link e PDF final ainda precisam ser produzidos. O guia local está em [Infraestrutura](../infra/README.md).
 
 ## Checklist antes de exportar o PDF
 
 - [ ] Todos os bloqueadores do [Checklist de Entregáveis](fase-2-entregaveis.md) foram resolvidos.
 - [x] Build, testes unitários e testes de integração estão verdes na validação local.
-- [ ] A URL/collection das APIs foi publicada e validada.
-- [ ] Kubernetes e HPA foram demonstrados em ambiente funcional.
-- [ ] Terraform provisionou cluster e banco conforme a documentação.
-- [ ] CI/CD executou build, testes, imagem, infraestrutura e deploy.
+- [x] Swagger/OpenAPI e os cenários HTTP das APIs foram documentados e validados localmente.
+- [x] Kubernetes e HPA foram validados localmente, com escala de 1 para 3 e retorno a 1 réplica.
+- [x] Terraform provisionou recursos e banco no cluster local existente, conforme o escopo documentado.
+- [x] CI/CD executou build, testes e imagem, seguido da entrega no Kubernetes local.
 - [ ] O vídeo foi publicado e o link substituiu o placeholder.
 - [ ] O repositório foi compartilhado com `soat-architecture`.
 - [ ] O desenho final corresponde exatamente aos recursos utilizados.

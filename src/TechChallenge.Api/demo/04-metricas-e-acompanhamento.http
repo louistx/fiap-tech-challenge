@@ -1,6 +1,6 @@
 @baseUrl = http://localhost:8080
 
-# Preencha apos executar o passo 9 do arquivo 02.
+# Preencha apos executar o passo 10 do arquivo 02.
 @codigoAcompanhamento = cole-o-codigo-aqui
 
 ### Acompanhamento publico da OS
@@ -12,7 +12,7 @@ GET {{baseUrl}}/api/v1/ordens-servico/tempo-medio-execucao
 Authorization: Bearer {{vendedorToken}}
 Accept: application/json
 
-### Lista de OS
-GET {{baseUrl}}/api/v1/ordens-servico
+### Fila operacional priorizada da oficina
+GET {{baseUrl}}/api/v1/ordens-servico/oficina
 Authorization: Bearer {{vendedorToken}}
 Accept: application/json

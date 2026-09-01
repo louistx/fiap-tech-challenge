@@ -4,6 +4,9 @@
 
 - [Checklist de entregáveis e progresso](fase-2-entregaveis.md)
 - [Arquitetura proposta, infraestrutura e fluxo de deploy](arquitetura-fase-2.md)
+- [Terraform e execução no Kubernetes local](../infra/README.md)
+- [Organização dos manifests e migrations](../k8s/README.md)
+- [Evidências de validação da infraestrutura local](validacao-infra-local.md)
 - [Auditoria do endpoint de Estoque, entidades e validações](auditoria-estoque.md)
 - [Fonte do documento final de entrega](entrega-fase-2.md)
 - [Roteiro do vídeo demonstrativo](roteiro-video-fase-2.md)
@@ -22,4 +25,4 @@
 
 ## Estado da revisão
 
-A documentação foi revisada em 26/08/2026 contra os PDFs das fases 1 e 2 e a implementação local validada. Os documentos diferenciam requisito, implementação existente e pendência. Kubernetes e Terraform continuam apenas documentados nesta rodada.
+A documentação funcional foi revisada em 01/09/2026. Terraform e o deploy Kubernetes foram implementados e validados no cluster do Docker Desktop, que é o ambiente de entrega do trabalho. O GitHub Actions publica a imagem no GHCR e a etapa local de CD usa Terraform e Kustomize.

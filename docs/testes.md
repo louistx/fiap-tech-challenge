@@ -4,9 +4,9 @@
 
 O projeto utiliza testes automatizados para validar as regras de domínio, os serviços de aplicação, a segurança e o comportamento HTTP da API. A suíte é dividida entre testes unitários e testes de integração.
 
-No levantamento atual, existem 111 testes unitários e 26 testes de integração.
+No levantamento atual, existem 111 testes unitários, 29 testes de integração e quatro testes Terraform.
 
-> **Resultado verificado em 26/08/2026:** o build concluiu sem avisos; os 111 testes unitários e os 26 testes de integração passaram.
+> **Resultado verificado em 27/08/2026:** o build concluiu sem avisos; os 111 testes unitários, 29 testes de integração e quatro testes Terraform passaram.
 
 ## Organização
 
@@ -105,6 +105,26 @@ Os fluxos atualmente cobertos incluem:
 
 As categorias são exercitadas pelos fluxos de produto, serviço, veículo e OS. O Estoque possui testes unitários e de integração específicos.
 
+### Saúde e infraestrutura local
+
+Três testes HTTP verificam acesso anônimo a `/health/live` e `/health/ready` e que
+uma dependência indisponível retorna 503 no readiness sem afetar o liveness. Esses
+testes utilizam o esquema JWT real sem fornecer token, em vez da autenticação fictícia.
+
+```bash
+terraform -chdir=infra/environments/local init
+terraform -chdir=infra/environments/local fmt -check -recursive
+terraform -chdir=infra/environments/local validate
+terraform -chdir=infra/environments/local test
+kubectl kustomize k8s/base
+kubectl kustomize k8s/overlays/docker-local
+kubectl kustomize k8s/tests
+```
+
+Esses comandos validam Terraform, quatro cenários com providers mockados e a
+renderização Kustomize sem acessar o cluster. A execução real da imagem,
+migrations no startup, API, volume e métricas segue o [guia local](../infra/README.md).
+
 ## Como executar
 
 Para executar toda a suíte a partir da raiz do repositório:
@@ -163,7 +183,7 @@ O repositório possui workflows separados para testes unitários e de integraç�
 - `.github/workflows/unit-tests.yml`;
 - `.github/workflows/integration-tests.yml`.
 
-Ambos executam em `push` e `pull_request` para a branch `main`, além do acionamento manual. O workflow de imagem executa restore, build e as duas suítes antes de publicar `latest` e a tag imutável do SHA no GHCR. O deploy no cluster ainda não está implementado.
+Ambos executam em `push` e `pull_request` para a branch `main`, além do acionamento manual. O workflow de imagem executa restore, build e as duas suítes antes de publicar `latest` e uma tag imutável com os 12 primeiros caracteres do SHA no GHCR. O SHA completo permanece no rótulo OCI da imagem. O deploy no cluster ainda não está implementado.
 
 ## Regressões corrigidas na auditoria
 

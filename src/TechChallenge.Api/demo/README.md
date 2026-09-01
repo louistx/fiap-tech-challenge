@@ -49,4 +49,4 @@ Todos usam senha `Demo@123`.
 - `03-os-alerta-estoque.http`: força falta de estoque e gera alertas via logger.
 - `04-metricas-e-acompanhamento.http`: consulta acompanhamento publico e metricas.
 
-No fluxo completo, copie o `codigoAcompanhamento` retornado no `GET` da OS para a variavel `codigoAcompanhamento` no arquivo `04`.
+No fluxo completo, copie o `codigoAcompanhamento` retornado no passo 10 para a variavel `codigoAcompanhamento` no arquivo `04`.
