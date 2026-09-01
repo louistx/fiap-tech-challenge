@@ -68,6 +68,7 @@ jobs:
           context: .
           file: src/TechChallenge.Api/Dockerfile
           platforms: linux/amd64
+          provenance: false
           push: true
           tags: |
             ${{ env.IMAGE_NAME }}:latest
