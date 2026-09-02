@@ -22,7 +22,7 @@ Quando um item estiver parcialmente desenvolvido, ele permanece desmarcado e rec
 | Terraform local | Concluído sobre o cluster Docker Desktop existente |
 | CI: build, testes e imagem | Concluído |
 | CD para o cluster local | Concluído: Terraform e aplicação por Kustomize validados |
-| Vídeo e documento final | Pendente |
+| Vídeo e documento final | Concluído e revisado |
 
 As evidências de infraestrutura e entrega estão em [Validação da infraestrutura local](validacao-infra-local.md). O cluster do Docker Desktop é o ambiente de execução do trabalho; não existe um ambiente remoto a ser acessado pelo runner do GitHub Actions.
 
@@ -258,20 +258,20 @@ A arquitetura e as limitações estão em [Arquitetura Proposta - Fase 2](arquit
 ## 9. Vídeo e entrega no portal
 
 - [x] Preparar o [Roteiro do Vídeo da Fase 2](roteiro-video-fase-2.md).
-- [ ] Gravar vídeo de até 15 minutos.
-  - [ ] Demonstrar deploy da aplicação.
-  - [ ] Demonstrar execução do CI/CD.
-  - [ ] Demonstrar consumo das APIs.
-  - [ ] Demonstrar escalabilidade automática com HPA.
-  - [ ] Publicar no YouTube ou Vimeo como público ou não listado.
-  - [ ] Inserir o link no README e no documento final.
+- [x] Gravar vídeo de até 15 minutos.
+  - [x] Demonstrar deploy da aplicação.
+  - [x] Demonstrar execução do CI/CD.
+  - [x] Demonstrar consumo das APIs.
+  - [x] Demonstrar escalabilidade automática com HPA.
+  - [x] Publicar no YouTube ou Vimeo como público ou não listado.
+  - [x] Inserir o link no README e no documento final.
 
 - [x] Preparar a fonte do [Documento de Entrega da Fase 2](entrega-fase-2.md).
-- [ ] Gerar e revisar o PDF final do portal.
-  - [ ] Inserir link do repositório.
-  - [ ] Inserir o desenho da arquitetura realmente implantada.
-  - [ ] Inserir o link do vídeo.
-  - [ ] Validar visualmente todas as páginas e links.
+- [x] Gerar e revisar o PDF final do portal.
+  - [x] Inserir link do repositório.
+  - [x] Inserir o desenho da arquitetura realmente implantada.
+  - [x] Inserir o link do vídeo.
+  - [x] Validar visualmente todas as páginas e links.
 
 - [x] Confirmar que o repositório privado foi compartilhado com `soat-architecture`.
 
@@ -287,4 +287,4 @@ A arquitetura e as limitações estão em [Arquitetura Proposta - Fase 2](arquit
 - [x] Implementar Terraform para o escopo local.
 - [x] Concluir o fluxo de entrega da imagem do GHCR ao Kubernetes local.
 - [x] Disponibilizar as APIs via Swagger/OpenAPI.
-- [ ] Gravar o vídeo, inserir o link e gerar o PDF final.
+- [x] Gravar o vídeo, inserir o link e gerar o PDF final.

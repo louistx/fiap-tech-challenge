@@ -20,7 +20,7 @@ estoque, testes automatizados, conteinerização, Kubernetes, Terraform e CI/CD.
 | Terraform local | Concluído e validado sobre cluster Docker Desktop existente |
 | CI: build, testes, imagem e promoção da tag | Concluído |
 | CD para o cluster local | Concluído: Terraform e aplicação por Kustomize validados |
-| Vídeo e documento final | Pendente |
+| Vídeo e documento final | [Vídeo publicado](https://youtu.be/EOGnetwuzPE?si=w7ww-NdiRvKyG6Y5) e PDF final gerado e revisado |
 
 No ambiente acadêmico adotado pelo grupo, o GitHub Actions publica a imagem
 validada no GHCR e versiona sua tag no overlay Kubernetes. A aplicação do
@@ -29,8 +29,8 @@ Terraform e Kustomize. Não existe ambiente remoto de deploy. A decisão externa
 do orçamento é recebida por webhook autenticado e
 idempotente. As mudanças de status são persistidas em uma outbox e enviadas por
 SMTP; no ambiente acadêmico, o Mailpit recebe e exibe os e-mails sem exigir
-infraestrutura externa. Os únicos entregáveis materiais pendentes são a
-gravação/publicação do vídeo, a inclusão do link e a geração do PDF final.
+infraestrutura externa. A entrega foi concluída com a publicação do vídeo, a
+inclusão dos links e a geração e revisão do PDF final.
 
 ## Funcionalidades principais
 
@@ -295,9 +295,9 @@ desenvolvedor, pois não existe um ambiente remoto neste trabalho.
 | [Demo executável](docs/demo/fase-2/README.md) | Requests HTTP do fluxo, webhook e Mailpit |
 | [Documento final](docs/entrega-fase-2.md) | Fonte da entrega no portal |
 
-Antes da entrega final ainda é necessário publicar o vídeo, inserir seu link e
-gerar e revisar o PDF. O repositório já está compartilhado com
-`soat-architecture` com permissão de escrita.
+O [vídeo demonstrativo](https://youtu.be/EOGnetwuzPE?si=w7ww-NdiRvKyG6Y5) foi
+publicado e o PDF final foi gerado e revisado para a entrega no portal. O
+repositório está compartilhado com `soat-architecture` com permissão de escrita.
 
 ## Equipe
 

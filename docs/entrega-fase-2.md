@@ -1,6 +1,6 @@
 # Documento de Entrega - Fase 2
 
-> Fonte para o PDF final do portal. Não exportar como entrega definitiva enquanto os campos pendentes e os bloqueadores do checklist não forem resolvidos.
+> Fonte do PDF final da Fase 2, concluído e revisado para envio no portal do aluno.
 
 ## Grupo
 
@@ -20,7 +20,8 @@
 | Documentação | [Índice](README.md) |
 | Arquitetura | [Arquitetura Proposta - Fase 2](arquitetura-fase-2.md) |
 | APIs | Swagger/OpenAPI em runtime, com URLs e cenários documentados no repositório |
-| Vídeo de até 15 minutos | **PENDENTE - inserir URL pública ou não listada do YouTube/Vimeo** |
+| Vídeo de até 15 minutos | [youtu.be/EOGnetwuzPE](https://youtu.be/EOGnetwuzPE?si=w7ww-NdiRvKyG6Y5) |
+| PDF final | Gerado e revisado para envio no portal do aluno |
 | Compartilhamento com `soat-architecture` | Confirmado com permissão de escrita |
 
 ## Desenho resumido da arquitetura
@@ -50,7 +51,7 @@ A descrição completa de componentes, recursos e fluxo de deploy está em [Arqu
 
 A solução mantém o monólito modular da Fase 1 e separa API, aplicação, domínio, contratos e infraestrutura. PostgreSQL é usado para persistência; Docker e Docker Compose suportam o desenvolvimento local. A Fase 2 propõe execução em Kubernetes, escalabilidade via HPA, infraestrutura Terraform e entrega por GitHub Actions.
 
-Em 01/09/2026, o build está sem avisos, com 123 testes unitários, 31 integrações e quatro testes Terraform aprovados. O webhook externo e a notificação por e-mail, incluindo os links assinados de decisão, foram validados no Docker Compose com PostgreSQL e Mailpit. A infraestrutura e o CD foram validados no cluster do Docker Desktop, que é o ambiente de execução deste trabalho acadêmico. O GitHub Actions publica a imagem validada no GHCR e promove sua tag no overlay; Terraform e Kustomize concluem a entrega localmente. Somente vídeo, link e PDF final ainda precisam ser produzidos. O guia local está em [Infraestrutura](../infra/README.md).
+Em 01/09/2026, o build está sem avisos, com 123 testes unitários, 31 integrações e quatro testes Terraform aprovados. O webhook externo e a notificação por e-mail, incluindo os links assinados de decisão, foram validados no Docker Compose com PostgreSQL e Mailpit. A infraestrutura e o CD foram validados no cluster do Docker Desktop, que é o ambiente de execução deste trabalho acadêmico. O GitHub Actions publica a imagem validada no GHCR e promove sua tag no overlay; Terraform e Kustomize concluem a entrega localmente. O vídeo foi publicado, os links foram inseridos e o PDF final foi gerado e revisado. O guia local está em [Infraestrutura](../infra/README.md).
 
 ## Checklist antes de exportar o PDF
 
@@ -60,9 +61,9 @@ Em 01/09/2026, o build está sem avisos, com 123 testes unitários, 31 integraç
 - [x] Kubernetes e HPA foram validados localmente, com escala de 1 para 3 e retorno a 1 réplica.
 - [x] Terraform provisionou recursos e banco no cluster local existente, conforme o escopo documentado.
 - [x] CI/CD executou build, testes e imagem, seguido da entrega no Kubernetes local.
-- [ ] O vídeo foi publicado e o link substituiu o placeholder.
+- [x] O vídeo foi publicado e o link foi incluído no documento final.
 - [x] O repositório foi compartilhado com `soat-architecture`.
 - [x] O desenho final corresponde aos recursos utilizados.
-- [ ] O PDF foi revisado visualmente e todos os links foram testados.
+- [x] O PDF foi revisado visualmente e todos os links foram testados.
 
-Consulte o [Roteiro do Vídeo](roteiro-video-fase-2.md) antes da gravação.
+O [Roteiro do Vídeo](roteiro-video-fase-2.md) foi utilizado para orientar a demonstração final.
